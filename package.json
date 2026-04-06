@@ -1,0 +1,177 @@
+{
+  "name": "traciatto",
+  "displayName": "traciatto",
+  "description": "",
+  "author": "damolinx",
+  "publisher": "damolinx",
+  "license": "Apache-2.0",
+  "version": "0.1.0",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/damolinx/vscode-traciatto"
+  },
+  "bugs": {
+    "url": "https://github.com/damolinx/vscode-traciatto/issues"
+  },
+  "engines": {
+    "vscode": "^1.105.0"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "categories": [
+    "Debuggers",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "debug",
+    "debugger",
+    "rdbg",
+    "ruby"
+  ],
+  "activationEvents": [
+    "onDebugResolve:traciatto",
+    "onLanguage:ruby"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "breakpoints": [
+      {
+        "language": "ruby"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "traciatto",
+        "label": "Traciatto (Ruby)",
+        "languages": [
+          "ruby"
+        ],
+        "configurationAttributes": {
+          "attach": {
+            "required": [
+              "port"
+            ],
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Host running the rdbg DAP server",
+                "default": "127.0.0.1"
+              },
+              "port": {
+                "type": "number",
+                "description": "Port of the rdbg DAP server"
+              },
+              "rdbgPath": {
+                "type": "string",
+                "description": "Optional absolute path to the rdbg"
+              }
+            }
+          },
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "description": "Arguments passed to the Ruby program",
+                "default": [],
+                "items": {
+                  "description": "Single argument",
+                  "type": "string"
+                }
+              },
+              "cwd": {
+                "type": "string",
+                "description": "Working directory",
+                "default": "${workspaceFolder}"
+              },
+              "env": {
+                "type": "object",
+                "description": "Environment variables passed to the Ruby program",
+                "default": {},
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "program": {
+                "type": "string",
+                "description": "Ruby file to debug",
+                "default": "${file}"
+              },
+              "rdbgPath": {
+                "type": "string",
+                "description": "Optional absolute path to the rdbg"
+              },
+              "runtimeExecutable": {
+                "type": "string",
+                "description": "Ruby command to run",
+                "default": "ruby"
+              }
+            }
+          }
+        },
+        "configurationSnippets": [
+          {
+            "label": "Traciatto: Launch current file",
+            "description": "Debug the currently open Ruby file",
+            "body": {
+              "type": "traciatto",
+              "request": "launch",
+              "name": "Debug current file",
+              "program": "^\"\\${file}\""
+            }
+          }
+        ],
+        "initialConfigurations": [
+          {
+            "type": "traciatto",
+            "name": "Debug current file",
+            "request": "launch",
+            "program": "${file}"
+          },
+          {
+            "type": "traciatto",
+            "name": "Attach to rdbg",
+            "request": "attach",
+            "port": 12345
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "npm run ts:check-types && npm run ts:compile",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "test": "node ./out/test/runTest.js",
+    "ts:check-types": "tsc --noEmit",
+    "ts:compile": "tsc -p ./",
+    "ts:watch": "tsc -w -p ./",
+    "vsce-package": "vsce package",
+    "vscode:prepublish": "npm run ts:check-types && node esbuild.mjs --production",
+    "watch": "npm run ts:watch"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@stylistic/eslint-plugin": "^5.4.0",
+    "@types/node": "^22",
+    "@types/vscode": "~1.105",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "@vscode/test-electron": "^2.5.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.30.0",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "sinon": "^21.0.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.35.0"
+  },
+  "overrides": {
+    "yauzl": "^3.2.1"
+  }
+}
