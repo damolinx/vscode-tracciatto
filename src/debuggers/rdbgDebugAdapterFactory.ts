@@ -56,9 +56,7 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
 
   private buildArgs(config: vscode.DebugConfiguration): string[] {
     const { args = [], port, program } = config;
-    // TODO: "--stop-at-load""
     const mergedArgs = ['--open', '--port', (port ?? 0).toString()];
-    // TODO: cache
     const resolvedRuntimeExecutable = this.resolveRuntimeExecutable(config);
     mergedArgs.push('--command', resolvedRuntimeExecutable, '--', program, ...args);
     return mergedArgs;
