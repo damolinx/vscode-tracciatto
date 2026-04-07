@@ -1,17 +1,21 @@
 import * as vscode from 'vscode';
-import { DEBUG_TYPE } from '../constants';
+import { LOCALHOST, RDBG_TYPE } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 
-export function registerTraciattoConfigProvider(context: ExtensionContext): void {
+export function registerRdbgConfigurationProvider(context: ExtensionContext): void {
   context.disposables.push(
     vscode.debug.registerDebugConfigurationProvider(
-      DEBUG_TYPE,
-      new TraciattoConfigProvider(context),
+      RDBG_TYPE,
+      new RdbgConfigurationProvider(context),
     ),
   );
 }
 
-export class TraciattoConfigProvider implements vscode.DebugConfigurationProvider {
+/**
+ * `rdbg` debug configuration provider. This is intended as adapter for existing
+ * configurations as it unlikely users will move for a long time, if ever.
+ */
+export class RdbgConfigurationProvider implements vscode.DebugConfigurationProvider {
   constructor(private readonly context: ExtensionContext) {}
 
   resolveDebugConfiguration(
@@ -19,12 +23,12 @@ export class TraciattoConfigProvider implements vscode.DebugConfigurationProvide
     config: vscode.DebugConfiguration,
     _token?: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.DebugConfiguration> {
-    config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : undefined;
+    config.host = LOCALHOST;
     config.name ??= 'Debug current file (automatic)';
-    config.program ??= '${file}';
-    config.request ??= 'launch';
-    config.runtimeExecutable ??= 'ruby';
-    config.type ??= 'traciatto';
+
+    config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
+    config.program ??= config.script ?? '${file}';
+    config.runtimeExecutable ??= config.command ?? 'ruby';
 
     let verificationMessage: string | undefined;
     switch (config.request) {
@@ -47,9 +51,19 @@ export class TraciattoConfigProvider implements vscode.DebugConfigurationProvide
   }
 
   private verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined {
-    if (!config.port) {
-      return '"port" is required for attach';
+    if (!config.debugPort) {
+      return '"debugPort" is required for attach';
     }
+
+    const parts = config.debugPort.split(':');
+    if (parts.length > 1) {
+      config.host = parts.at(0);
+    }
+    const parsedPort = parseInt(parts.at(-1));
+    if (isNaN(parsedPort)) {
+      return `"debugPort=${config.debugPort}" value format is unsupported`;
+    }
+    config.port = parsedPort;
     return;
   }
 

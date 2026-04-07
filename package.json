@@ -44,7 +44,7 @@
     "debuggers": [
       {
         "type": "traciatto",
-        "label": "Traciatto (Ruby)",
+        "label": "Ruby (traciatto)",
         "languages": [
           "ruby"
         ],
@@ -65,7 +65,7 @@
               },
               "rdbgPath": {
                 "type": "string",
-                "description": "Optional absolute path to the rdbg"
+                "description": "Optional absolute path to dbg"
               }
             }
           },
@@ -103,7 +103,7 @@
               },
               "rdbgPath": {
                 "type": "string",
-                "description": "Optional absolute path to the rdbg"
+                "description": "Optional absolute path to dbg"
               },
               "runtimeExecutable": {
                 "type": "string",
@@ -139,6 +139,66 @@
             "port": 12345
           }
         ]
+      },
+      {
+        "type": "rdbg",
+        "label": "Ruby (rdbg)",
+        "languages": [
+          "ruby"
+        ],
+        "configurationAttributes": {
+          "attach": {
+            "properties": {
+              "rdbgPath": {
+                "type": "string",
+                "description": "Optional absolute path to dbg"
+              },
+              "debugPort": {
+                "type": "string",
+                "description": "Port of the rdbg DAP server. [host:port] format is supported"
+              }
+            }
+          },
+          "launch": {
+            "required": [
+              "script"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "description": "Arguments passed to the Ruby program",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "command": {
+                "type": "string",
+                "description": "Command name (ruby, rake, bin/rails, bundle exec ruby, etc)",
+                "default": "ruby"
+              },
+              "cwd": {
+                "type": "string",
+                "description": "Working directory",
+                "default": "${workspaceFolder}"
+              },
+              "env": {
+                "type": "object",
+                "description": "Environment variables passed to the Ruby program",
+                "default": {}
+              },
+              "rdbgPath": {
+                "type": "string",
+                "description": "Optional absolute path to dbg"
+              },
+              "script": {
+                "type": "string",
+                "description": "Absolute path to a Ruby file.",
+                "default": "${file}"
+              }
+            }
+          }
+        }
       }
     ]
   },

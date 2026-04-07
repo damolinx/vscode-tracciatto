@@ -2,17 +2,12 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import { join, isAbsolute } from 'path';
 import * as readline from 'readline';
-import { DEBUG_TYPE } from '../constants';
+import { LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 
-const LOCALHOST = '127.0.0.1';
-
-export function registerRdbgDebugAdapterFactory(context: ExtensionContext): void {
+export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type: string): void {
   context.disposables.push(
-    vscode.debug.registerDebugAdapterDescriptorFactory(
-      DEBUG_TYPE,
-      new RdbgDebugAdapterFactory(context),
-    ),
+    vscode.debug.registerDebugAdapterDescriptorFactory(type, new RdbgDebugAdapterFactory(context)),
   );
 }
 
@@ -37,7 +32,7 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   private async createAttachAdapter(
     config: vscode.DebugConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor> {
-    const { host = LOCALHOST, port } = config;
+    const { host, port } = config;
     this.context.log.info(`Attaching to ${host}:${port}`);
     return new vscode.DebugAdapterServer(port, host);
   }
@@ -50,12 +45,11 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     const cmd = rdbgPath ? join(rdbgPath, 'rdbg') : 'rdbg';
     const env = { ...process.env, ...config.env };
 
-    this.context.log.info(`Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: ${cwd}` : ''}`);
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });
-    this.context.log.info(`  pid: ${child.pid}`);
+    this.context.log.info(`Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: '${cwd}'` : ''} pid: ${child.pid}`);
 
     const rdbgPort = await this.waitForRdbgPort(child);
-    this.context.log.info(`DebugFactory: Launched rdbg at ${LOCALHOST}:${rdbgPort}`);
+    this.context.log.info(`Launched rdbg at ${LOCALHOST}:${rdbgPort}`);
 
     return new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
   }
