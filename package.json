@@ -50,22 +50,41 @@
         ],
         "configurationAttributes": {
           "attach": {
-            "required": [
-              "port"
+            "type": "object",
+            "oneOf": [
+              {
+                "required": [
+                  "port"
+                ],
+                "properties": {
+                  "port": {
+                    "type": "string",
+                    "description": "[host:]port path to the rdbg DAP server."
+                  },
+                  "socket": {
+                    "not": {}
+                  }
+                }
+              },
+              {
+                "required": [
+                  "socket"
+                ],
+                "properties": {
+                  "socket": {
+                    "type": "string",
+                    "description": "Socket path to the rdbg DAP server."
+                  },
+                  "port": {
+                    "not": {}
+                  }
+                }
+              }
             ],
             "properties": {
-              "host": {
-                "type": "string",
-                "description": "Host running the rdbg DAP server",
-                "default": "127.0.0.1"
-              },
-              "port": {
-                "type": "number",
-                "description": "Port of the rdbg DAP server"
-              },
               "rdbgPath": {
                 "type": "string",
-                "description": "Optional absolute path to dbg"
+                "description": "Optional absolute path to rdbg."
               }
             }
           },
@@ -149,13 +168,13 @@
         "configurationAttributes": {
           "attach": {
             "properties": {
+              "debugPort": {
+                "type": "string",
+                "description": "[host:]port or socket path to the rdbg DAP server."
+              },
               "rdbgPath": {
                 "type": "string",
                 "description": "Optional absolute path to dbg"
-              },
-              "debugPort": {
-                "type": "string",
-                "description": "Port of the rdbg DAP server. [host:port] format is supported"
               }
             }
           },

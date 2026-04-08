@@ -12,7 +12,7 @@ export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type:
 }
 
 export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
-  constructor(private readonly context: ExtensionContext) { }
+  constructor(private readonly context: ExtensionContext) {}
 
   async createDebugAdapterDescriptor(
     session: vscode.DebugSession,
@@ -32,8 +32,13 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   private async createAttachAdapter(
     config: vscode.DebugConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor> {
+    if (config.socket) {
+      this.context.log.info(`Attaching via socket: ${config.socket}`);
+      return new vscode.DebugAdapterNamedPipeServer(config.socket);
+    }
+
     const { host, port } = config;
-    this.context.log.info(`Attaching to ${host}:${port}`);
+    this.context.log.info(`Attaching via TCP: ${host}:${port}`);
     return new vscode.DebugAdapterServer(port, host);
   }
 
@@ -46,7 +51,9 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     const env = { ...process.env, ...config.env };
 
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });
-    this.context.log.info(`Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: '${cwd}'` : ''} pid: ${child.pid}`);
+    this.context.log.info(
+      `Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: '${cwd}'` : ''} pid: ${child.pid}`,
+    );
 
     const rdbgPort = await this.waitForRdbgPort(child);
     this.context.log.info(`Launched rdbg at ${LOCALHOST}:${rdbgPort}`);

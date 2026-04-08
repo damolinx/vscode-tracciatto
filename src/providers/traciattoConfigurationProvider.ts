@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
-import { LOCALHOST, TRACIATTO_TYPE } from '../constants';
+import { TRACIATTO_TYPE } from '../constants';
 import { ExtensionContext } from '../extensionContext';
+import { DebugConfigurationProvider } from './debugConfigurationProvider';
 
 export function registerTraciattoConfigurationProvider(context: ExtensionContext): void {
   context.disposables.push(
     vscode.debug.registerDebugConfigurationProvider(
       TRACIATTO_TYPE,
-      new TraciattoConfigurationProvider(context),
+      new TraciattoConfigurationProvider(context, TRACIATTO_TYPE),
     ),
   );
 }
@@ -14,52 +15,28 @@ export function registerTraciattoConfigurationProvider(context: ExtensionContext
 /**
  * `traciatto` debug configuration provider.
  */
-export class TraciattoConfigurationProvider implements vscode.DebugConfigurationProvider {
-  constructor(private readonly context: ExtensionContext) {}
+export class TraciattoConfigurationProvider extends DebugConfigurationProvider {
+  protected override verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined {
+    const hasPort = !!config.port;
+    const hasSocket = !!config.socket;
 
-  resolveDebugConfiguration(
-    folder: vscode.WorkspaceFolder | undefined,
-    config: vscode.DebugConfiguration,
-    _token?: vscode.CancellationToken,
-  ): vscode.ProviderResult<vscode.DebugConfiguration> {
-    config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
-    config.name ??= 'Debug current file (automatic)';
-    config.program ??= '${file}';
-    config.runtimeExecutable ??= 'ruby';
-    config.type ??= 'traciatto';
-
-    let verificationMessage: string | undefined;
-    switch (config.request) {
-      case 'attach':
-        verificationMessage = this.verifyAttachConfig(config);
-        break;
-
-      case 'launch':
-        verificationMessage = this.verifyLaunchConfig(config);
-        break;
+    if (hasPort && hasSocket) {
+      return '"port" and "socket" cannot both be defined to attach';
     }
 
-    if (verificationMessage) {
-      this.context.log.error(`Traciatto: ${verificationMessage}`);
-      vscode.window.showErrorMessage(`${verificationMessage}:${config.name}`);
-      return;
+    if (!hasPort && !hasSocket) {
+      return '"port" or "socket" must be defined to attach';
     }
 
-    return config;
-  }
-
-  private verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined {
-    if (!config.port) {
-      return '"port" is required for attach';
+    if (hasPort) {
+      const parsed = this.parseHostPort(config.port);
+      if (!parsed) {
+        return '"port" has an unexpected format';
+      }
+      config.host = parsed.host;
+      config.port = parsed.port;
     }
-    config.host ??= LOCALHOST;
-    return;
-  }
 
-  private verifyLaunchConfig(config: vscode.DebugConfiguration): string | undefined {
-    if (!config.program) {
-      return '"program" is required for launch';
-    }
     return;
   }
 }
