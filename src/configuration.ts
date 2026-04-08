@@ -39,4 +39,14 @@ export class Configuration {
   public resolveValue<T>(section: string, defaultValue?: T): T | undefined {
     return this.getConfiguration().get(section, defaultValue);
   }
+
+  /**
+   * Configured Ruby executable.
+   */
+  public getRuntimeExecutable(
+    scope: vscode.ConfigurationScope | undefined,
+    defaultValue = 'ruby',
+  ): string {
+    return this.getValue<string>(scope, 'runtimeExecutable', defaultValue) ?? defaultValue;
+  }
 }

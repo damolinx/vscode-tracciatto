@@ -36,6 +36,23 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "traciatto.debugFile",
+        "title": "Debug Active Editor",
+        "category": "Traciatto",
+        "enablement": "editorLangId == ruby"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "traciatto.runtimeExecutable": {
+          "type": "string",
+          "default": "ruby",
+          "description": "Path to the Ruby executable used for debugging."
+        }
+      }
+    },
     "breakpoints": [
       {
         "language": "ruby"

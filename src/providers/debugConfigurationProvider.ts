@@ -2,11 +2,14 @@ import * as vscode from 'vscode';
 import { LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 
+/**
+ * Base debug configuration provider.
+ */
 export abstract class DebugConfigurationProvider implements vscode.DebugConfigurationProvider {
   constructor(
     protected readonly context: ExtensionContext,
     protected readonly type: string,
-  ) {}
+  ) { }
 
   resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
@@ -16,7 +19,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
     config.program ??= '${file}';
     config.name ??= 'Debug current file';
-    config.runtimeExecutable ??= 'ruby';
+    config.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
 
     let verificationMessage: string | undefined;
     switch (config.request) {
