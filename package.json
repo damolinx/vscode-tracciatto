@@ -68,40 +68,18 @@
         "configurationAttributes": {
           "attach": {
             "type": "object",
-            "oneOf": [
-              {
-                "required": [
-                  "port"
-                ],
-                "properties": {
-                  "port": {
-                    "type": "string",
-                    "description": "[host:]port path to the rdbg DAP server."
-                  },
-                  "socket": {
-                    "not": {}
-                  }
-                }
-              },
-              {
-                "required": [
-                  "socket"
-                ],
-                "properties": {
-                  "socket": {
-                    "type": "string",
-                    "description": "Socket path to the rdbg DAP server."
-                  },
-                  "port": {
-                    "not": {}
-                  }
-                }
-              }
-            ],
             "properties": {
+              "port": {
+                "type": "string",
+                "description": "[host:]port path to the rdbg DAP server."
+              },
               "rdbgPath": {
                 "type": "string",
                 "description": "Optional absolute path to rdbg."
+              },
+              "socket": {
+                "type": "string",
+                "description": "Socket path to the rdbg DAP server."
               }
             }
           },
