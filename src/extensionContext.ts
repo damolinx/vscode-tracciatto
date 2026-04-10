@@ -7,7 +7,7 @@ export class ExtensionContext {
 
   constructor(public readonly extensionContext: vscode.ExtensionContext) {
     this.configuration = new Configuration();
-    this.log = vscode.window.createOutputChannel('Traciatto', { log: true });
+    this.log = vscode.window.createOutputChannel('Tracciatto', { log: true });
     this.disposables.push(this.log);
   }
 

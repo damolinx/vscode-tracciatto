@@ -4,7 +4,7 @@ import { RDBG_TYPE, TRACIATTO_TYPE } from './constants';
 import { registerRdbgDebugAdapterFactory } from './debuggers/rdbgDebugAdapterFactory';
 import { ExtensionContext } from './extensionContext';
 import { registerRdbgConfigurationProvider } from './providers/rdbgConfigurationProvider';
-import { registerTraciattoConfigurationProvider } from './providers/traciattoConfigurationProvider';
+import { registerTracciattoConfigurationProvider } from './providers/tracciattoConfigurationProvider';
 
 export function activate(extensionContext: vscode.ExtensionContext) {
   const context = new ExtensionContext(extensionContext);
@@ -14,10 +14,12 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     commands: { registerTextEditorCommand: tcr },
   } = vscode;
   context.disposables.push(
-    tcr('traciatto.debugFile', (textEditor: vscode.TextEditor) => debugEditor(context, textEditor)),
+    tcr('tracciatto.debugFile', (textEditor: vscode.TextEditor) =>
+      debugEditor(context, textEditor),
+    ),
   );
 
-  registerTraciattoConfigurationProvider(context);
+  registerTracciattoConfigurationProvider(context);
   registerRdbgDebugAdapterFactory(context, TRACIATTO_TYPE);
   context.log.info(`Enabled '${TRACIATTO_TYPE}' debug-type`);
 

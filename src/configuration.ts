@@ -3,7 +3,7 @@ import { EXTENSION_PREFIX } from './constants';
 
 export class Configuration {
   /**
-   * Get a {@link EXTENSION_PREFIX `traciatto`} configuration object scoped by {@link scope}.
+   * Get a {@link EXTENSION_PREFIX `tracciatto`} configuration object scoped by {@link scope}.
    */
   private getConfiguration(scope?: vscode.ConfigurationScope): vscode.WorkspaceConfiguration {
     return vscode.workspace.getConfiguration(EXTENSION_PREFIX, scope);
@@ -62,7 +62,7 @@ export class Configuration {
    */
   public getSkipPathsFileName(
     scope: vscode.ConfigurationScope | undefined,
-    defaultValue = '.traciatto-skip-paths',
+    defaultValue = '.tracciatto-skip-paths',
   ): string {
     return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
   }

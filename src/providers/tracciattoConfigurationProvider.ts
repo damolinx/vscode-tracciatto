@@ -3,19 +3,19 @@ import { TRACIATTO_TYPE } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { DebugConfigurationProvider } from './debugConfigurationProvider';
 
-export function registerTraciattoConfigurationProvider(context: ExtensionContext): void {
+export function registerTracciattoConfigurationProvider(context: ExtensionContext): void {
   context.disposables.push(
     vscode.debug.registerDebugConfigurationProvider(
       TRACIATTO_TYPE,
-      new TraciattoConfigurationProvider(context, TRACIATTO_TYPE),
+      new TracciattoConfigurationProvider(context, TRACIATTO_TYPE),
     ),
   );
 }
 
 /**
- * `traciatto` debug configuration provider.
+ * `tracciatto` debug configuration provider.
  */
-export class TraciattoConfigurationProvider extends DebugConfigurationProvider {
+export class TracciattoConfigurationProvider extends DebugConfigurationProvider {
   protected override verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined {
     const hasPort = !!config.port;
     const hasSocket = !!config.socket;

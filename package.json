@@ -1,18 +1,18 @@
 {
-  "name": "traciatto",
-  "displayName": "Traciatto",
+  "name": "tracciatto",
+  "displayName": "Tracciatto",
   "description": "",
   "author": "damolinx",
   "publisher": "damolinx",
   "license": "Apache-2.0",
-  "version": "0.0.10",
+  "version": "0.0.9",
   "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/damolinx/vscode-traciatto"
+    "url": "https://github.com/damolinx/vscode-tracciatto"
   },
   "bugs": {
-    "url": "https://github.com/damolinx/vscode-traciatto/issues"
+    "url": "https://github.com/damolinx/vscode-tracciatto/issues"
   },
   "engines": {
     "vscode": "^1.105.0"
@@ -31,22 +31,22 @@
     "ruby"
   ],
   "activationEvents": [
-    "onDebugResolve:traciatto",
+    "onDebugResolve:tracciatto",
     "onLanguage:ruby"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "traciatto.debugFile",
+        "command": "tracciatto.debugFile",
         "title": "Debug Active Editor",
-        "category": "Traciatto",
+        "category": "Tracciatto",
         "enablement": "editorLangId == ruby"
       }
     ],
     "configuration": {
       "properties": {
-        "traciatto.debug.skipPaths": {
+        "tracciatto.debug.skipPaths": {
           "type": "array",
           "items": {
             "type": "string"
@@ -54,12 +54,12 @@
           "default": [],
           "description": "Paths to skip when stepping in the Ruby debugger. These are merged launch config, if any."
         },
-        "traciatto.debug.skipPathsFileName": {
+        "tracciatto.debug.skipPathsFileName": {
           "type": "string",
-          "default": ".traciatto-skip-paths",
+          "default": ".tracciatto-skip-paths",
           "description": "Filename containing `RUBY_DEBUG_SKIP_PATH` skip paths. Each line represents a pattern; lines starting with '#' are ignored."
         },
-        "traciatto.runtimeExecutable": {
+        "tracciatto.runtimeExecutable": {
           "type": "string",
           "default": "ruby",
           "description": "Path to the Ruby executable used for debugging."
@@ -73,8 +73,8 @@
     ],
     "debuggers": [
       {
-        "type": "traciatto",
-        "label": "Ruby (traciatto)",
+        "type": "tracciatto",
+        "label": "Ruby (tracciatto)",
         "languages": [
           "ruby"
         ],
@@ -95,7 +95,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Paths to skip when stepping. These will be merged with 'traciatto.debug.skipPaths' setting."
+                "description": "Paths to skip when stepping. These will be merged with 'tracciatto.debug.skipPaths' setting."
               },
               "socket": {
                 "type": "string",
@@ -149,17 +149,17 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Paths to skip when stepping. These will be merged with 'traciatto.debug.skipPaths' setting."
+                "description": "Paths to skip when stepping. These will be merged with 'tracciatto.debug.skipPaths' setting."
               }
             }
           }
         },
         "configurationSnippets": [
           {
-            "label": "Traciatto: Launch current file",
+            "label": "Tracciatto: Launch current file",
             "description": "Debug the currently open Ruby file",
             "body": {
-              "type": "traciatto",
+              "type": "tracciatto",
               "request": "launch",
               "name": "Debug current file",
               "program": "^\"\\${file}\""
@@ -168,13 +168,13 @@
         ],
         "initialConfigurations": [
           {
-            "type": "traciatto",
+            "type": "tracciatto",
             "name": "Debug current file",
             "request": "launch",
             "program": "${file}"
           },
           {
-            "type": "traciatto",
+            "type": "tracciatto",
             "name": "Attach to rdbg",
             "request": "attach",
             "port": 12345
