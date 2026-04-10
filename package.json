@@ -46,6 +46,19 @@
     ],
     "configuration": {
       "properties": {
+        "traciatto.debug.skipPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Paths to skip when stepping in the Ruby debugger. These are merged launch config, if any."
+        },
+        "traciatto.debug.skipPathsFileName": {
+          "type": "string",
+          "default": ".traciatto-skip-paths",
+          "description": "Filename containing `RUBY_DEBUG_SKIP_PATH` skip paths. Each line represents a pattern; lines starting with '#' are ignored."
+        },
         "traciatto.runtimeExecutable": {
           "type": "string",
           "default": "ruby",
@@ -76,6 +89,13 @@
               "rdbgPath": {
                 "type": "string",
                 "description": "Optional absolute path to rdbg."
+              },
+              "skipPaths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Paths to skip when stepping. These will be merged with 'traciatto.debug.skipPaths' setting."
               },
               "socket": {
                 "type": "string",
@@ -123,6 +143,13 @@
                 "type": "string",
                 "description": "Ruby command to run",
                 "default": "ruby"
+              },
+              "skipPaths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Paths to skip when stepping. These will be merged with 'traciatto.debug.skipPaths' setting."
               }
             }
           }

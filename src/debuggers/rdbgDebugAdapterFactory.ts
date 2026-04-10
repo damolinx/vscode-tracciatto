@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
+import { existsSync } from 'fs';
 import { join, isAbsolute } from 'path';
 import * as readline from 'readline';
 import { LOCALHOST } from '../constants';
@@ -18,14 +19,16 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     session: vscode.DebugSession,
     _executable: vscode.DebugAdapterExecutable | undefined,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
-    const { configuration } = session;
-    switch (configuration.request) {
-      case 'attach':
-        return this.createAttachAdapter(configuration);
-      case 'launch':
+    switch (session.configuration.request) {
+      case 'attach': {
+        return this.createAttachAdapter(session.configuration);
+      }
+      case 'launch': {
+        const configuration = await this.normalizeConfig(session);
         return this.createLaunchAdapter(configuration);
+      }
       default:
-        throw new Error(`Unsupported debug configuration type: ${configuration.request}`);
+        throw new Error(`Unsupported debug configuration type: ${session.configuration.request}`);
     }
   }
 
@@ -49,6 +52,9 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     const { cwd, rdbgPath } = config;
     const cmd = rdbgPath ? join(rdbgPath, 'rdbg') : 'rdbg';
     const env = { ...process.env, ...config.env };
+    if (config.skipPaths?.length) {
+      env.RUBY_DEBUG_SKIP_PATH = config.skipPaths.join(';');
+    }
 
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });
     this.context.log.info(
@@ -64,9 +70,29 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   private buildArgs(config: vscode.DebugConfiguration): string[] {
     const { args = [], port, program } = config;
     const mergedArgs = ['--open', '--port', (port ?? 0).toString()];
+
     const resolvedRuntimeExecutable = this.resolveRuntimeExecutable(config);
     mergedArgs.push('--command', resolvedRuntimeExecutable, '--', program, ...args);
+
     return mergedArgs;
+  }
+
+  private async normalizeConfig({
+    configuration,
+    workspaceFolder,
+  }: vscode.DebugSession): Promise<vscode.DebugConfiguration> {
+    const skipPathsFromSettings = this.context.configuration.getSkipPaths(workspaceFolder);
+    const skipPathsFromFile = await this.readSkipPathsFile(workspaceFolder);
+    const skipPathsFromConfig = Array.isArray(configuration.skipPaths)
+      ? configuration.skipPaths
+      : [];
+    const mergedSkipPaths = [
+      ...new Set([...skipPathsFromSettings, ...skipPathsFromFile, ...skipPathsFromConfig]),
+    ];
+    return {
+      ...configuration,
+      skipPaths: mergedSkipPaths,
+    };
   }
 
   private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string {
@@ -88,6 +114,30 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     throw new Error(
       `Unable to resolve runtime executable "${candidate}". Set "runtimeExecutable" to a full path in your debug configuration.`,
     );
+  }
+
+  private async readSkipPathsFile(workspaceFolder?: vscode.WorkspaceFolder): Promise<string[]> {
+    const candidate = this.context.configuration.getSkipPathsFileName(workspaceFolder);
+    const skipPathsFileUri =
+      isAbsolute(candidate) || !workspaceFolder
+        ? vscode.Uri.file(candidate)
+        : vscode.Uri.joinPath(workspaceFolder.uri, candidate);
+
+    const exists = existsSync(skipPathsFileUri.fsPath);
+    this.context.log.debug(
+      `Resolved skipPathFile Path: '${vscode.workspace.asRelativePath(skipPathsFileUri)}' Exists:${exists}`,
+    );
+
+    if (exists) {
+      const data = await vscode.workspace.fs.readFile(skipPathsFileUri);
+      return data
+        .toString()
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0 && !line.startsWith('#'));
+    }
+
+    return [];
   }
 
   private async waitForRdbgPort(child: cp.ChildProcessWithoutNullStreams) {

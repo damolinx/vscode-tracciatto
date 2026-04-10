@@ -41,12 +41,29 @@ export class Configuration {
   }
 
   /**
-   * Configured Ruby executable.
+   * Get Ruby executable name/path.
    */
   public getRuntimeExecutable(
     scope: vscode.ConfigurationScope | undefined,
     defaultValue = 'ruby',
   ): string {
     return this.getValue<string>(scope, 'runtimeExecutable', defaultValue) ?? defaultValue;
+  }
+
+  /**
+   * Get skip paths for rdbg stepping.
+   */
+  public getSkipPaths(scope: vscode.ConfigurationScope | undefined): string[] {
+    return this.getValue<string[]>(scope, 'debug.skipPaths', []) ?? [];
+  }
+
+  /**
+   * Get the filename used for project-level skip paths.
+   */
+  public getSkipPathsFileName(
+    scope: vscode.ConfigurationScope | undefined,
+    defaultValue = '.traciatto-skip-paths',
+  ): string {
+    return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
   }
 }
