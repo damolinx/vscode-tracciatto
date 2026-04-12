@@ -1,4 +1,4 @@
 # Changelog
 
-## 0.0.9
-- Experimental version
+## 0.1.0
+- Initial release.
