@@ -10,9 +10,17 @@ Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter
 
 ## Getting Started
 
+Tracciatto integrates with `rdbg` to support the two main debugging workflows:
+
+- **Launch**: VS Code starts Ruby under the debugger  
+- **Attach**: VS Code connects to an already running Ruby process started with `rdbg`
+
 Press F5 on any `.rb` file to automatically create debug configurations in `.vscode/launch.json`
 
 ### Launching a debug session
+
+Use this mode when you want VS Code to start Ruby for you.
+
 
 1. Add a `launch` configuration to `.vscode/launch.json`
 
@@ -21,6 +29,8 @@ Press F5 on any `.rb` file to automatically create debug configurations in `.vsc
       "type": "tracciatto",
       "request": "launch",
       "name": "Debug current file",
+      // Update this to point to your project's entrypoint script 
+      // as the current ${file} will change often.
       "program": "${file}"
     }
     ```
@@ -29,18 +39,43 @@ Press F5 on any `.rb` file to automatically create debug configurations in `.vsc
 
 ### Attaching to a running process
 
-1. Add a `attach` configuration to `.vscode/launch.json`:
+Use this mode when Ruby is already running and you want the debugger to connect to it.
 
+1. Start your Ruby program with `rdbg` in attach mode.
+  
+    **Example: Port mode**
+    ```sh
+    rdbg --open --port 12345 -- your_script.rb
+    ```
+
+    **Example: Socket mode**
+    ```sh
+    rdbg --open --sock-path /tmp/rdbg.sock -- your_script.rb
+    ```
+
+1. Add an `attach` configuration to `.vscode/launch.json`:
+
+    **Example: Port mode**
     ```jsonc
     {
       "type": "tracciatto",
       "request": "attach",
-      "name": "Attach to Ruby process",
+      "name": "Attach to Ruby (port)",
       "port": "12345"
     }
     ```
 
-2. Launch the **Attach to Ruby process** debug configuration after starting your Ruby process in debug mode with `rdbg`.
+    **Example: Port mode**
+    ```jsonc
+    {
+      "type": "tracciatto",
+      "request": "attach",
+      "name": "Attach to Ruby (socket)",
+      "socket": "/tmp/rdbg.sock"
+    }
+    ```
+
+2. Run the **Attach to Ruby** debug configuration.
 
 [↑ Back to top](#table-of-contents)
 
