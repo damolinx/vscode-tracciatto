@@ -56,7 +56,7 @@
         },
         "tracciatto.debug.skipPathsFileName": {
           "type": "string",
-          "default": ".tracciatto-skip-paths",
+          "default": ".tracciatto-filter",
           "description": "Filename containing `RUBY_DEBUG_SKIP_PATH` skip paths. Each line represents a pattern; lines starting with '#' are ignored."
         },
         "tracciatto.runtimeExecutable": {
