@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import { TRACIATTO_TYPE } from '../constants';
+import { TRACCIATTO_TYPE } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { DebugConfigurationProvider } from './debugConfigurationProvider';
 
 export function registerTracciattoConfigurationProvider(context: ExtensionContext): void {
   context.disposables.push(
     vscode.debug.registerDebugConfigurationProvider(
-      TRACIATTO_TYPE,
-      new TracciattoConfigurationProvider(context, TRACIATTO_TYPE),
+      TRACCIATTO_TYPE,
+      new TracciattoConfigurationProvider(context, TRACCIATTO_TYPE),
     ),
   );
 }

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { TRACIATTO_TYPE } from '../constants';
+import { TRACCIATTO_TYPE } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 
 /**
@@ -23,7 +23,7 @@ function debugFile(context: ExtensionContext, uri: vscode.Uri): void {
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
   const program = uri.fsPath;
   const config: vscode.DebugConfiguration = {
-    type: TRACIATTO_TYPE,
+    type: TRACCIATTO_TYPE,
     request: 'launch',
     name: `Debug ${path.basename(uri.fsPath)}`,
     program,
