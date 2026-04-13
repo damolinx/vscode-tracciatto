@@ -1,11 +1,12 @@
 # Tracciatto
 
-Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter. 
+Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter.
 
 ## Table of Contents
 - [Getting Started](#getting-started)
-  - [ Launching a debug session](#launching-a-debug-session)
+  - [Launching a debug session](#launching-a-debug-session)
   - [Attaching to a running process](#attaching-to-a-running-process)
+  - [Compatibility with `rdbg` (vscode‑rdbg)](#compatibility-with-rdbg-vscoderdbg)
 - [Configuration](#configuration)
   - [Skip frames](#skip-frames)
 - [Commands](#commands)
@@ -15,7 +16,7 @@ Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter
 
 Tracciatto integrates with `rdbg` to support the two main debugging workflows:
 
-- **Launch**: VS Code starts Ruby under the debugger  
+- **Launch**: VS Code starts Ruby under the debugger
 - **Attach**: VS Code connects to an already running Ruby process started with `rdbg`
 
 Press F5 on any `.rb` file to automatically create debug configurations in `.vscode/launch.json`
@@ -45,7 +46,7 @@ Use this mode when you want VS Code to start Ruby for you.
 Use this mode when Ruby is already running and you want the debugger to connect to it.
 
 1. Start your Ruby program with `rdbg` in attach mode.
-  
+
     **Example: Port mode**
     ```sh
     rdbg --open --port 12345 -- your_script.rb
@@ -79,6 +80,20 @@ Use this mode when Ruby is already running and you want the debugger to connect 
     ```
 
 2. Run the **Attach to Ruby** debug configuration.
+
+[↑ Back to top](#table-of-contents)
+
+#### Compatibility with `rdbg` (vscode‑rdbg)
+This extension is compatible with the `rdbg` debug type provided by the
+**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but accepts a a subset of  configuration properties:
+- `script` (required for launch)
+- `args`, `command`, `cwd`, `env`
+- `debugPort` (attach)
+- `rdbgPath` (optional override for the `rdbg` executable)
+
+To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** when the
+official `vscode‑rdbg` extension is installed. When it is not present, this
+extension registers a `rdbg` configuration provider and debug adapter.
 
 [↑ Back to top](#table-of-contents)
 
@@ -121,12 +136,12 @@ A workspace‑level file containing one pattern per line, with lines beginning w
 ##### Skip‑path pattern format
 
 Skip‑paths use the same glob‑style matching rules as `rdbg`, evaluated via `File.fnmatch?` against **absolute file paths**. Supported constructs:
-- `*`: match within a single path segment  
-- `**`: match across directory boundaries  
-- `?`: match a single character  
-- `[abc]`: character classes 
+- `*`: match within a single path segment
+- `**`: match across directory boundaries
+- `?`: match a single character
+- `[abc]`: character classes
 
-Comments (lines starting with `#`) and blank lines are allowed. 
+Comments (lines starting with `#`) and blank lines are allowed.
 
 ##### Examples
 
