@@ -1,7 +1,7 @@
 {
   "name": "tracciatto",
   "displayName": "Tracciatto",
-  "description": "",
+  "description": "A Ruby debugger built on rdbg, providing an integrated debugging experience with configurable behavior.",
   "author": "damolinx",
   "publisher": "damolinx",
   "license": "Apache-2.0",
