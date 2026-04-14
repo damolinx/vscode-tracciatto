@@ -14,7 +14,7 @@ export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type:
 }
 
 export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
-  constructor(private readonly context: ExtensionContext) {}
+  constructor(private readonly context: ExtensionContext) { }
 
   async createDebugAdapterDescriptor(
     session: vscode.DebugSession,
@@ -107,6 +107,10 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
 
   private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string {
     const candidate = config.runtimeExecutable;
+    if (typeof candidate !== "string" || !candidate) {
+      throw new Error(`Invalid "runtimeExecutable" value: ${candidate}`);
+    }
+
     if (isAbsolute(candidate)) {
       return candidate;
     }
