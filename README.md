@@ -85,7 +85,7 @@ Use this mode when Ruby is already running and you want the debugger to connect 
 
 #### Compatibility with rdbg (vscode‑rdbg)
 This extension is compatible with the `rdbg` debug type provided by the
-**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but accepts a a subset of configuration properties:
+**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties:
 - `script` (required for launch)
 - `args`, `command`, `cwd`, `env`
 - `debugPort` (attach)
@@ -111,7 +111,7 @@ Tracciatto supports the following user and workspace settings:
 
 ### Skip frames
 
-RDBG supports defining *skip‑paths*-glob patterns that tell the debugger which files it should not step into. This affects not only step-by-step debugging but also specific frames the debugger shows as part of the current callstack. For complex projects this is invaluable as there might be significant portions of the stack you do not care about at a given point in time, e.g. gem code.
+Rdbg supports *skip‑paths*-glob patterns that tell the debugger which files it should not step into. This affects not only step-by-step debugging but also specific frames the debugger shows as part of the current callstack. For complex projects this is invaluable as there might be significant portions of the stack you do not care about at a given point in time, e.g. gem code.
 
 Tracciatto aligns with this model by allowing skip‑paths to come from multiple sources. Patterns are merged and passed to `rdbg` via the `RUBY_DEBUG_SKIP_PATH` environment variable. There are three possible sources for skip‑paths:
 
