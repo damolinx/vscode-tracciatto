@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import { Configuration } from './configuration';
 
 export class ExtensionContext {
-  public readonly log: vscode.LogOutputChannel;
   public readonly configuration: Configuration;
+  public readonly log: vscode.LogOutputChannel;
 
   constructor(public readonly extensionContext: vscode.ExtensionContext) {
     this.configuration = new Configuration();
