@@ -85,14 +85,14 @@ Use this mode when Ruby is already running and you want the debugger to connect 
 
 #### Compatibility with `rdbg` (vscode‑rdbg)
 This extension is compatible with the `rdbg` debug type provided by the
-**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but accepts a a subset of  configuration properties:
+**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but accepts a a subset of configuration properties:
 - `script` (required for launch)
 - `args`, `command`, `cwd`, `env`
 - `debugPort` (attach)
 - `rdbgPath` (optional override for the `rdbg` executable)
 
-To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** when the
-official `vscode‑rdbg` extension is installed. When it is not present, this
+To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** whenever the
+official `vscode‑rdbg` extension is installed and active. Otherwise this
 extension registers a `rdbg` configuration provider and debug adapter.
 
 [↑ Back to top](#table-of-contents)
@@ -181,7 +181,7 @@ This layered approach provides maximum flexibility: global preferences, project�
 
 #### Why multiple sources?
 
-Different users and teams have different needs.  You may always want to skip stepping into Rails internals across all projects, while each workspace may define additional project‑specific patterns. Launch configurations can then add temporary overrides without modifying shared files.
+Different users and teams have different needs. You may always want to skip stepping into Rails internals across all projects, while each workspace may define additional project‑specific patterns. Launch configurations can then add temporary overrides without modifying shared files.
 
 [↑ Back to top](#table-of-contents)
 
