@@ -135,7 +135,9 @@ A workspace‑level file containing one pattern per line, with lines beginning w
 
 ##### Skip‑path pattern format
 
-Skip‑paths use the same glob‑style matching rules as `rdbg`, evaluated via `File.fnmatch?` against **absolute file paths**. Supported constructs:
+Skip‑paths use the same glob‑style matching rules as `rdbg`. These are evaluated against **absolute** file paths.
+
+ Supported constructs:
 - `*`: match within a single path segment
 - `**`: match across directory boundaries
 - `?`: match a single character
