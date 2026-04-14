@@ -5,6 +5,7 @@ import { join, isAbsolute } from 'path';
 import * as readline from 'readline';
 import { LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
+import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from './rdbgDebugConfiguration';
 
 export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type: string): void {
   context.disposables.push(
@@ -21,10 +22,13 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
     switch (session.configuration.request) {
       case 'attach': {
-        return this.createAttachAdapter(session.configuration);
+        return this.createAttachAdapter(session.configuration as AttachRdbgConfiguration);
       }
       case 'launch': {
-        const configuration = await this.normalizeConfig(session);
+        const configuration = await this.normalizeConfig(
+          session.configuration as LaunchRdbgConfiguration,
+          session.workspaceFolder,
+        );
         return this.createLaunchAdapter(configuration);
       }
       default:
@@ -33,20 +37,27 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   }
 
   private async createAttachAdapter(
-    config: vscode.DebugConfiguration,
-  ): Promise<vscode.DebugAdapterDescriptor> {
+    config: AttachRdbgConfiguration,
+  ): Promise<vscode.DebugAdapterDescriptor | undefined> {
     if (config.socket) {
       this.context.log.info(`Attaching via socket: ${config.socket}`);
       return new vscode.DebugAdapterNamedPipeServer(config.socket);
     }
 
     const { host, port } = config;
-    this.context.log.info(`Attaching via TCP: ${host}:${port}`);
+    if (port === undefined) {
+      const msg = 'Missing TCP port in configuration';
+      this.context.log.error(msg);
+      vscode.window.showErrorMessage(msg);
+      return undefined;
+    }
+
+    this.context.log.info(`Attaching via TCP: ${[host, port].join(':')}`);
     return new vscode.DebugAdapterServer(port, host);
   }
 
   private async createLaunchAdapter(
-    config: vscode.DebugConfiguration,
+    config: LaunchRdbgConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor> {
     const args = this.buildArgs(config);
     const { cwd, rdbgPath } = config;
@@ -67,7 +78,7 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     return new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
   }
 
-  private buildArgs(config: vscode.DebugConfiguration): string[] {
+  private buildArgs(config: LaunchRdbgConfiguration): string[] {
     const { args = [], port, program } = config;
     const mergedArgs = ['--open', '--port', (port ?? 0).toString()];
 
@@ -77,10 +88,10 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     return mergedArgs;
   }
 
-  private async normalizeConfig({
-    configuration,
-    workspaceFolder,
-  }: vscode.DebugSession): Promise<vscode.DebugConfiguration> {
+  private async normalizeConfig(
+    configuration: LaunchRdbgConfiguration,
+    workspaceFolder?: vscode.WorkspaceFolder,
+  ): Promise<LaunchRdbgConfiguration> {
     const skipPathsFromSettings = this.context.configuration.getSkipPaths(workspaceFolder);
     const skipPathsFromFile = await this.readSkipPathsFile(workspaceFolder);
     const skipPathsFromConfig = Array.isArray(configuration.skipPaths)
