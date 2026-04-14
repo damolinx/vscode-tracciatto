@@ -83,7 +83,7 @@ Use this mode when Ruby is already running and you want the debugger to connect 
 
 [↑ Back to top](#table-of-contents)
 
-#### Compatibility with `rdbg` (vscode‑rdbg)
+#### Compatibility with rdbg (vscode‑rdbg)
 This extension is compatible with the `rdbg` debug type provided by the
 **vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but accepts a a subset of configuration properties:
 - `script` (required for launch)
