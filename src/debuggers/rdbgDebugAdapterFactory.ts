@@ -100,10 +100,9 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     const mergedSkipPaths = [
       ...new Set([...skipPathsFromSettings, ...skipPathsFromFile, ...skipPathsFromConfig]),
     ];
-    return {
-      ...configuration,
-      skipPaths: mergedSkipPaths,
-    };
+
+    configuration.skipPaths = mergedSkipPaths;
+    return configuration;
   }
 
   private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string {
