@@ -14,7 +14,7 @@ export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type:
 }
 
 export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
-  constructor(private readonly context: ExtensionContext) { }
+  constructor(private readonly context: ExtensionContext) {}
 
   async createDebugAdapterDescriptor(
     session: vscode.DebugSession,
@@ -68,10 +68,23 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     }
 
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });
+    child
+      .on('error', (err) => {
+        this.context.log.error(`Failed to spawn rdbg: ${err.message}`);
+      })
+      .on('exit', (code, signal) => {
+        if (code === 0) {
+          this.context.log.info('rdbg exited (0)');
+        } else {
+          this.context.log.error(`rdbg exited (${code}${signal !== null ? `, ${signal}` : ''})`);
+        }
+      });
+    child.stderr.on('data', (chunk) => this.context.log.info(`>> ${chunk.toString().trim()}`));
+    child.stdout.on('data', (chunk) => this.context.log.info(`> ${chunk}`));
+
     this.context.log.info(
       `Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: '${cwd}'` : ''} pid: ${child.pid}`,
     );
-
     const rdbgPort = await this.waitForRdbgPort(child);
     this.context.log.info(`Launched rdbg at ${LOCALHOST}:${rdbgPort}`);
 
@@ -84,7 +97,6 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
 
     const resolvedRuntimeExecutable = this.resolveRuntimeExecutable(config);
     mergedArgs.push('--command', resolvedRuntimeExecutable, '--', program, ...args);
-
     return mergedArgs;
   }
 
@@ -107,7 +119,7 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
 
   private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string {
     const candidate = config.runtimeExecutable;
-    if (typeof candidate !== "string" || !candidate) {
+    if (typeof candidate !== 'string' || !candidate) {
       throw new Error(`Invalid "runtimeExecutable" value: ${candidate}`);
     }
 
