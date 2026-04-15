@@ -19,7 +19,7 @@ Tracciatto integrates with `rdbg` to support the two main debugging workflows:
 - **Launch**: VS Code starts Ruby under the debugger
 - **Attach**: VS Code connects to an already running Ruby process started with `rdbg`
 
-Press F5 on any `.rb` file to automatically create debug configurations in `.vscode/launch.json`
+Press F5 on any `.rb` file to automatically create debug configurations in `.vscode/launch.json`.
 
 ### Launching a debug session
 
@@ -57,7 +57,7 @@ Use this mode when Ruby is already running and you want the debugger to connect 
     rdbg --open --sock-path /tmp/rdbg.sock -- your_script.rb
     ```
 
-1. Add an `attach` configuration to `.vscode/launch.json`:
+2. Add an `attach` configuration to `.vscode/launch.json`:
 
     **Example: Port mode**
     ```jsonc
@@ -79,7 +79,7 @@ Use this mode when Ruby is already running and you want the debugger to connect 
     }
     ```
 
-2. Run the **Attach to Ruby** debug configuration.
+3. Run the **Attach to Ruby** debug configuration.
 
 [↑ Back to top](#table-of-contents)
 
@@ -92,7 +92,7 @@ This extension is compatible with the `rdbg` debug type provided by the
 - `rdbgPath` (optional override for the `rdbg` executable)
 
 To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** whenever the
-official `vscode‑rdbg` extension is installed and active. Otherwise this
+official `vscode‑rdbg` extension is installed and active. Otherwise, this
 extension registers a `rdbg` configuration provider and debug adapter.
 
 [↑ Back to top](#table-of-contents)
@@ -102,16 +102,16 @@ extension registers a `rdbg` configuration provider and debug adapter.
 Tracciatto supports the following user and workspace settings:
 
 | Setting | Description | Default |
-|--------|-------------|-------|
+|---------|-------------|---------|
 | `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns | |
-| `tracciatto.debug.skipPathsFileName` | Filename, relative to the workspace root, skip‑path patterns. | `.tracciatto-skip-paths` |
-| `tracciatto.runtimeExecutable` | Path to the Ruby executable used for debugging. | `ruby` |
+| `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. Absolute path, or relative to workspace root | `.tracciatto-skip-paths` |
+| `tracciatto.runtimeExecutable` | Path to the Ruby executable used for debugging | `ruby` |
 
 [↑ Back to top](#table-of-contents)
 
 ### Skip frames
 
-Rdbg supports *skip‑paths*-glob patterns that tell the debugger which files it should not step into. This affects not only step-by-step debugging but also specific frames the debugger shows as part of the current callstack. For complex projects this is invaluable as there might be significant portions of the stack you do not care about at a given point in time, e.g. gem code.
+Rdbg supports *skip‑paths* glob patterns that tell the debugger which files it should not step into. This affects not only step-by-step debugging but also specific frames the debugger shows as part of the current call stack. For complex projects, this is invaluable as there might be significant portions of the stack you do not care about at a given point in time, e.g. gem code.
 
 Tracciatto aligns with this model by allowing skip‑paths to come from multiple sources. Patterns are merged and passed to `rdbg` via the `RUBY_DEBUG_SKIP_PATH` environment variable. There are three possible sources for skip‑paths:
 
@@ -137,7 +137,7 @@ A workspace‑level file containing one pattern per line, with lines beginning w
 
 Skip‑paths use the same glob‑style matching rules as `rdbg`. These are evaluated against **absolute** file paths.
 
- Supported constructs:
+Supported constructs:
 - `*`: match within a single path segment
 - `**`: match across directory boundaries
 - `?`: match a single character
@@ -174,7 +174,7 @@ The `tracciatto.debug.skipPaths` setting provides an additional place to define 
 Use this table to decide which source fits your workflow:
 
 | Source | Scope | Best for | Notes |
-|--------|--------|----------|-------|
+|--------|-------|----------|-------|
 | **Launch configuration** | Per debug session | Scenario‑specific exclusions | Lives in `launch.json` |
 | **Workspace file** | Per project | Shared team rules or stable project‑level patterns | Version‑controlled; one pattern per line; **preferred** |
 | **Setting** | Global or workspace | Personal preferences across all projects | Great for "always skip Rails internals" |
@@ -189,10 +189,12 @@ Different users and teams have different needs. You may always want to skip step
 
 ## Commands
 
+The following commands are intended for quick verification of standalone scripts, not as a replacement for a workspace [launch configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_launch-configurations). Code is run using the `tracciatto.runtimeExecutable` setting value (defaults to `ruby`).
+
 | Command                          | Description |
 |----------------------------------|-------------|
-| **Debug Active Editor** | Debugs the active Ruby editor. Intended for quick verification of standalone scripts, not as a replacement for a workspace [launch configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_launch-configurations). |
-| **Run Active Editor** | Executes the active Ruby file. Intended for quick verification of standalone scripts, not as a replacement for a workspace [launch configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_launch-configurations). |
+| **Debug Active Editor** | Debugs the active Ruby editor |
+| **Run Active Editor** | Executes the active Ruby file |
 
 [↑ Back to top](#table-of-contents)
 
@@ -200,6 +202,6 @@ Different users and teams have different needs. You may always want to skip step
 
 Tracciatto writes diagnostic information to the **Tracciatto** output channel.
 You can adjust the log level using **Developer: Set Log Level** and selecting **Tracciatto**.
-See [documentation](https://code.visualstudio.com/updates/v1_73#_setting-log-level-per-output-channel) for details.
+See the [documentation](https://code.visualstudio.com/updates/v1_73#_setting-log-level-per-output-channel) for details.
 
 [↑ Back to top](#table-of-contents)

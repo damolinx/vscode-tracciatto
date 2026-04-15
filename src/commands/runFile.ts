@@ -1,41 +1,61 @@
-// import * as vscode from 'vscode';
-// import { basename } from 'path';
-// import { mainAreaActiveTextEditorUri } from '../common/utils';
-// import { ExtensionContext } from '../extensionContext';
-// import { executeCommandsInTerminal } from './utils';
-// import { verifyEnvironment } from './verifyEnvironment';
+import * as vscode from 'vscode';
+import { basename } from 'path';
+import { ExtensionContext } from '../extensionContext';
 
-// export async function runRubyFile(context: ExtensionContext, uri?: vscode.Uri): Promise<void> {
-//   const targetUri = uri ?? mainAreaActiveTextEditorUri();
-//   if (!targetUri) {
-//     context.log.info('RunRuby: No file to run.');
-//     return;
-//   }
+/**
+ * Run the currently active Ruby editor.
+ */
+export async function runEditor(
+  context: ExtensionContext,
+  textEditor: vscode.TextEditor,
+): Promise<boolean> {
+  if (textEditor.document.languageId !== 'ruby') {
+    vscode.window.showErrorMessage('Only Ruby files can be run');
+    return false;
+  }
 
-//   if (targetUri.scheme !== 'file') {
-//     context.log.info(
-//       'RunRuby: File must be saved locally to be run.',
-//       vscode.workspace.asRelativePath(targetUri),
-//     );
-//     return;
-//   }
+  return runFile(context, textEditor.document.uri);
+}
 
-//   const document = await vscode.workspace.openTextDocument(targetUri);
-//   if (document.isDirty) {
-//     context.log.info(
-//       'RunRuby: Saving file before running.',
-//       vscode.workspace.asRelativePath(document.uri),
-//     );
-//     await document.save();
-//   }
+async function runFile(context: ExtensionContext, uri: vscode.Uri): Promise<boolean> {
+  if (uri.scheme !== 'file') {
+    vscode.window.showErrorMessage('Only local files can be run');
+    return false;
+  }
 
-//   if (await verifyEnvironment(context, ['ruby', 'bundle'])) {
-//     const workspaceFolder = vscode.workspace.getWorkspaceFolder(targetUri);
-//     const targetPath = vscode.workspace.asRelativePath(targetUri, false);
-//     await executeCommandsInTerminal({
-//       commands: [`bundle exec ruby ${targetPath}`],
-//       cwd: workspaceFolder?.uri,
-//       name: `Run ${basename(targetPath)}`,
-//     });
-//   }
-// }
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+  const targetPath = vscode.workspace.asRelativePath(uri, false);
+  await executeCommandsInTerminal({
+    commands: [`${context.configuration.getRuntimeExecutable(workspaceFolder)} ${targetPath}`],
+    cwd: workspaceFolder?.uri,
+    name: `Run ${basename(targetPath)}`,
+  });
+  return true;
+}
+
+async function executeCommandsInTerminal(options: {
+  commands: string[];
+  cwd?: string | vscode.Uri;
+  iconPath?: vscode.IconPath;
+  name?: string;
+  preserveFocus?: boolean;
+}) {
+  const cmd = options.commands.join(' && ').trim();
+  const terminalOptions: vscode.TerminalOptions = {
+    cwd: options.cwd,
+    iconPath: new vscode.ThemeIcon('ruby'),
+    message: `\x1b[1mRunning:\x1b[0m ${cmd}`,
+    name: options.name,
+  };
+  if (process.platform === 'win32') {
+    terminalOptions.shellArgs = ['/K', `${cmd} && pause`];
+    terminalOptions.shellPath = 'cmd.exe';
+  } else {
+    terminalOptions.shellArgs = ['-c', `${cmd}; read -n1 -rsp "Press any key to continue ..."`];
+    terminalOptions.shellPath = '/bin/bash';
+  }
+
+  const terminal = vscode.window.createTerminal(terminalOptions);
+  terminal.show(options.preserveFocus);
+  return terminal;
+}

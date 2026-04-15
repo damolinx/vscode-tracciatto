@@ -42,6 +42,12 @@
         "title": "Debug Active Editor",
         "category": "Tracciatto",
         "enablement": "editorLangId == ruby"
+      },
+      {
+        "command": "tracciatto.runFile",
+        "title": "Run Active Editor",
+        "category": "Tracciatto",
+        "enablement": "editorLangId == ruby"
       }
     ],
     "configuration": {

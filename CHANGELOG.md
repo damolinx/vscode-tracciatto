@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.1.2
-- 
+- Add **Run Active Editor** for `ruby` files.
 
 ## 0.1.1
 - Document `vscode-rdbg`'s `rdbg` debug-type compatibility

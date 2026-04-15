@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { debugEditor } from './commands/debugFile';
+import { runEditor } from './commands/runFile';
 import { RDBG_TYPE, TRACCIATTO_TYPE as TRACCIATTO_TYPE } from './constants';
 import { registerRdbgDebugAdapterFactory } from './debuggers/rdbgDebugAdapterFactory';
 import { ExtensionContext } from './extensionContext';
@@ -17,6 +18,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     tcr('tracciatto.debugFile', (textEditor: vscode.TextEditor) =>
       debugEditor(context, textEditor),
     ),
+    tcr('tracciatto.runFile', (textEditor: vscode.TextEditor) => runEditor(context, textEditor)),
   );
 
   registerTracciattoConfigurationProvider(context);

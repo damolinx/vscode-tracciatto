@@ -14,7 +14,7 @@ export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type:
 }
 
 export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
-  constructor(private readonly context: ExtensionContext) {}
+  constructor(private readonly context: ExtensionContext) { }
 
   async createDebugAdapterDescriptor(
     session: vscode.DebugSession,
@@ -104,14 +104,10 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     configuration: LaunchRdbgConfiguration,
     workspaceFolder?: vscode.WorkspaceFolder,
   ): Promise<LaunchRdbgConfiguration> {
-    const skipPathsFromSettings = this.context.configuration.getSkipPaths(workspaceFolder);
-    const skipPathsFromFile = await this.readSkipPathsFile(workspaceFolder);
-    const skipPathsFromConfig = Array.isArray(configuration.skipPaths)
-      ? configuration.skipPaths
-      : [];
-    const mergedSkipPaths = [
-      ...new Set([...skipPathsFromSettings, ...skipPathsFromFile, ...skipPathsFromConfig]),
-    ];
+    const fromSettings = this.context.configuration.getSkipPaths(workspaceFolder);
+    const fromFile = await this.readSkipPathsFile(workspaceFolder);
+    const fromConfig = Array.isArray(configuration.skipPaths) ? configuration.skipPaths : [];
+    const mergedSkipPaths = [...new Set([...fromSettings, ...fromFile, ...fromConfig])];
 
     configuration.skipPaths = mergedSkipPaths;
     return configuration;
