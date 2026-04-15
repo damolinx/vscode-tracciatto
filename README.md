@@ -189,11 +189,10 @@ Different users and teams have different needs. You may always want to skip step
 
 ## Commands
 
-Tracciatto contributes the following commands:
-
-- **Tracciatto: Debug Active Editor** : Starts a debug session using the active file or the selected configuration.
-
-Commands are available via the Command Palette (`Ctrl/Cmd + Shift + P`).
+| Command                          | Description |
+|----------------------------------|-------------|
+| **Debug Active Editor** | Debugs the active Ruby editor. Intended for quick verification of standalone scripts, not as a replacement for a workspace [launch configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_launch-configurations). |
+| **Run Active Editor** | Executes the active Ruby file. Intended for quick verification of standalone scripts, not as a replacement for a workspace [launch configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_launch-configurations). |
 
 [↑ Back to top](#table-of-contents)
 

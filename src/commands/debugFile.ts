@@ -14,7 +14,10 @@ export function debugEditor(context: ExtensionContext, textEditor: vscode.TextEd
   return debugFile(context, textEditor.document.uri);
 }
 
-function debugFile(context: ExtensionContext, uri: vscode.Uri): void {
+/**
+ * Debug the currently active Ruby editor.
+ */
+export function debugFile(context: ExtensionContext, uri: vscode.Uri): void {
   if (uri.scheme !== 'file') {
     vscode.window.showErrorMessage('Only local files can be debugged');
     return;

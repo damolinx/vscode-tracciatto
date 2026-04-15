@@ -1,0 +1,39 @@
+import * as vscode from 'vscode';
+import { execFile } from 'child_process';
+import { ExtensionContext } from '../extensionContext';
+
+const Commands = new Map<string, { title: string; url: string }>([
+  ['rdbg', { title: 'Rdbg', url: 'https://github.com/ruby/debug' }],
+]);
+
+export async function verifyEnvironment(
+  context: ExtensionContext,
+  cmds: string[] = Array.from(Commands.keys()),
+): Promise<boolean> {
+  const results = await Promise.all(
+    cmds.map(async (cmd) => [cmd, await isAvailable(cmd)] as const),
+  );
+  const missingCmds = results.filter(([, ok]) => !ok).map(([cmd]) => cmd);
+  if (missingCmds.length === 0) {
+    context.log.debug('VerifyEnvironment: Found all commands', cmds);
+    return true;
+  }
+
+  const option = await vscode.window.showErrorMessage(
+    `Missing dependencies: ${missingCmds.join(', ')}. Refer to documentation.`,
+    ...missingCmds.map((cmd) => Commands.get(cmd)).filter((cmd) => !!cmd),
+  );
+
+  if (option) {
+    vscode.env.openExternal(vscode.Uri.parse(option.url));
+  }
+
+  return false;
+}
+
+async function isAvailable(cmd: string, cwd?: string): Promise<boolean> {
+  const whereOrWhich = process.platform === 'win32' ? 'where' : 'which';
+  return new Promise((resolve) =>
+    execFile(whereOrWhich, [cmd], { cwd }, (error) => resolve(!error))
+  );
+}

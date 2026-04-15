@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.2
+- 
+
 ## 0.1.1
 - Document `vscode-rdbg`'s `rdbg` debug-type compatibility
 - Enable `rdbg` debug-type support whenever `vscode-rdbg` extension is not active
