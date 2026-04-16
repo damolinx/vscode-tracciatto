@@ -18,7 +18,6 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     _token?: vscode.CancellationToken,
   ): Promise<vscode.DebugConfiguration | undefined> {
     configuration.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
-    configuration.program ??= '${file}';
     configuration.name ??= 'Debug current file';
     configuration.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
     configuration.skipPaths = [
@@ -36,6 +35,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
         break;
 
       case 'launch':
+        configuration.program ??= '${file}';
         verificationMessage = this.verifyLaunchConfig(configuration);
         break;
     }
