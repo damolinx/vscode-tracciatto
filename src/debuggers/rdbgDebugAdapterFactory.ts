@@ -64,7 +64,7 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     const cmd = rdbgPath ? join(rdbgPath, 'rdbg') : 'rdbg';
     const env = { ...process.env, ...config.env };
     if (config.skipPaths?.length) {
-      env.RUBY_DEBUG_SKIP_PATH = config.skipPaths.join(';');
+      env.RUBY_DEBUG_SKIP_PATH = config.skipPaths.join(',');
     }
 
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });

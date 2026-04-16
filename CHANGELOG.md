@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.3
+- `RUBY_DEBUG_SKIP_PATH` should be comma-separated
+
 ## 0.1.2
 - Add **Run Active Editor** for `ruby` files.
 
