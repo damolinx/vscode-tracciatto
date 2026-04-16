@@ -25,8 +25,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
   registerRdbgDebugAdapterFactory(context, TRACCIATTO_TYPE);
   context.log.info(`Enabled '${TRACCIATTO_TYPE}' debug-type`);
 
-  const rdbgExt = vscode.extensions.getExtension('KoichiSasada.vscode-rdbg');
-  if (!rdbgExt || !!rdbgExt.isActive) {
+  if (context.supportRdbgDebugType) {
     registerRdbgConfigurationProvider(context);
     registerRdbgDebugAdapterFactory(context, RDBG_TYPE);
     context.log.info(`Enabled '${RDBG_TYPE}' debug-type`);
