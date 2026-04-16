@@ -165,7 +165,9 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   private async waitForRdbgPort(child: cp.ChildProcessWithoutNullStreams) {
     const rl = readline.createInterface({ input: child.stderr });
     const rdbgPort = await new Promise<number>((resolve, reject) => {
+      let firstLine: string | undefined;
       rl.on('line', (line) => {
+        firstLine ??= line.trim();
         const match = line.match(/:(\d+)\)$/);
         if (match) {
           resolve(Number(match[1]));
@@ -173,7 +175,13 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
           child.stderr.removeAllListeners();
         }
       });
-      child.on('exit', (code) => reject(new Error(`rdbg exited with code ${code}`)));
+      child.on('exit', (code) => {
+        let error = `rdbg exited with code ${code}`;
+        if (firstLine) {
+          error += `\n${firstLine}`;
+        }
+        reject(new Error(error));
+      });
     });
     return rdbgPort;
   }
