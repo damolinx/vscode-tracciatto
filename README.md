@@ -86,10 +86,10 @@ Use this mode when Ruby is already running and you want the debugger to connect 
 #### Compatibility with rdbg (vscode‑rdbg)
 This extension is compatible with the `rdbg` debug type provided by the
 **vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties:
-- `script` (required for launch)
+- `script`: required for launch
 - `args`, `command`, `cwd`, `env`
-- `debugPort` (attach)
-- `rdbgPath` (optional override for the `rdbg` executable)
+- `debugPort`: attach
+- `rdbgPath`: optional override for the `rdbg` executable
 
 To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** whenever the
 official `vscode‑rdbg` extension is installed and active. Otherwise, this
@@ -143,7 +143,7 @@ Supported constructs:
 - `?`: match a single character
 - `[abc]`: character classes
 
-Comments (lines starting with `#`) and blank lines are allowed.
+Comments can be added by startiing a line with `#` (Ruby comment). Blank lines are allowed.
 
 ##### Examples
 

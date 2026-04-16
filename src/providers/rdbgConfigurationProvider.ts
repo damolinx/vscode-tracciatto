@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { RDBG_TYPE } from '../constants';
+import { RdbgDebugSessionInitializer } from '../debuggers/rdbgDebugSessionInitializer';
 import { ExtensionContext } from '../extensionContext';
 import { DebugConfigurationProvider } from './debugConfigurationProvider';
 
@@ -9,6 +10,7 @@ export function registerRdbgConfigurationProvider(context: ExtensionContext): vo
       RDBG_TYPE,
       new RdbgConfigurationProvider(context, RDBG_TYPE),
     ),
+    new RdbgDebugSessionInitializer(context, RDBG_TYPE),
   );
 }
 
@@ -21,7 +23,7 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
     folder: vscode.WorkspaceFolder | undefined,
     config: vscode.DebugConfiguration,
     token?: vscode.CancellationToken,
-  ): vscode.ProviderResult<vscode.DebugConfiguration> {
+  ): Promise<vscode.DebugConfiguration | undefined> {
     config.program ??= config.script;
     config.runtimeExecutable ??= config.command;
     return super.resolveDebugConfiguration(folder, config, token);

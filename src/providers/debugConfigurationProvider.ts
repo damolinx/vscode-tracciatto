@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { isAbsolute } from 'path';
 import { LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 
@@ -9,36 +10,43 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   constructor(
     protected readonly context: ExtensionContext,
     protected readonly type: string,
-  ) {}
+  ) { }
 
-  resolveDebugConfiguration(
+  async resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
-    config: vscode.DebugConfiguration,
+    configuration: vscode.DebugConfiguration,
     _token?: vscode.CancellationToken,
-  ): vscode.ProviderResult<vscode.DebugConfiguration> {
-    config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
-    config.program ??= '${file}';
-    config.name ??= 'Debug current file';
-    config.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
+  ): Promise<vscode.DebugConfiguration | undefined> {
+    configuration.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
+    configuration.program ??= '${file}';
+    configuration.name ??= 'Debug current file';
+    configuration.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
+    configuration.skipPaths = [
+      ...new Set([
+        ...this.context.configuration.getSkipPaths(folder),
+        ...(await this.readSkipPathsFile(folder)),
+        ...(Array.isArray(configuration.skipPaths) ? configuration.skipPaths : []),
+      ]),
+    ];
 
     let verificationMessage: string | undefined;
-    switch (config.request) {
+    switch (configuration.request) {
       case 'attach':
-        verificationMessage = this.verifyAttachConfig(config);
+        verificationMessage = this.verifyAttachConfig(configuration);
         break;
 
       case 'launch':
-        verificationMessage = this.verifyLaunchConfig(config);
+        verificationMessage = this.verifyLaunchConfig(configuration);
         break;
     }
 
     if (verificationMessage) {
       this.context.log.error(`${this.type}: ${verificationMessage}`);
-      vscode.window.showErrorMessage(`${verificationMessage}:${config.name}`);
+      vscode.window.showErrorMessage(`${verificationMessage}:${configuration.name}`);
       return;
     }
 
-    return config;
+    return configuration;
   }
 
   protected abstract verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined;
@@ -64,5 +72,32 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     }
 
     return isNaN(port) ? undefined : { host, port };
+  }
+
+  private async readSkipPathsFile(workspaceFolder?: vscode.WorkspaceFolder): Promise<string[]> {
+    const candidate = this.context.configuration.getSkipPathsFileName(workspaceFolder);
+    const skipPathsFileUri =
+      isAbsolute(candidate) || !workspaceFolder
+        ? vscode.Uri.file(candidate)
+        : vscode.Uri.joinPath(workspaceFolder.uri, candidate);
+
+    const exists = await vscode.workspace.fs.stat(skipPathsFileUri).then(
+      (stat) => Boolean(stat.type & vscode.FileType.File),
+      () => false,
+    );
+    this.context.log.debug(
+      `Resolved skipPathFile. Path: '${vscode.workspace.asRelativePath(skipPathsFileUri)}' Exists: ${exists}`,
+    );
+
+    if (exists) {
+      const data = await vscode.workspace.fs.readFile(skipPathsFileUri);
+      return data
+        .toString()
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0 && !line.startsWith('#'));
+    }
+
+    return [];
   }
 }

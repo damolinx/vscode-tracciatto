@@ -58,12 +58,12 @@
             "type": "string"
           },
           "default": [],
-          "description": "Paths to skip when stepping in the Ruby debugger. These are merged launch config, if any."
+          "description": "Paths to skip when stepping in the Ruby debugger."
         },
         "tracciatto.debug.skipPathsFileName": {
           "type": "string",
           "default": ".tracciatto-filter",
-          "description": "Filename containing `RUBY_DEBUG_SKIP_PATH` skip paths. Each line represents a pattern; lines starting with '#' are ignored."
+          "description": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
         },
         "tracciatto.runtimeExecutable": {
           "type": "string",
@@ -101,7 +101,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Paths to skip when stepping. These will be merged with 'tracciatto.debug.skipPaths' setting."
+                "description": "Paths to skip when stepping."
               },
               "socket": {
                 "type": "string",
@@ -155,7 +155,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Paths to skip when stepping. These will be merged with 'tracciatto.debug.skipPaths' setting."
+                "description": "Paths to skip when stepping."
               }
             }
           }

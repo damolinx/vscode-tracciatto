@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
-import { existsSync } from 'fs';
-import { join, isAbsolute } from 'path';
+import { isAbsolute } from 'path';
 import * as readline from 'readline';
 import { LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
@@ -14,25 +13,21 @@ export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type:
 }
 
 export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
-  constructor(private readonly context: ExtensionContext) { }
+  constructor(private readonly context: ExtensionContext) {}
 
   async createDebugAdapterDescriptor(
-    session: vscode.DebugSession,
+    { configuration }: vscode.DebugSession,
     _executable: vscode.DebugAdapterExecutable | undefined,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
-    switch (session.configuration.request) {
+    switch (configuration.request) {
       case 'attach': {
-        return this.createAttachAdapter(session.configuration as AttachRdbgConfiguration);
+        return this.createAttachAdapter(configuration as AttachRdbgConfiguration);
       }
       case 'launch': {
-        const configuration = await this.normalizeConfig(
-          session.configuration as LaunchRdbgConfiguration,
-          session.workspaceFolder,
-        );
-        return this.createLaunchAdapter(configuration);
+        return this.createLaunchAdapter(configuration as LaunchRdbgConfiguration);
       }
       default:
-        throw new Error(`Unsupported debug configuration type: ${session.configuration.request}`);
+        throw new Error(`Unsupported debug configuration type: ${configuration.request}`);
     }
   }
 
@@ -61,12 +56,8 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   ): Promise<vscode.DebugAdapterDescriptor> {
     const args = this.buildArgs(config);
     const { cwd, rdbgPath } = config;
-    const cmd = rdbgPath ? join(rdbgPath, 'rdbg') : 'rdbg';
+    const cmd = rdbgPath || 'rdbg';
     const env = { ...process.env, ...config.env };
-    if (config.skipPaths?.length) {
-      env.RUBY_DEBUG_SKIP_PATH = config.skipPaths.join(',');
-    }
-
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });
     child
       .on('error', (err) => {
@@ -100,19 +91,6 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     return mergedArgs;
   }
 
-  private async normalizeConfig(
-    configuration: LaunchRdbgConfiguration,
-    workspaceFolder?: vscode.WorkspaceFolder,
-  ): Promise<LaunchRdbgConfiguration> {
-    const fromSettings = this.context.configuration.getSkipPaths(workspaceFolder);
-    const fromFile = await this.readSkipPathsFile(workspaceFolder);
-    const fromConfig = Array.isArray(configuration.skipPaths) ? configuration.skipPaths : [];
-    const mergedSkipPaths = [...new Set([...fromSettings, ...fromFile, ...fromConfig])];
-
-    configuration.skipPaths = mergedSkipPaths;
-    return configuration;
-  }
-
   private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string {
     const candidate = config.runtimeExecutable;
     if (typeof candidate !== 'string' || !candidate) {
@@ -136,30 +114,6 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
     throw new Error(
       `Unable to resolve runtime executable "${candidate}". Set "runtimeExecutable" to a full path in your debug configuration.`,
     );
-  }
-
-  private async readSkipPathsFile(workspaceFolder?: vscode.WorkspaceFolder): Promise<string[]> {
-    const candidate = this.context.configuration.getSkipPathsFileName(workspaceFolder);
-    const skipPathsFileUri =
-      isAbsolute(candidate) || !workspaceFolder
-        ? vscode.Uri.file(candidate)
-        : vscode.Uri.joinPath(workspaceFolder.uri, candidate);
-
-    const exists = existsSync(skipPathsFileUri.fsPath);
-    this.context.log.debug(
-      `Resolved skipPathFile Path: '${vscode.workspace.asRelativePath(skipPathsFileUri)}' Exists:${exists}`,
-    );
-
-    if (exists) {
-      const data = await vscode.workspace.fs.readFile(skipPathsFileUri);
-      return data
-        .toString()
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0 && !line.startsWith('#'));
-    }
-
-    return [];
   }
 
   private async waitForRdbgPort(child: cp.ChildProcessWithoutNullStreams) {

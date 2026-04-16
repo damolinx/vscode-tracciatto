@@ -1,7 +1,10 @@
 # Changelog
 
 ## 0.1.3
-- `RUBY_DEBUG_SKIP_PATH` should be comma-separated
+- Implement `skip_path` support based on a custom DAP request.
+  - Adds support for these paths in `attach` configurations. 
+  - Fix: `RUBY_DEBUG_SKIP_PATH` is not parsed in server mode, it cannot support current skip_path feature.
+- Fix: `rdbgPath` config value handled as folder instead of file path
 
 ## 0.1.2
 - Add **Run Active Editor** for `ruby` files.

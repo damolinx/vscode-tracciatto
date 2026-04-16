@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { TRACCIATTO_TYPE } from '../constants';
+import { RdbgDebugSessionInitializer } from '../debuggers/rdbgDebugSessionInitializer';
 import { ExtensionContext } from '../extensionContext';
 import { DebugConfigurationProvider } from './debugConfigurationProvider';
 
@@ -9,6 +10,7 @@ export function registerTracciattoConfigurationProvider(context: ExtensionContex
       TRACCIATTO_TYPE,
       new TracciattoConfigurationProvider(context, TRACCIATTO_TYPE),
     ),
+    new RdbgDebugSessionInitializer(context, TRACCIATTO_TYPE),
   );
 }
 
