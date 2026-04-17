@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
+import { existsSync } from 'fs';
 import { isAbsolute } from 'path';
 import * as readline from 'readline';
 import { LOCALHOST } from '../constants';
@@ -34,7 +35,14 @@ export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFac
   private async createAttachAdapter(
     config: AttachRdbgConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
-    if (config.socket) {
+    const { socket } = config;
+    if (socket) {
+      if (!existsSync(socket)) {
+        const msg = `Socket not found: ${socket}.`;
+        this.context.log.error(msg);
+        throw new Error(msg);
+      }
+
       this.context.log.info(`Attaching via socket: ${config.socket}`);
       return new vscode.DebugAdapterNamedPipeServer(config.socket);
     }

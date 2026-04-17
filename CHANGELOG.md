@@ -3,6 +3,7 @@
 ## 0.1.4
 - Fix: `DebugConfigurationProvider` should set a default only for required values for the specific configuration type.
 - Filter out empty or unsupported-type skip-paths.
+- Handle missing socket explicitly. 
 
 ## 0.1.3
 - Implement `skip_path` support based on a custom DAP request.
