@@ -17,9 +17,6 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     configuration: vscode.DebugConfiguration,
     _token?: vscode.CancellationToken,
   ): Promise<vscode.DebugConfiguration | undefined> {
-    configuration.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
-    configuration.name ??= 'Debug current file';
-    configuration.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
     configuration.skipPaths = [
       ...new Set([
         ...this.context.configuration.getSkipPaths(folder),
@@ -31,11 +28,14 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     let verificationMessage: string | undefined;
     switch (configuration.request) {
       case 'attach':
+        configuration.name ??= 'Attach to rdbg';
         verificationMessage = this.verifyAttachConfig(configuration);
         break;
 
       case 'launch':
-        configuration.program ??= '${file}';
+        configuration.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
+        configuration.name ??= 'Launch with rdbg';
+        configuration.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
         verificationMessage = this.verifyLaunchConfig(configuration);
         break;
     }
