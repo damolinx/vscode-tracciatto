@@ -4,7 +4,7 @@ import { RdbgDebugConfiguration } from './rdbgDebugConfiguration';
 
 export class RdbgDebugSessionInitializer implements vscode.Disposable {
   private readonly disposables: vscode.Disposable[];
-  private readonly initializedSessionIds: WeakSet<any>;
+  private readonly initializedSessionIds: WeakSet<vscode.DebugSession>;
 
   constructor(
     protected readonly context: ExtensionContext,
@@ -37,7 +37,7 @@ export class RdbgDebugSessionInitializer implements vscode.Disposable {
     session: vscode.DebugSession,
     { skipPaths }: RdbgDebugConfiguration,
   ) {
-    if (this.initializedSessionIds.has(session.id)) {
+    if (this.initializedSessionIds.has(session)) {
       this.context.log.debug(`Session already initialized. Session: ${session.id}`);
       return;
     }
@@ -45,12 +45,12 @@ export class RdbgDebugSessionInitializer implements vscode.Disposable {
     const expr = `,eval DEBUGGER__::CONFIG[:skip_path] = ["${skipPaths.join('", "')}"]`;
     if (!(await this.tryEvaluateWithRetries(session, expr, 3, 250))) {
       this.context.log.error(
-        `Failed to initialize session, skip_paths not setup. Session: ${session.id}`,
+        `Failed to initialize session, skip_paths not setup. Session: ${session}`,
       );
       return;
     }
 
-    this.initializedSessionIds.add(session.id);
+    this.initializedSessionIds.add(session);
     this.context.log.debug(
       `Initialized session. Session: ${session.id} SkipPathCount: ${skipPaths.length}`,
     );
