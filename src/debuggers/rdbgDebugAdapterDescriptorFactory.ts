@@ -7,13 +7,19 @@ import { LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from './rdbgDebugConfiguration';
 
-export function registerRdbgDebugAdapterFactory(context: ExtensionContext, type: string): void {
+export function registerRdbgDebugAdapterDescriptorFactory(
+  context: ExtensionContext,
+  type: string,
+): void {
   context.disposables.push(
-    vscode.debug.registerDebugAdapterDescriptorFactory(type, new RdbgDebugAdapterFactory(context)),
+    vscode.debug.registerDebugAdapterDescriptorFactory(
+      type,
+      new RdbgDebugAdapterDescriptorFactory(context),
+    ),
   );
 }
 
-export class RdbgDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
+export class RdbgDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
   constructor(private readonly context: ExtensionContext) {}
 
   async createDebugAdapterDescriptor(

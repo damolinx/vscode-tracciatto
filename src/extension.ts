@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { debugEditor } from './commands/debugFile';
 import { runEditor } from './commands/runFile';
 import { RDBG_TYPE, TRACCIATTO_TYPE as TRACCIATTO_TYPE } from './constants';
-import { registerRdbgDebugAdapterFactory } from './debuggers/rdbgDebugAdapterFactory';
+import { registerRdbgDebugAdapterDescriptorFactory } from './debuggers/rdbgDebugAdapterDescriptorFactory';
 import { ExtensionContext } from './extensionContext';
 import { registerRdbgConfigurationProvider } from './providers/rdbgConfigurationProvider';
 import { registerTracciattoConfigurationProvider } from './providers/tracciattoConfigurationProvider';
@@ -22,12 +22,12 @@ export function activate(extensionContext: vscode.ExtensionContext) {
   );
 
   registerTracciattoConfigurationProvider(context);
-  registerRdbgDebugAdapterFactory(context, TRACCIATTO_TYPE);
+  registerRdbgDebugAdapterDescriptorFactory(context, TRACCIATTO_TYPE);
   context.log.info(`Enabled '${TRACCIATTO_TYPE}' debug-type`);
 
   if (context.supportRdbgDebugType) {
     registerRdbgConfigurationProvider(context);
-    registerRdbgDebugAdapterFactory(context, RDBG_TYPE);
+    registerRdbgDebugAdapterDescriptorFactory(context, RDBG_TYPE);
     context.log.info(`Enabled '${RDBG_TYPE}' debug-type`);
   } else {
     context.log.warn(`Not enabling '${RDBG_TYPE}' debug-type, vscode-rdbg is present`);
