@@ -51,7 +51,9 @@ export class RdbgDebugSessionInitializer implements vscode.Disposable {
     }
 
     this.initializedSessionIds.add(session.id);
-    this.context.log.debug(`Initialized session. Session: ${session.id} SkipPathCount: ${skipPaths.length}`);
+    this.context.log.debug(
+      `Initialized session. Session: ${session.id} SkipPathCount: ${skipPaths.length}`,
+    );
   }
 
   private async tryEvaluateWithRetries(
@@ -69,7 +71,9 @@ export class RdbgDebugSessionInitializer implements vscode.Disposable {
         );
         result = true;
       } catch (error: any) {
-        this.context.log.warn(`Failed to initialize skip_paths. Attempt: ${i}/${maxAttempts} Error: ${error?.message ?? error}`);
+        this.context.log.warn(
+          `Failed to initialize skip_paths. Attempt: ${i}/${maxAttempts} Error: ${error?.message ?? error}`,
+        );
         await new Promise((resolve) => setTimeout(resolve, baseDelayMs * i));
       }
     }

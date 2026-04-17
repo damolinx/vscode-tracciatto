@@ -17,13 +17,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     configuration: vscode.DebugConfiguration,
     _token?: vscode.CancellationToken,
   ): Promise<vscode.DebugConfiguration | undefined> {
-    configuration.skipPaths = [
-      ...new Set([
-        ...this.context.configuration.getSkipPaths(folder),
-        ...(await this.readSkipPathsFile(folder)),
-        ...(Array.isArray(configuration.skipPaths) ? configuration.skipPaths : []),
-      ]),
-    ];
+    configuration.skipPaths = await this.getMergedSkipPaths(configuration, folder);
 
     let verificationMessage: string | undefined;
     switch (configuration.request) {
@@ -33,7 +27,8 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
         break;
 
       case 'launch':
-        configuration.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
+        configuration.cwd ??=
+          folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
         configuration.name ??= 'Launch with rdbg';
         configuration.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
         verificationMessage = this.verifyLaunchConfig(configuration);
@@ -47,6 +42,24 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     }
 
     return configuration;
+  }
+
+  private async getMergedSkipPaths(
+    config: vscode.DebugConfiguration,
+    folder?: vscode.WorkspaceFolder,
+  ): Promise<string[]> {
+    const skipPaths: string[] = Array.isArray(config.skipPaths) ? config.skipPaths : [];
+    const mergedSkipPaths = new Set(
+      [
+        ...this.context.configuration.getSkipPaths(folder),
+        ...(await this.readSkipPathsFile(folder)),
+        ...skipPaths,
+      ]
+        .map((s) => (typeof s === 'string' ? s.trim() : ''))
+        .filter(Boolean),
+    );
+
+    return Array.from(mergedSkipPaths);
   }
 
   protected abstract verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined;
