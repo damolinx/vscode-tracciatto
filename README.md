@@ -90,15 +90,13 @@ Use this mode when Ruby is already running and you want the debugger to connect 
 
 #### Compatibility with rdbg (vscode‑rdbg)
 This extension is compatible with the `rdbg` debug type provided by the
-**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties:
+**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it accepts a subset of properties:
 - `script`: required for launch
 - `args`, `command`, `cwd`, `env`
 - `debugPort`: attach
 - `rdbgPath`: optional override for the `rdbg` executable
 
-To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** whenever the
-official `vscode‑rdbg` extension is installed and active. Otherwise, this
-extension registers a `rdbg` configuration provider and debug adapter.
+To avoid conflicts, this support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed and active. This is set during extension activation, so reloading the extension would be needed after disabling or uninstalling **vscode‑rdbg** if it was present. Check [logs](#loga) for confirmation. Note that the `tracciatto` debug type is always available.
 
 [↑ Back to top](#table-of-contents)
 
