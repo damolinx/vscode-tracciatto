@@ -2,6 +2,10 @@
 
 Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter.
 
+<p align=center>
+<img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
+</p>
+
 ## Table of Contents
 - [Getting Started](#getting-started)
   - [Launching a debug session](#launching-a-debug-session)
