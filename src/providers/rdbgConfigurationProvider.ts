@@ -1,17 +1,12 @@
 import * as vscode from 'vscode';
-import { RDBG_TYPE } from '../constants';
-import { RdbgDebugSessionInitializer } from '../debuggers/rdbgDebugSessionInitializer';
 import { ExtensionContext } from '../extensionContext';
-import { DebugConfigurationProvider } from './debugConfigurationProvider';
+import {
+  DebugConfigurationProvider,
+  registerDebugConfigurationProvider,
+} from './debugConfigurationProvider';
 
 export function registerRdbgConfigurationProvider(context: ExtensionContext): void {
-  context.disposables.push(
-    vscode.debug.registerDebugConfigurationProvider(
-      RDBG_TYPE,
-      new RdbgConfigurationProvider(context, RDBG_TYPE),
-    ),
-    new RdbgDebugSessionInitializer(context, RDBG_TYPE),
-  );
+  registerDebugConfigurationProvider(context, 'rdbg', RdbgConfigurationProvider);
 }
 
 /**

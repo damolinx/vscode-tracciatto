@@ -1,11 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { TRACCIATTO_TYPE } from '../constants';
 import { ExtensionContext } from '../extensionContext';
+import { LaunchRdbgConfiguration } from '../rdbg/debugConfiguration';
 
-/**
- * Debug the currently active Ruby editor.
- */
 export async function debugEditor(
   context: ExtensionContext,
   textEditor: vscode.TextEditor,
@@ -26,12 +23,13 @@ async function debugFile(context: ExtensionContext, uri: vscode.Uri): Promise<bo
 
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
   const program = uri.fsPath;
-  const config: vscode.DebugConfiguration = {
-    type: TRACCIATTO_TYPE,
+  const config: LaunchRdbgConfiguration = {
+    type: 'tracciatto',
     request: 'launch',
     name: `Debug ${path.basename(uri.fsPath)}`,
     program,
     runtimeExecutable: context.configuration.getRuntimeExecutable(workspaceFolder),
+    skipPaths: [],
   };
 
   return vscode.debug.startDebugging(workspaceFolder, config);

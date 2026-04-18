@@ -38,6 +38,18 @@
   "contributes": {
     "commands": [
       {
+        "command": "tracciatto.addException",
+        "title": "Add Exception Filter",
+        "category": "Tracciatto",
+        "icon": "$(add)"
+      },
+      {
+        "command": "tracciatto.removeException",
+        "title": "Remove Exception Filter",
+        "category": "Tracciatto",
+        "icon": "$(remove-close)"
+      },
+      {
         "command": "tracciatto.debugFile",
         "title": "Debug Active Editor",
         "category": "Tracciatto",
@@ -50,8 +62,40 @@
         "enablement": "editorLangId == ruby"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "tracciatto.removeException",
+          "when": "false"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "tracciatto.addException",
+          "when": "view == tracciatto.exceptions && viewItem =~ /userGroup/",
+          "group": "inline"
+        },
+        {
+          "command": "tracciatto.removeException",
+          "when": "view == tracciatto.exceptions && viewItem =~ /userException/",
+          "group": "inline"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "tracciatto.addException",
+          "when": "view == tracciatto.exceptions",
+          "group": "navigation"
+        }
+      ]
+    },
     "configuration": {
       "properties": {
+        "tracciatto.debug.runtimeExecutable": {
+          "type": "string",
+          "default": "ruby",
+          "description": "Path to the Ruby executable used for debugging."
+        },
         "tracciatto.debug.skipPaths": {
           "type": "array",
           "items": {
@@ -65,10 +109,10 @@
           "default": ".tracciatto-filter",
           "description": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
         },
-        "tracciatto.runtimeExecutable": {
-          "type": "string",
-          "default": "ruby",
-          "description": "Path to the Ruby executable used for debugging."
+        "tracciatto.logDapMessages": {
+          "type": "boolean",
+          "default": false,
+          "description": "Log Debug Adapter Protocol messages at trace level (for extension or DAP debugging)."
         }
       }
     },
@@ -247,7 +291,16 @@
           }
         }
       }
-    ]
+    ],
+    "views": {
+      "debug": [
+        {
+          "id": "tracciatto.exceptions",
+          "name": "Exception Filters",
+          "icon": "debug-alt"
+        }
+      ]
+    }
   },
   "scripts": {
     "compile": "npm run ts:check-types && npm run ts:compile",
@@ -276,7 +329,8 @@
     "prettier": "^3.6.2",
     "sinon": "^21.0.0",
     "typescript": "^5.9.0",
-    "typescript-eslint": "^8.35.0"
+    "typescript-eslint": "^8.35.0",
+    "vscode-debugprotocol": "^1.51.0"
   },
   "overrides": {
     "yauzl": "^3.2.1"

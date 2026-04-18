@@ -10,6 +10,7 @@ Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter
 - [Configuration](#configuration)
   - [Skip frames](#skip-frames)
 - [Commands](#commands)
+- [Exception Filters](#exception-filters)
 - [Logs](#logs)
 
 ## Getting Started
@@ -195,6 +196,17 @@ The following commands are intended for quick verification of standalone scripts
 |----------------------------------|-------------|
 | **Debug Active Editor** | Debugs the active Ruby editor |
 | **Run Active Editor** | Executes the active Ruby file |
+
+[↑ Back to top](#table-of-contents)
+
+## Exception Filters
+
+The **Exception Filters** view lets you easily select  Ruby exceptions should have `rdbg` to break at. There are two categories:
+
+* **Built‑in Filters**: represent common Ruby exception classes. These filters are always available and **cannot be edited or removed**.
+* **User Filters**: you can add any Ruby exception class (e.g., `NoMethodError`, `KeyError`, `ActiveRecord::RecordNotFound`) and control whether the debugger should break when it is raised.
+
+Exception filters can be toggled at any point in time, be that before or during program debugging.
 
 [↑ Back to top](#table-of-contents)
 

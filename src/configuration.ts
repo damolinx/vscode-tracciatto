@@ -47,7 +47,7 @@ export class Configuration {
     scope: vscode.ConfigurationScope | undefined,
     defaultValue = 'ruby',
   ): string {
-    return this.getValue<string>(scope, 'runtimeExecutable', defaultValue) ?? defaultValue;
+    return this.getValue<string>(scope, 'debug.runtimeExecutable', defaultValue) ?? defaultValue;
   }
 
   /**
@@ -65,5 +65,15 @@ export class Configuration {
     defaultValue = '.tracciatto-skip-paths',
   ): string {
     return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
+  }
+
+  /**
+   * Whether to log DAP messages for debugging.
+   */
+  public getLogDapMessages(
+    scope: vscode.ConfigurationScope | undefined,
+    defaultValue = false,
+  ): boolean {
+    return this.getValue<boolean>(scope, 'logDapMessages', defaultValue) ?? defaultValue;
   }
 }

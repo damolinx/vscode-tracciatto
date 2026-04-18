@@ -3,23 +3,23 @@ import * as cp from 'child_process';
 import { existsSync } from 'fs';
 import { isAbsolute } from 'path';
 import * as readline from 'readline';
-import { LOCALHOST } from '../constants';
+import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
-import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from './rdbgDebugConfiguration';
+import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from './debugConfiguration';
 
-export function registerRdbgDebugAdapterDescriptorFactory(
+export function registerDebugAdapterDescriptorFactory(
   context: ExtensionContext,
-  type: string,
+  type: DebugType,
 ): void {
   context.disposables.push(
     vscode.debug.registerDebugAdapterDescriptorFactory(
       type,
-      new RdbgDebugAdapterDescriptorFactory(context),
+      new DebugAdapterDescriptorFactory(context),
     ),
   );
 }
 
-export class RdbgDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
+export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
   constructor(private readonly context: ExtensionContext) {}
 
   async createDebugAdapterDescriptor(

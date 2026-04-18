@@ -1,23 +1,25 @@
 import * as vscode from 'vscode';
+import { DebugType } from '../constants';
 
-export interface RdbgDebugConfiguration extends vscode.DebugConfiguration {
+export interface DebugConfiguration extends vscode.DebugConfiguration {
   rdbgPath?: string;
   skipPaths: string[];
+  type: DebugType;
 }
 
 export type AttachRdbgConfiguration =
-  | (RdbgDebugConfiguration & {
+  | (DebugConfiguration & {
       socket: string;
       host?: undefined;
       port?: undefined;
     })
-  | (RdbgDebugConfiguration & {
+  | (DebugConfiguration & {
       port: number;
       host: string;
       socket?: undefined;
     });
 
-export interface LaunchRdbgConfiguration extends RdbgDebugConfiguration {
+export interface LaunchRdbgConfiguration extends DebugConfiguration {
   args?: string[];
   cwd?: string;
   env?: Record<string, string>;

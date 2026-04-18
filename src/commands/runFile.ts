@@ -2,9 +2,6 @@ import * as vscode from 'vscode';
 import { basename } from 'path';
 import { ExtensionContext } from '../extensionContext';
 
-/**
- * Run the currently active Ruby editor.
- */
 export async function runEditor(
   context: ExtensionContext,
   textEditor: vscode.TextEditor,

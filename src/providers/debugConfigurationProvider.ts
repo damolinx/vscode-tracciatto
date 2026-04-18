@@ -1,7 +1,17 @@
 import * as vscode from 'vscode';
 import { isAbsolute } from 'path';
-import { LOCALHOST } from '../constants';
+import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
+
+export function registerDebugConfigurationProvider<T extends DebugConfigurationProvider>(
+  context: ExtensionContext,
+  type: DebugType,
+  constructor: new (context: ExtensionContext, debugType: DebugType) => T,
+): void {
+  context.disposables.push(
+    vscode.debug.registerDebugConfigurationProvider(type, new constructor(context, 'rdbg')),
+  );
+}
 
 /**
  * Base debug configuration provider.
@@ -9,7 +19,7 @@ import { ExtensionContext } from '../extensionContext';
 export abstract class DebugConfigurationProvider implements vscode.DebugConfigurationProvider {
   constructor(
     protected readonly context: ExtensionContext,
-    protected readonly type: string,
+    protected readonly type: DebugType,
   ) {}
 
   async resolveDebugConfiguration(

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+- Add **Exception Filters** view to manage which exception types the debugger should break on.
+- Add `tracciatto.logDapMessages` setting to log DAP messages as trace entries.
+- Rename `tracciatto.runtimeExecutable` setting to `tracciatto.debug.runtimeExecutable`.
+
 ## 0.1.4
 - Fix: `DebugConfigurationProvider` should set a default only for required values for the specific configuration type.
 - Filter out empty or unsupported-type skip-paths.

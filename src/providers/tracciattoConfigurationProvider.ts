@@ -1,17 +1,12 @@
 import * as vscode from 'vscode';
-import { TRACCIATTO_TYPE } from '../constants';
-import { RdbgDebugSessionInitializer } from '../debuggers/rdbgDebugSessionInitializer';
 import { ExtensionContext } from '../extensionContext';
-import { DebugConfigurationProvider } from './debugConfigurationProvider';
+import {
+  DebugConfigurationProvider,
+  registerDebugConfigurationProvider,
+} from './debugConfigurationProvider';
 
 export function registerTracciattoConfigurationProvider(context: ExtensionContext): void {
-  context.disposables.push(
-    vscode.debug.registerDebugConfigurationProvider(
-      TRACCIATTO_TYPE,
-      new TracciattoConfigurationProvider(context, TRACCIATTO_TYPE),
-    ),
-    new RdbgDebugSessionInitializer(context, TRACCIATTO_TYPE),
-  );
+  registerDebugConfigurationProvider(context, 'tracciatto', TracciattoConfigurationProvider);
 }
 
 /**
