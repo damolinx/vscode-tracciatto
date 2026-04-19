@@ -11,22 +11,13 @@ export function registerRdbgConfigurationProvider(context: ExtensionContext): vo
 
 /**
  * `rdbg` debug configuration provider. This is intended as adapter for existing
- * configurations as it unlikely users will move for a long time, if ever.
+ * configurations as it unlikely users will move for a long time, if ever, to
+ * `tracciatto`.
  */
 export class RdbgConfigurationProvider extends DebugConfigurationProvider {
-  override resolveDebugConfiguration(
-    folder: vscode.WorkspaceFolder | undefined,
-    config: vscode.DebugConfiguration,
-    token?: vscode.CancellationToken,
-  ): Promise<vscode.DebugConfiguration | undefined> {
-    config.program ??= config.script;
-    config.runtimeExecutable ??= config.command;
-    return super.resolveDebugConfiguration(folder, config, token);
-  }
-
-  protected override verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined {
+  protected override resolveAttachConfig(config: vscode.DebugConfiguration): string | undefined {
     if (!config.debugPort) {
-      return '"debugPort" is required for attach';
+      return '"debugPort" must be defined to attach';
     }
 
     const parsed = this.parseHostPort(config.debugPort);
@@ -40,6 +31,23 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
       config.port = undefined;
     }
 
+    return;
+  }
+
+  protected override async resolveLaunchConfig(
+    config: vscode.DebugConfiguration,
+    folder?: vscode.WorkspaceFolder,
+    _token?: vscode.CancellationToken,
+  ): Promise<string | undefined> {
+    if (!config.script) {
+      return '"script" must be defined to launch';
+    }
+    config.program ??= config.script;
+
+    const normalizedCommand = config.command?.trim();
+    config.runtimeExecutable = normalizedCommand
+      ? normalizedCommand
+      : await this.resolveRuntimeExecutable(folder);
     return;
   }
 }

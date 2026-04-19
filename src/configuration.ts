@@ -14,13 +14,13 @@ export class Configuration {
    * @param section — Configuration name, supports dotted names.
    * @param defaultValue — Value returned if the setting is not defined.
    */
-  public getValue<T>(scope: vscode.ConfigurationScope | undefined, section: string): T | undefined;
-  public getValue<T>(
+  private getValue<T>(scope: vscode.ConfigurationScope | undefined, section: string): T | undefined;
+  private getValue<T>(
     scope: vscode.ConfigurationScope | undefined,
     section: string,
     defaultValue: T,
   ): T;
-  public getValue<T>(
+  private getValue<T>(
     scope: vscode.ConfigurationScope | undefined,
     section: string,
     defaultValue?: T,
@@ -38,6 +38,17 @@ export class Configuration {
   public resolveValue<T>(section: string, defaultValue: T): T;
   public resolveValue<T>(section: string, defaultValue?: T): T | undefined {
     return this.getConfiguration().get(section, defaultValue);
+  }
+
+  /**
+   * Whether to prefer running under `bundle exec` when a Gemfile is present.
+   * and no explicit runtimeExecutable is defined in the debug configuration.
+   */
+  public getPreferBundler(
+    scope: vscode.ConfigurationScope | undefined,
+    defaultValue = true,
+  ): boolean {
+    return this.getValue<boolean>(scope, 'debug.preferBundler', defaultValue) ?? defaultValue;
   }
 
   /**

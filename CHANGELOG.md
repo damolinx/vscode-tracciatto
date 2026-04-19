@@ -1,8 +1,10 @@
 # Changelog
 
 ## 0.2.1
+- Add `tracciatto.debug.preferBundler` setting to use `bundle exec` to run `tracciatto.debug.runtimeExecutable` if workspace contains a `Gemfile`. 
 - Backward compatibility with `rdbg`:
-  - `showProtocolLog` but `tracciatto.logDapMessages` setting is preferred as it can be toggled at any time.
+  - Add `showProtocolLog` but prefer `tracciatto.logDapMessages` setting.
+  - Add `useBundler` but prefer `tracciatto.debug.preferBundler` setting.
 
 ## 0.2.0
 - Add **Exception Filters** view to manage which exception types the debugger should break on.

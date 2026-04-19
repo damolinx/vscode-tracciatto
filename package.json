@@ -91,6 +91,11 @@
     },
     "configuration": {
       "properties": {
+        "tracciatto.debug.preferBundler": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Prefer running `bundle exec` when a Gemfile is present and no `runtimeExecutable` is explicitly set in the configuration file."
+        },
         "tracciatto.debug.runtimeExecutable": {
           "type": "string",
           "default": "ruby",
@@ -284,7 +289,7 @@
               },
               "rdbgPath": {
                 "type": "string",
-                "description": "Optional absolute path to dbg"
+                "description": "Absolute path to rdbg"
               },
               "script": {
                 "type": "string",
@@ -294,6 +299,11 @@
               "showProtocolLog": {
                 "type": "boolean",
                 "description": "Log all DAP messages"
+              },
+              "useBundler": {
+                "type": "boolean",
+                "description": "Use `bundle exec` to run Ruby program",
+                "default": false
               }
             }
           }

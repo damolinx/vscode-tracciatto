@@ -13,7 +13,7 @@ export function registerTracciattoConfigurationProvider(context: ExtensionContex
  * `tracciatto` debug configuration provider.
  */
 export class TracciattoConfigurationProvider extends DebugConfigurationProvider {
-  protected override verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined {
+  protected override resolveAttachConfig(config: vscode.DebugConfiguration): string | undefined {
     const hasPort = !!config.port;
     const hasSocket = !!config.socket;
 
@@ -34,6 +34,15 @@ export class TracciattoConfigurationProvider extends DebugConfigurationProvider 
       config.port = parsed.port;
     }
 
+    return;
+  }
+
+  protected override async resolveLaunchConfig(
+    config: vscode.DebugConfiguration,
+    folder?: vscode.WorkspaceFolder,
+    _token?: vscode.CancellationToken,
+  ): Promise<string | undefined> {
+    config.runtimeExecutable ??= await this.resolveRuntimeExecutable(folder);
     return;
   }
 }

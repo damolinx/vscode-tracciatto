@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { isAbsolute } from 'path';
 import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
+import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from '../rdbg/debugConfiguration';
 
 export function registerDebugConfigurationProvider<T extends DebugConfigurationProvider>(
   context: ExtensionContext,
@@ -24,34 +25,34 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
 
   async resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
-    configuration: vscode.DebugConfiguration,
-    _token?: vscode.CancellationToken,
+    config: vscode.DebugConfiguration,
+    token?: vscode.CancellationToken,
   ): Promise<vscode.DebugConfiguration | undefined> {
-    configuration.skipPaths = await this.getMergedSkipPaths(configuration, folder);
+    config.skipPaths = await this.getMergedSkipPaths(config, folder);
 
     let verificationMessage: string | undefined;
-    switch (configuration.request) {
+    switch (config.request) {
       case 'attach':
-        configuration.name ??= 'Attach to rdbg';
-        verificationMessage = this.verifyAttachConfig(configuration);
+        config.name ??= 'Attach to rdbg';
+        verificationMessage = await this.resolveAttachConfig(config, folder, token);
+        verificationMessage ??= this.verifyAttachConfig(config as AttachRdbgConfiguration);
         break;
 
       case 'launch':
-        configuration.cwd ??=
-          folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
-        configuration.name ??= 'Launch with rdbg';
-        configuration.runtimeExecutable ??= this.context.configuration.getRuntimeExecutable(folder);
-        verificationMessage = this.verifyLaunchConfig(configuration);
+        config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
+        config.name ??= 'Launch with rdbg';
+        verificationMessage = await this.resolveLaunchConfig(config, folder, token);
+        verificationMessage ??= this.verifyLaunchConfig(config as LaunchRdbgConfiguration);
         break;
     }
 
     if (verificationMessage) {
       this.context.log.error(`${this.type}: ${verificationMessage}`);
-      vscode.window.showErrorMessage(`${verificationMessage}:${configuration.name}`);
+      vscode.window.showErrorMessage(`${verificationMessage}:${config.name}`);
       return;
     }
 
-    return configuration;
+    return config;
   }
 
   private async getMergedSkipPaths(
@@ -70,15 +71,6 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     );
 
     return Array.from(mergedSkipPaths);
-  }
-
-  protected abstract verifyAttachConfig(config: vscode.DebugConfiguration): string | undefined;
-
-  protected verifyLaunchConfig(config: vscode.DebugConfiguration): string | undefined {
-    if (!config.program) {
-      return '"program" is required for launch';
-    }
-    return;
   }
 
   protected parseHostPort(hostPort: string): { host: string; port: number } | undefined {
@@ -122,5 +114,42 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     }
 
     return [];
+  }
+
+  protected abstract resolveAttachConfig(
+    config: vscode.DebugConfiguration,
+    folder?: vscode.WorkspaceFolder,
+    token?: vscode.CancellationToken,
+  ): Promise<string | undefined> | string | undefined;
+
+  protected abstract resolveLaunchConfig(
+    config: vscode.DebugConfiguration,
+    folder?: vscode.WorkspaceFolder,
+    token?: vscode.CancellationToken,
+  ): Promise<string | undefined> | string | undefined;
+
+  protected async resolveRuntimeExecutable(folder?: vscode.WorkspaceFolder): Promise<string> {
+    return this.context.configuration.getPreferBundler(folder) &&
+      (!folder ||
+        (await vscode.workspace.fs.stat(vscode.Uri.joinPath(folder.uri, 'Gemfile')).then(
+          ({ type }) => Boolean(type & vscode.FileType.File),
+          () => false,
+        )))
+      ? 'bundle exec ruby'
+      : this.context.configuration.getRuntimeExecutable(folder);
+  }
+
+  private verifyAttachConfig(config: AttachRdbgConfiguration): string | undefined {
+    if (!config.socket && config.port === undefined) {
+      return '"port" or "socket" must be defined to attach';
+    }
+    return;
+  }
+
+  private verifyLaunchConfig(config: LaunchRdbgConfiguration): string | undefined {
+    if (!config.program) {
+      return '"program" is required to launch';
+    }
+    return;
   }
 }

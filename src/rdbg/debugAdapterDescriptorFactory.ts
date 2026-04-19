@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import { existsSync } from 'fs';
 import { isAbsolute } from 'path';
-import * as readline from 'readline';
+import { createInterface as createReadlineInterface } from 'readline';
 import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from './debugConfiguration';
@@ -72,6 +72,8 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     const { cwd, rdbgPath } = config;
     const cmd = rdbgPath || 'rdbg';
     const env = { ...process.env, ...config.env };
+    this.context.log.info(`Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: '${cwd}'` : ''}`);
+
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });
     child
       .on('error', (err) => {
@@ -86,12 +88,8 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
       });
     child.stderr.on('data', (chunk) => this.context.log.info(`>> ${chunk.toString().trim()}`));
     child.stdout.on('data', (chunk) => this.context.log.info(`> ${chunk}`));
-
-    this.context.log.info(
-      `Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: '${cwd}'` : ''} pid: ${child.pid}`,
-    );
     const rdbgPort = await this.waitForRdbgPort(child);
-    this.context.log.info(`Launched rdbg at ${LOCALHOST}:${rdbgPort}`);
+    this.context.log.info(`Launched rdbg. Pid: ${child.pid} Endpoint: ${LOCALHOST}:${rdbgPort}`);
 
     return new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
   }
@@ -101,45 +99,47 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     const mergedArgs = ['--open', '--port', (port ?? 0).toString()];
 
     const resolvedRuntimeExecutable = this.resolveRuntimeExecutable(config);
-    mergedArgs.push('--command', resolvedRuntimeExecutable, '--', program, ...args);
+    mergedArgs.push('--command', ...resolvedRuntimeExecutable, '--', program, ...args);
     return mergedArgs;
   }
 
-  private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string {
+  private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string[] {
     const candidate = config.runtimeExecutable;
     if (typeof candidate !== 'string' || !candidate) {
       throw new Error(`Invalid "runtimeExecutable" value: ${candidate}`);
     }
 
     if (isAbsolute(candidate)) {
-      return candidate;
+      return [candidate];
     }
 
+    const candidateWithArgs = candidate.split(/\s+/);
+
     const whichCmd = process.platform === 'win32' ? 'where' : 'which';
-    const result = cp.spawnSync(whichCmd, [candidate], { encoding: 'utf8' });
+    const result = cp.spawnSync(whichCmd, [candidateWithArgs[0]], { encoding: 'utf8' });
 
     if (result.status === 0) {
       const firstLine = result.stdout.split(/\r?\n/).find((l) => l.trim().length > 0);
       if (firstLine) {
-        return firstLine.trim();
+        return candidateWithArgs;
       }
     }
 
     throw new Error(
-      `Unable to resolve runtime executable "${candidate}". Set "runtimeExecutable" to a full path in your debug configuration.`,
+      `Unable to resolve runtime executable "${candidateWithArgs[0]}". Set "runtimeExecutable" to a full path in your debug configuration.`,
     );
   }
 
   private async waitForRdbgPort(child: cp.ChildProcessWithoutNullStreams) {
-    const rl = readline.createInterface({ input: child.stderr });
+    const readline = createReadlineInterface({ input: child.stderr });
     const rdbgPort = await new Promise<number>((resolve, reject) => {
       let firstLine: string | undefined;
-      rl.on('line', (line) => {
+      readline.on('line', (line) => {
         firstLine ??= line.trim();
         const match = line.match(/:(\d+)\)$/);
         if (match) {
           resolve(Number(match[1]));
-          rl.removeAllListeners();
+          readline.removeAllListeners();
           child.stderr.removeAllListeners();
         }
       });
