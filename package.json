@@ -30,6 +30,9 @@
     "rdbg",
     "ruby"
   ],
+  "extensionPack": [
+    "damolinx.formatto"
+  ],
   "activationEvents": [
     "onDebugResolve:tracciatto",
     "onLanguage:ruby"
