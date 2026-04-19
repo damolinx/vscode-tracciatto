@@ -5,6 +5,7 @@
 - Backward compatibility with `rdbg`:
   - Add `showProtocolLog` but prefer `tracciatto.logDapMessages` setting.
   - Add `useBundler` but prefer `tracciatto.debug.preferBundler` setting.
+- Fix: `tracciatto.debug.runtimeExecutable` fails to be validated if it is a command with arguments (e.g. `bundle exec`).
 
 ## 0.2.0
 - Add **Exception Filters** view to manage which exception types the debugger should break on.
