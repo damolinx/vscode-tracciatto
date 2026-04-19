@@ -242,11 +242,15 @@
             "properties": {
               "debugPort": {
                 "type": "string",
-                "description": "[host:]port or socket path to the rdbg DAP server."
+                "description": "[hostname:]port or socket path to the rdbg DAP server."
               },
               "rdbgPath": {
                 "type": "string",
                 "description": "Optional absolute path to dbg"
+              },
+              "showProtocolLog": {
+                "type": "boolean",
+                "description": "Log all DAP messages"
               }
             }
           },
@@ -286,6 +290,10 @@
                 "type": "string",
                 "description": "Absolute path to a Ruby file.",
                 "default": "${file}"
+              },
+              "showProtocolLog": {
+                "type": "boolean",
+                "description": "Log all DAP messages"
               }
             }
           }

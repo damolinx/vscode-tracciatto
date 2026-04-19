@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+- Backward compatibility with `rdbg`:
+  - `showProtocolLog` but `tracciatto.logDapMessages` setting is preferred as it can be toggled at any time.
+
 ## 0.2.0
 - Add **Exception Filters** view to manage which exception types the debugger should break on.
 - Add `tracciatto.logDapMessages` setting to log DAP messages as trace entries.

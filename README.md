@@ -91,10 +91,12 @@ Use this mode when Ruby is already running and you want the debugger to connect 
 #### Compatibility with rdbg (vscode‑rdbg)
 This extension is compatible with the `rdbg` debug type provided by the
 **vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties:
-- `script`: required for launch
 - `args`, `command`, `cwd`, `env`
-- `debugPort`: attach
+- `debugPort`: attach port (`[hostname:]port`) or socket path.
 - `rdbgPath`: optional override for the `rdbg` executable
+- `script`: required for launch
+- `showProtocolLog`: log DAP communication messages (prefer `tracciatto.logDapMessages` [setting](#configuration))
+
 
 To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** whenever the
 official `vscode‑rdbg` extension is installed and active. Otherwise, this
@@ -106,11 +108,16 @@ extension registers a `rdbg` configuration provider and debug adapter.
 
 Tracciatto supports the following user and workspace settings:
 
+## Configuration
+
+Tracciatto supports the following user and workspace settings:
+
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns | |
-| `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. Absolute path, or relative to workspace root | `.tracciatto-skip-paths` |
-| `tracciatto.runtimeExecutable` | Path to the Ruby executable used for debugging | `ruby` |
+| `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
+| `tracciatto.debug.runtimeExecutable` | Path to the Ruby executable used for debugging. | `ruby` |
+| `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
+| `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
 
 [↑ Back to top](#table-of-contents)
 

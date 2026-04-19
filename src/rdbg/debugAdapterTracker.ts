@@ -11,21 +11,41 @@ import { SkipPathsSessionController } from './controllers/skipPathsSessionContro
  * to assume responsability for disposal.
  */
 export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.Disposable {
-  private exceptionController?: ExceptionSessionController;
-  private skipPathsController?: SkipPathsSessionController;
+  private readonly disposables: vscode.Disposable[];
+  private readonly exceptionController: ExceptionSessionController;
+  private logDapMessages: boolean;
+  private readonly skipPathsController: SkipPathsSessionController;
 
   constructor(
     private readonly context: ExtensionContext,
     private readonly session: vscode.DebugSession,
-  ) {}
+  ) {
+    this.exceptionController = new ExceptionSessionController(this.context, this.session);
+    this.skipPathsController = new SkipPathsSessionController(this.context, this.session);
+    this.disposables = [
+      this.exceptionController,
+      this.skipPathsController,
+      vscode.workspace.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration('tracciatto.logDapMessages', this.session.workspaceFolder)) {
+          this.logDapMessages = this.context.configuration.getLogDapMessages(
+            this.session.workspaceFolder,
+          );
+        }
+      }),
+    ];
+
+    this.logDapMessages =
+      Boolean(this.session.configuration.showProtocolLog) ||
+      this.context.configuration.getLogDapMessages(this.session.workspaceFolder);
+  }
 
   dispose(): void {
-    this.exceptionController?.dispose();
-    this.exceptionController = undefined;
+    vscode.Disposable.from(...this.disposables).dispose();
+    this.disposables.length = 0;
   }
 
   async onDidSendMessage(message: DebugProtocol.ProtocolMessage): Promise<void> {
-    if (this.context.configuration.getLogDapMessages(this.session.workspaceFolder)) {
+    if (this.logDapMessages) {
       this.context.log.trace('dap.message', this.session.id, message);
     }
 
@@ -35,43 +55,27 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
 
     const eventMessage = message as DebugProtocol.Event;
     switch (eventMessage.event) {
-      case 'breakpoint':
-        this.context.log.debug('dap.event.breakpoint', this.session.id, {
-          body: eventMessage.body,
-        });
-        break;
-
       case 'initialized':
-        this.context.log.debug('dap.event.initialized', this.session.id);
-        if (!this.exceptionController) {
-          this.exceptionController = new ExceptionSessionController(this.context, this.session);
-          await this.exceptionController.initialize();
-        }
-        if (!this.skipPathsController) {
-          this.skipPathsController = new SkipPathsSessionController(this.context, this.session);
-          await this.skipPathsController.initialize();
-        }
+        this.context.log.debug('Session initialized', this.session.id);
+        await this.exceptionController.initialize();
+        await this.skipPathsController.initialize();
         break;
 
       case 'stopped':
-        this.context.log.debug('dap.event.stopped', this.session.id, {
-          reason: eventMessage.body?.reason,
-        });
+        this.context.log.debug('Session stopped', this.session.id, eventMessage.body?.reason ?? '');
         break;
 
       case 'terminated':
-        this.context.log.debug('dap.event.terminated', this.session.id);
+        this.context.log.debug('Session terminated', this.session.id);
         break;
     }
   }
 
   onExit() {
-    this.context.log.debug('dap.onExit', this.session.id);
     this.dispose();
   }
 
   onWillStopSession() {
-    this.context.log.debug('dap.onWillStop', this.session.id);
     this.dispose();
   }
 }
