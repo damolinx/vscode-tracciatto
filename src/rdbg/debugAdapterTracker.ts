@@ -46,7 +46,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
 
   async onDidSendMessage(message: DebugProtocol.ProtocolMessage): Promise<void> {
     if (this.logDapMessages) {
-      this.context.log.trace('dap.message', this.session.id, message);
+      this.context.log.trace(`[${this.session.id}] dap.message`, message);
     }
 
     if (message.type !== 'event') {
@@ -56,17 +56,19 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     const eventMessage = message as DebugProtocol.Event;
     switch (eventMessage.event) {
       case 'initialized':
-        this.context.log.debug('Session initialized', this.session.id);
+        this.context.log.debug(`[${this.session.id}] Session initialized`);
         await this.exceptionController.initialize();
         await this.skipPathsController.initialize();
         break;
 
       case 'stopped':
-        this.context.log.debug('Session stopped', this.session.id, eventMessage.body?.reason ?? '');
+        this.context.log.debug(
+          `[${this.session.id}] Session stopped (${eventMessage.body?.reason ?? ''})`,
+        );
         break;
 
       case 'terminated':
-        this.context.log.debug('Session terminated', this.session.id);
+        this.context.log.debug(`[${this.session.id}] Session terminated`);
         break;
     }
   }
