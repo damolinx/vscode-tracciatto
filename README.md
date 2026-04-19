@@ -97,10 +97,7 @@ This extension is compatible with the `rdbg` debug type provided by the
 - `script`: required for launch
 - `showProtocolLog`: log DAP communication messages (prefer `tracciatto.logDapMessages` [setting](#configuration))
 
-
-To avoid conflicts, this built‑in `rdbg` support is **automatically disabled** whenever the
-official `vscode‑rdbg` extension is installed and active. Otherwise, this
-extension registers a `rdbg` configuration provider and debug adapter.
+To avoid conflicts, this support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed and active. This is set during extension activation, so reloading the extension would be needed after disabling or uninstalling **vscode‑rdbg** if it was present. Check [logs](#loga) for confirmation. Note that the `tracciatto` debug type is always available.
 
 [↑ Back to top](#table-of-contents)
 
