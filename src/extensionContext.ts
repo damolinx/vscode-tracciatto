@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import { Configuration } from './configuration';
 import { ExceptionManager } from './exceptions/exceptionManager';
+import { DebugSession } from './rdbg/debugSession';
 
 export class ExtensionContext {
+  private _activeDebugSession?: DebugSession;
   private _supportRdbgDebugType?: boolean;
   public readonly configuration: Configuration;
   public readonly exceptionManager: ExceptionManager;
@@ -14,6 +16,15 @@ export class ExtensionContext {
 
     this.exceptionManager = new ExceptionManager(this.extensionContext, this.log);
     this.disposables.push(this.exceptionManager, this.log);
+  }
+
+  public get activeDebugSession(): DebugSession | undefined {
+    return this._activeDebugSession;
+  }
+
+  public set activeDebugSession(value: DebugSession | undefined) {
+    this._activeDebugSession = value;
+    this.log.trace(value ? `Set active debug session: ${value.id}` : 'Unset active debug session');
   }
 
   public get disposables(): vscode.Disposable[] {
