@@ -54,10 +54,7 @@ export class Configuration {
   /**
    * Get Ruby executable name/path.
    */
-  public getRuntimeExecutable(
-    scope: vscode.ConfigurationScope | undefined,
-    defaultValue = 'ruby',
-  ): string {
+  public getRuntimeExecutable(scope?: vscode.ConfigurationScope, defaultValue = 'ruby'): string {
     return this.getValue<string>(scope, 'debug.runtimeExecutable', defaultValue) ?? defaultValue;
   }
 

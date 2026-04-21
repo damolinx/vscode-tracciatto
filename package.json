@@ -47,6 +47,12 @@
         "icon": "$(add)"
       },
       {
+        "command": "tracciatto.attach",
+        "title": "Attach to…",
+        "category": "Tracciatto",
+        "enablement": "!inDebugMode"
+      },
+      {
         "command": "tracciatto.removeException",
         "title": "Remove Exception Filter",
         "category": "Tracciatto",

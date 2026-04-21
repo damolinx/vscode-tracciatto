@@ -26,12 +26,14 @@ export class TracciattoConfigurationProvider extends DebugConfigurationProvider 
     }
 
     if (hasPort) {
-      const parsed = this.parseHostPort(config.port);
-      if (!parsed) {
-        return '"port" has an unexpected format';
+      if (typeof config.port === 'string') {
+        const parsed = TracciattoConfigurationProvider.parseHostPort(config.port);
+        if (!parsed) {
+          return '"port" has an unexpected format';
+        }
+        config.host = parsed.host;
+        config.port = parsed.port;
       }
-      config.host = parsed.host;
-      config.port = parsed.port;
     }
 
     return;

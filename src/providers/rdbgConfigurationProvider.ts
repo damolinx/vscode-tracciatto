@@ -20,7 +20,7 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
       return '"debugPort" must be defined to attach';
     }
 
-    const parsed = this.parseHostPort(config.debugPort);
+    const parsed = RdbgConfigurationProvider.parseHostPort(config.debugPort);
     if (parsed) {
       config.host = parsed.host;
       config.port = parsed.port;

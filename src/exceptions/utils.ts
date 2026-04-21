@@ -4,6 +4,7 @@ export async function showExceptionInputBox(
   additionalValidator?: (name: string) => string | undefined,
 ): Promise<string | undefined> {
   return vscode.window.showInputBox({
+    ignoreFocusOut: true,
     prompt: 'e.g., NoMethodError, NameError, ActiveRecord::RecordNotFound',
     placeHolder: 'Enter a Ruby error constant name',
     validateInput: (value) => validateExceptionName(value, additionalValidator),

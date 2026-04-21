@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { addException } from './commands/addException';
+import { attach } from './commands/attach';
 import { debugEditor } from './commands/debugFile';
 import { removeException } from './commands/removeException';
 import { runEditor } from './commands/runFile';
@@ -34,6 +35,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     cr('tracciatto.addException', (nameOrNode?: string | GroupTreeNode) =>
       addException(context, nameOrNode),
     ),
+    cr('tracciatto.attach', (portOrSocket?: string) => attach(context, portOrSocket)),
     cr('tracciatto.removeException', (nameOrNode: string | ExceptionTreeNode) =>
       removeException(context, nameOrNode),
     ),

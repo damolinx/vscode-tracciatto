@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.2
+- Add **Attach to…** command to start an attach session via host:port or socket.
+
 ## 0.2.1
 - Add `tracciatto.debug.preferBundler` setting to use `bundle exec` to run `tracciatto.debug.runtimeExecutable` if workspace contains a `Gemfile`. 
 - Backward compatibility with `rdbg`:

@@ -73,7 +73,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     return Array.from(mergedSkipPaths);
   }
 
-  protected parseHostPort(hostPort: string): { host: string; port: number } | undefined {
+  public static parseHostPort(hostPort: string): { host: string; port: number } | undefined {
     let host: string | undefined;
     let port = NaN;
 

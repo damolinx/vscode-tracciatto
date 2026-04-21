@@ -204,6 +204,7 @@ The following commands are intended for quick verification of standalone scripts
 
 | Command                          | Description |
 |----------------------------------|-------------|
+| **Attach to…** | Attach to  host:port or socket |
 | **Debug Active Editor** | Debugs the active Ruby editor |
 | **Run Active Editor** | Executes the active Ruby file |
 
