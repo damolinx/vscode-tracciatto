@@ -24,14 +24,22 @@ export async function attach(context: ExtensionContext, portOrSocket?: string): 
   return vscode.debug.startDebugging(undefined, config);
 }
 
+let mruPortOrSocket: string | undefined;
 async function showPortOrSocketInputBox(): Promise<string | undefined> {
   const value = await vscode.window.showInputBox({
     ignoreFocusOut: true,
     prompt: 'Enter a host:port or a UNIX socket path',
     placeHolder: 'e.g. 127.0.0.1:12345 or /tmp/rdbg.sock',
     validateInput: validatePortOrSocket,
+    value: mruPortOrSocket,
   });
-  return value?.trim();
+
+  if (!value) {
+    return;
+  }
+
+  mruPortOrSocket = value;
+  return value;
 }
 
 export function validatePortOrSocket(input: string): string | undefined {

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.3
+- Input boxes remember recent values (current sesion only).
+
 ## 0.2.2
 - Add **Attach to…** command to start an attach session via host:port or socket.
 - Debugger now waits by default up to 5000ms for the socket to appear when attaching.
