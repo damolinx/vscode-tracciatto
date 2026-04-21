@@ -12,10 +12,11 @@ Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter
   - [Attaching to a running process](#attaching-to-a-running-process)
 - [Configuration](#configuration)
 - [Debug Configurations](#debug-configurations)
-  - [Tracciatto](#tracciatto-1)
-  - [Compatibility with `rdbg`](#compatibility-with-rdbg-vscoderdbg)
+  - [`tracciatto`](#tracciatto-1)
+  - [`rdbg` (vscode‑rdbg)](#rdbg-vscoderdbg)
 - [Commands](#commands)
-- [Exception Filters](#exception-filters)
+- [Breakpoints](#breakpoints-in-rdbg)
+  - [Exception Filters](#exception-filters)
 - [Skip-Path Patterns](#skip-path-patterns)
 - [Logs](#logs)
 
@@ -106,7 +107,7 @@ Tracciatto supports the following user and workspace settings:
 
 ## Debug Configurations
 
-### Tracciatto
+### tracciatto
 
 This extension provides its own debug type: `tracciatto`. It supports both **launch** and **attach** modes with the following properties:
 
@@ -132,7 +133,7 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 | `rdbgPath` | Optional absolute path to rdbg |
 | `skipPaths` | Paths to skip when stepping |
 
-### Compatibility with rdbg (vscode‑rdbg)
+### rdbg (vscode‑rdbg)
 
 This extension is compatible with the `rdbg` debug type provided by the **vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties.
 
@@ -173,7 +174,50 @@ The following commands are intended for quick verification of standalone scripts
 
 [↑ Back to top](#table-of-contents)
 
-## Exception Filters
+## Breakpoints
+
+The following breakpoint types are supported from UI:
+
+- **Line Breakpoint**: stops at a specific file/line.  
+  - Set by clicking the editor gutter or pressing **F9**.  
+  - **Debug console**: `break <file>:<line>`
+
+- **Conditional Line Breakpoint**: stops only if an expression evaluates truthy.  
+  - Set by right‑clicking a line breakpoint → **Edit Breakpoint…**.  
+  - **Debug console**: `break <file>:<line> if <expr>`
+
+- **Catch Breakpoint**: stops when a specific exception class is raised.  
+  - rdbgs native integration only exposes **rescue any exception** and **rescue RuntimeError** in the VS Code **Breakpoints** view.  
+  - Tracciatto expands this via the [Exception Filters](#exception-filters) view.  
+  - **Debug console**: `catch <ExceptionClass>`
+
+The following breakpoint types depend on **runtime entities** (methods, objects, or expressions). 
+
+> These breakpoints **cannot be preset** in the general case because the target entities do not exist until the Ruby VM loads the relevant code. They can only reliably be defined **during an active debug session**.
+
+VS Code allows adding some of these using the **Add Function Breakpoint** command, but rdbg will silently fail to set them up during session startup unless the method/object already exists (e.g., when attaching to a long‑running process).
+
+- **Method Breakpoint**: stops when a method is called.  
+  - Supported in VS Code as function breakpoints.  
+  - **Debug console**: `break <Class>.<method>` or `break <Class>#<method>`
+
+- **Object Breakpoint**: stops when a specific object is used as receiver/argument.  
+  - No VS Code UI entrypoint.  
+  - **Debug console**: `watch object <expr>`
+
+- **Watch Breakpoint**: stops when the value of an expression changes.  
+  - No VS Code UI entrypoint.
+  - **Debug console**: `watch <expr>`
+
+- **Temporary Breakpoint**: stops once, then removes itself.  
+  - No VS Code UI entrypoint.  
+  - **Debug console**: `break <file>:<line> once`
+
+- **Tracepoint (line/call/exception/object)**: logs events without stopping.  
+  No VS Code UI entrypoint.  
+  **Debug console**: `trace <event>` (e.g., `trace call`, `trace line`)
+
+### Exception Filters
 
 The **Exception Filters** view lets you easily select  Ruby exceptions should have rdbg to break at. There are two categories:
 
