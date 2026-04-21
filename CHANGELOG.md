@@ -2,6 +2,8 @@
 
 ## 0.2.2
 - Add **Attach to…** command to start an attach session via host:port or socket.
+- Debugger now waits by default up to 5000ms for the socket to appear when attaching.
+  - `tracciatto`-type gets a `socketTimeoutMs` option to control the timeout, with 0 meaning no-wait. 
 
 ## 0.2.1
 - Add `tracciatto.debug.preferBundler` setting to use `bundle exec` to run `tracciatto.debug.runtimeExecutable` if workspace contains a `Gemfile`. 

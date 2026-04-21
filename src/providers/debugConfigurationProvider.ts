@@ -4,6 +4,8 @@ import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from '../rdbg/debugConfiguration';
 
+export const DEFAULT_SOCKET_TIMEOUT = 5000;
+
 export function registerDebugConfigurationProvider<T extends DebugConfigurationProvider>(
   context: ExtensionContext,
   type: DebugType,
@@ -34,6 +36,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     switch (config.request) {
       case 'attach':
         config.name ??= 'Attach to rdbg';
+        config.socketTimeoutMs ??= DEFAULT_SOCKET_TIMEOUT;
         verificationMessage = await this.resolveAttachConfig(config, folder, token);
         verificationMessage ??= this.verifyAttachConfig(config as AttachRdbgConfiguration);
         break;
@@ -48,7 +51,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
 
     if (verificationMessage) {
       this.context.log.error(`${this.type}: ${verificationMessage}`);
-      vscode.window.showErrorMessage(`${verificationMessage}:${config.name}`);
+      vscode.window.showErrorMessage(`${config.name}: ${verificationMessage}`);
       return;
     }
 
@@ -142,6 +145,9 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   private verifyAttachConfig(config: AttachRdbgConfiguration): string | undefined {
     if (!config.socket && config.port === undefined) {
       return '"port" or "socket" must be defined to attach';
+    }
+    if (config.socketTimeoutMs === undefined || config.socketTimeoutMs < 0) {
+      return '"socketTimeoutMs" must be greater than or equal to 0';
     }
     return;
   }

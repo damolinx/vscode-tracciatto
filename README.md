@@ -10,11 +10,13 @@ Tracciatto is a Ruby debugger extension built on top of the `rdbg` debug adapter
 - [Getting Started](#getting-started)
   - [Launching a debug session](#launching-a-debug-session)
   - [Attaching to a running process](#attaching-to-a-running-process)
-  - [Compatibility with `rdbg` (vscode‑rdbg)](#compatibility-with-rdbg-vscoderdbg)
 - [Configuration](#configuration)
-  - [Skip frames](#skip-frames)
+- [Debug Configurations](#debug-configurations)
+  - [Tracciatto](#tracciatto-1)
+  - [Compatibility with `rdbg`](#compatibility-with-rdbg-vscoderdbg)
 - [Commands](#commands)
 - [Exception Filters](#exception-filters)
+- [Skip-Path Patterns](#skip-path-patterns)
 - [Logs](#logs)
 
 ## Getting Started
@@ -88,24 +90,6 @@ Use this mode when Ruby is already running and you want the debugger to connect 
 
 [↑ Back to top](#table-of-contents)
 
-#### Compatibility with rdbg (vscode‑rdbg)
-This extension is compatible with the `rdbg` debug type provided by the
-**vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties:
-- `args`, `command`, `cwd`, `env`
-- `debugPort`: attach port (`[hostname:]port`) or socket path
-- `rdbgPath`: optional override for the `rdbg` executable
-- `script`: required for launch
-- `showProtocolLog`: log DAP communication messages, Prefer `tracciatto.logDapMessages` [setting](#configuration)
-- `userBundler`: force using `bundle exec ruby` to run Ruby program. Prefer `tracciatto.preferBundler` [setting](#configuration)
-
-To avoid conflicts, this support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed and active. This is set during extension activation, so reloading the extension would be needed after disabling or uninstalling **vscode‑rdbg** if it was present. Check [logs](#loga) for confirmation. Note that the `tracciatto` debug type is always available.
-
-[↑ Back to top](#table-of-contents)
-
-## Configuration
-
-Tracciatto supports the following user and workspace settings:
-
 ## Configuration
 
 Tracciatto supports the following user and workspace settings:
@@ -120,13 +104,93 @@ Tracciatto supports the following user and workspace settings:
 
 [↑ Back to top](#table-of-contents)
 
-### Skip frames
+## Debug Configurations
+
+### Tracciatto
+
+This extension provides its own debug type: `tracciatto`. It supports both **launch** and **attach** modes with the following properties:
+
+#### Launch Properties
+
+| Property | Description |
+|----------|-------------|
+| `program` | Ruby file to debug (**required**) |
+| `args` | Arguments passed to the Ruby program |
+| `cwd` | Working directory |
+| `env` | Environment variables passed to the Ruby program |
+| `runtimeExecutable` | Ruby command to run (`ruby` by default) |
+| `rdbgPath` | Optional absolute path to rdbg |
+| `skipPaths` | Paths to skip when stepping |
+
+#### Attach Properties
+
+| Property | Description |
+|----------|-------------|
+| `port` | `[host:]port` path to the rdbg DAP server |
+| `socket` | Socket path to the rdbg DAP server |
+| `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately |
+| `rdbgPath` | Optional absolute path to rdbg |
+| `skipPaths` | Paths to skip when stepping |
+
+### Compatibility with rdbg (vscode‑rdbg)
+
+This extension is compatible with the `rdbg` debug type provided by the **vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties.
+
+> To prevent a conflict, this support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed and active. 
+
+This happens during extension activation, so reloading the extension is needed after disabling or (un)installing **vscode‑rdbg**. Check the [logs](#logs) for confirmation. Note that the `tracciatto` debug type is always available.
+
+#### Launch Properties
+
+| Property | Description |
+|----------|-------------|
+| `args` | Arguments passed to the Ruby program |
+| `command` | Command name (`ruby`, `rake`, `bin/rails`, `bundle exec ruby`, etc) |
+| `cwd` | Working directory |
+| `env` | Environment variables passed to the Ruby program |
+| `rdbgPath` | Absolute path to `rdbg` |
+| `script` | Absolute path to a Ruby file (**required**) |
+| `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration) |
+| `useBundler` | Use `bundle exec` to run Ruby program. Prefer `tracciatto.preferBundler` [setting](#configuration) |
+
+#### Attach Properties
+
+| Property | Description |
+|----------|-------------|
+| `debugPort` | `[hostname:]port` or socket path to the rdbg DAP server |
+| `rdbgPath` | Optional absolute path to rdbg |
+| `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration) |
+
+## Commands
+
+The following commands are intended for quick verification of standalone scripts, not as a replacement for a workspace [launch configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_launch-configurations). Code is run using the `tracciatto.runtimeExecutable` setting value (defaults to `ruby`).
+
+| Command | Description |
+|---------|-------------|
+| **Attach to…** | Attach to `host:port` or socket |
+| **Debug Active Editor** | Debugs the active Ruby editor |
+| **Run Active Editor** | Executes the active Ruby file |
+
+[↑ Back to top](#table-of-contents)
+
+## Exception Filters
+
+The **Exception Filters** view lets you easily select  Ruby exceptions should have rdbg to break at. There are two categories:
+
+* **Built‑in Filters**: represent common Ruby exception classes. These filters are always available and **cannot be edited or removed**.
+* **User Filters**: you can add any Ruby exception class (e.g., `NoMethodError`, `KeyError`, `ActiveRecord::RecordNotFound`) and control whether the debugger should break when it is raised.
+
+Exception filters can be toggled at any point in time, be that before or during program debugging.
+
+[↑ Back to top](#table-of-contents)
+
+## Skip-Path Patterns
 
 Rdbg supports *skip‑paths* glob patterns that tell the debugger which files it should not step into. This affects not only step-by-step debugging but also specific frames the debugger shows as part of the current call stack. For complex projects, this is invaluable as there might be significant portions of the stack you do not care about at a given point in time, e.g. gem code.
 
 Tracciatto aligns with this model by allowing skip‑paths to come from multiple sources. Patterns are merged and passed to `rdbg` via the `RUBY_DEBUG_SKIP_PATH` environment variable. There are three possible sources for skip‑paths:
 
-#### **1. Launch configuration**
+### **1. Launch configuration**
 
 Any `launch`‑type configuration may define skip‑paths via the `skipPaths` property.
 
@@ -140,11 +204,11 @@ Any `launch`‑type configuration may define skip‑paths via the `skipPaths` pr
 }
 ```
 
-#### **2. Workspace file**
+### **2. Workspace file**
 
 A workspace‑level file containing one pattern per line, with lines beginning with `#` being ignored. The filename is controlled by `tracciatto.debug.skipPathsFileName` (default: `.tracciatto-skip-paths`).
 
-##### Skip‑path pattern format
+#### Skip‑path pattern format
 
 Skip‑paths use the same glob‑style matching rules as `rdbg`. These are evaluated against **absolute** file paths.
 
@@ -156,8 +220,7 @@ Supported constructs:
 
 Comments can be added by startiing a line with `#` (Ruby comment). Blank lines are allowed.
 
-##### Examples
-
+**Examples**
 ```
 # Skip all Rails internals
 actionpack/**
@@ -176,7 +239,7 @@ vendor/bundle/**
 lib/internal/debug_helpers.rb
 ```
 
-#### **3. Setting**
+### **3. Setting**
 
 The `tracciatto.debug.skipPaths` setting provides an additional place to define skip‑paths, useful for global or personal preferences.
 
@@ -192,32 +255,9 @@ Use this table to decide which source fits your workflow:
 
 This layered approach provides maximum flexibility: global preferences, project‑level rules, and session‑specific overrides can all coexist cleanly.
 
-#### Why multiple sources?
+### Why multiple sources?
 
 Different users and teams have different needs. You may always want to skip stepping into Rails internals across all projects, while each workspace may define additional project‑specific patterns. Launch configurations can then add temporary overrides without modifying shared files.
-
-[↑ Back to top](#table-of-contents)
-
-## Commands
-
-The following commands are intended for quick verification of standalone scripts, not as a replacement for a workspace [launch configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_launch-configurations). Code is run using the `tracciatto.runtimeExecutable` setting value (defaults to `ruby`).
-
-| Command                          | Description |
-|----------------------------------|-------------|
-| **Attach to…** | Attach to  host:port or socket |
-| **Debug Active Editor** | Debugs the active Ruby editor |
-| **Run Active Editor** | Executes the active Ruby file |
-
-[↑ Back to top](#table-of-contents)
-
-## Exception Filters
-
-The **Exception Filters** view lets you easily select  Ruby exceptions should have `rdbg` to break at. There are two categories:
-
-* **Built‑in Filters**: represent common Ruby exception classes. These filters are always available and **cannot be edited or removed**.
-* **User Filters**: you can add any Ruby exception class (e.g., `NoMethodError`, `KeyError`, `ActiveRecord::RecordNotFound`) and control whether the debugger should break when it is raised.
-
-Exception filters can be toggled at any point in time, be that before or during program debugging.
 
 [↑ Back to top](#table-of-contents)
 

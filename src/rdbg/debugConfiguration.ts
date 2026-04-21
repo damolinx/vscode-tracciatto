@@ -9,14 +9,16 @@ export interface DebugConfiguration extends vscode.DebugConfiguration {
 
 export type AttachRdbgConfiguration =
   | (DebugConfiguration & {
+      host?: never;
+      port?: never;
       socket: string;
-      host?: undefined;
-      port?: undefined;
+      socketTimeoutMs?: number;
     })
   | (DebugConfiguration & {
       port: number;
       host: string;
-      socket?: undefined;
+      socket?: never;
+      socketTimeoutMs?: never;
     });
 
 export interface LaunchRdbgConfiguration extends DebugConfiguration {

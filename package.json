@@ -164,6 +164,11 @@
               "socket": {
                 "type": "string",
                 "description": "Socket path to the rdbg DAP server."
+              },
+              "socketTimeoutMs": {
+                "type": "number",
+                "default": 5000,
+                "description": "Timeout in milliseconds for the rdbg socket to appear before failing."
               }
             }
           },

@@ -34,6 +34,7 @@ export class TracciattoConfigurationProvider extends DebugConfigurationProvider 
         config.host = parsed.host;
         config.port = parsed.port;
       }
+      return;
     }
 
     return;

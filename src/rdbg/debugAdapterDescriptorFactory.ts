@@ -5,6 +5,7 @@ import { isAbsolute } from 'path';
 import { createInterface as createReadlineInterface } from 'readline';
 import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
+import { DEFAULT_SOCKET_TIMEOUT } from '../providers/debugConfigurationProvider';
 import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from './debugConfiguration';
 
 export function registerDebugAdapterDescriptorFactory(
@@ -43,7 +44,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
     const { socket } = config;
     if (socket) {
-      if (!existsSync(socket)) {
+      if ((await this.waitForSocket(socket, config.socketTimeoutMs)) === false) {
         const msg = `Socket not found: ${socket}.`;
         this.context.log.error(msg);
         throw new Error(msg);
@@ -152,5 +153,21 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
       });
     });
     return rdbgPort;
+  }
+
+  private async waitForSocket(
+    path: string,
+    timeoutMs = DEFAULT_SOCKET_TIMEOUT,
+    delayMs = 100,
+  ): Promise<boolean> {
+    const deadline = Date.now() + timeoutMs;
+
+    let exists = existsSync(path);
+    while (!exists && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      exists = existsSync(path);
+    }
+
+    return exists;
   }
 }
