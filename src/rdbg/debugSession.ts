@@ -51,9 +51,9 @@ export class DebugSession implements vscode.Disposable {
     return this.sendReplRequest(`,eval ${expression}`, command);
   }
 
-  public async sendReplRequest(expression: string, command = 'evaluate'): Promise<void> {
+  public async sendReplRequest(expression: any, command: string): Promise<void> {
     try {
-      const result = await this.session.customRequest(command, { expression, context: 'repl' });
+      const result = await this.session.customRequest(command, { expression });
       return result;
     } catch (error: any) {
       if (error?.message !== 'Canceled') {
