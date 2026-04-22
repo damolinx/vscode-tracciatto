@@ -25,7 +25,7 @@ Some of the unique features of this extension:
   - [`tracciatto`](#tracciatto-1)
   - [`rdbg` (vscode‑rdbg)](#rdbg-vscoderdbg)
 - [Commands](#commands)
-- [Breakpoints](#breakpoints-in-rdbg)
+- [Breakpoints](#breakpoints)
   - [Exception Filters](#exception-filters)
 - [Skip-Path Patterns](#skip-path-patterns)
 - [Logs](#logs)
