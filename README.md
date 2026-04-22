@@ -112,6 +112,7 @@ Tracciatto supports the following user and workspace settings:
 | `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
 | `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
 | `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
+| `tracciatto.patchNilVariableExpansion` | Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views. | `true` |
 
 [↑ Back to top](#table-of-contents)
 

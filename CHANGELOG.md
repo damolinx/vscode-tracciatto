@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.4
+- Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views.
+
 ## 0.2.3
 - Input boxes remember recent values (current session only).
 - Default CWD to `${fileDirname}` when there are is no open workspace.

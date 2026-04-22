@@ -126,6 +126,11 @@
           "type": "boolean",
           "default": false,
           "description": "Log Debug Adapter Protocol messages at trace level (for extension or DAP debugging)."
+        },
+        "tracciatto.patchNilVariableExpansion": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views."
         }
       }
     },

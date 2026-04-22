@@ -41,6 +41,28 @@ export class Configuration {
   }
 
   /**
+   * Whether to log DAP messages for debugging.
+   */
+  public getLogDapMessages(
+    scope: vscode.ConfigurationScope | undefined,
+    defaultValue = false,
+  ): boolean {
+    return this.getValue<boolean>(scope, 'logDapMessages', defaultValue) ?? defaultValue;
+  }
+
+  /**
+   * Whether to patch `nil` so it does not appear expandable
+   * in the Variables and Watches views.
+   * Setting is read only at the start of a debugging session.
+   */
+  public getPatchNilVariableExpansion(
+    scope: vscode.ConfigurationScope | undefined,
+    defaultValue = true,
+  ): boolean {
+    return this.getValue<boolean>(scope, 'patchNilVariableExpansion', defaultValue) ?? defaultValue;
+  }
+
+  /**
    * Whether to prefer running under `bundle exec` when a Gemfile is present.
    * and no explicit runtimeExecutable is defined in the debug configuration.
    */
@@ -73,15 +95,5 @@ export class Configuration {
     defaultValue = '.tracciatto-skip-paths',
   ): string {
     return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
-  }
-
-  /**
-   * Whether to log DAP messages for debugging.
-   */
-  public getLogDapMessages(
-    scope: vscode.ConfigurationScope | undefined,
-    defaultValue = false,
-  ): boolean {
-    return this.getValue<boolean>(scope, 'logDapMessages', defaultValue) ?? defaultValue;
   }
 }

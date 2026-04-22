@@ -18,31 +18,41 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   private readonly id: string;
   private interceptWelcome: boolean;
   private logDapMessages: boolean;
+  private patchNilExpansion: boolean;
   private readonly skipPathsController: SkipPathsSessionController;
 
   constructor(
     private readonly context: ExtensionContext,
     session: vscode.DebugSession,
   ) {
-    this.id = session.id;
+    const { configuration } = this.context;
+    const {
+      configuration: { showProtocolLog },
+      id,
+      workspaceFolder,
+    } = session;
+
+    this.id = id;
     this.interceptWelcome = true;
     this.disposables = [
       (this.debugSession = new DebugSession(this.context, session)),
       (this.exceptionController = new ExceptionSessionController(this.context, this.debugSession)),
       (this.skipPathsController = new SkipPathsSessionController(this.context, this.debugSession)),
       vscode.workspace.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration('tracciatto.logDapMessages', session.workspaceFolder)) {
-          this.logDapMessages = this.context.configuration.getLogDapMessages(
-            session.workspaceFolder,
-          );
+        if (e.affectsConfiguration('tracciatto.logDapMessages', workspaceFolder)) {
+          this.logDapMessages = configuration.getLogDapMessages(workspaceFolder);
+        } else if (
+          e.affectsConfiguration('tracciatto.patchNilVariableExpansion', workspaceFolder)
+        ) {
+          this.patchNilExpansion = configuration.getPatchNilVariableExpansion(workspaceFolder);
         }
       }),
     ];
 
     this.context.activeDebugSession = this.debugSession;
     this.logDapMessages =
-      Boolean(session.configuration.showProtocolLog) ||
-      this.context.configuration.getLogDapMessages(session.workspaceFolder);
+      Boolean(showProtocolLog) || configuration.getLogDapMessages(workspaceFolder);
+    this.patchNilExpansion = configuration.getPatchNilVariableExpansion(workspaceFolder);
   }
 
   dispose(): void {
@@ -108,7 +118,29 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
             this.debugSession.markTerminated();
           }
           break;
+
+        case 'evaluate':
+          if (this.patchNilExpansion && message.body?.result === 'nil') {
+            message.body.variablesReference = 0;
+          }
+          break;
+
+        case 'variables':
+          if (this.patchNilExpansion && message.body?.variables?.length) {
+            for (const variable of message.body.variables) {
+              if (variable.value === 'nil') {
+                variable.variablesReference = 0;
+              }
+            }
+          }
+          break;
       }
+    }
+  }
+
+  onWillReceiveMessage(message: any): void {
+    if (this.logDapMessages) {
+      this.context.log.trace(`[${this.id}] dap.message(will)`, message);
     }
   }
 
