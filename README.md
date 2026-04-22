@@ -1,16 +1,16 @@
 # Tracciatto
 
-Tracciatto is a Ruby debugger extension built on top of the `rdbg` debugger from the [`debug` gem](https://github.com/ruby/debug). 
+Tracciatto is a Ruby debugger extension built on top of the `rdbg` debugger from the [`debug` gem](https://github.com/ruby/debug). The extension was created to explore debugger integration and new features using `rdbg`'s feature set as its primary guide.
 
-This extension was born from the idea of exploring debugger integration and new features using `rdbg`'s feature set as its primary guide. This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension, that extension is excellent and has been valuable in day‑to‑day work. 
-
-While the VSCode‑rdbg implementation has been referenced occasionally, primarily to ensure `rdbg` debug‑type compatibility, this extension follows a different design philosophy. This difference is evident when reading the code and has made several features available from the start or simply easier to implement.
-
-Some of the unique features of this extension: 
+Some of the unique features: 
 - Native support for **multi‑root workspaces**.
 - Ability to attach to **multiple sockets/ports** simultaneously.
 - An [**Exception Filters**](#exception-filters) view that provides a UI-centric interface for managing `catch` breakpoints.
 - Flexible **skip‑path** configuration (launch configuration, user settings, and workspace file), allowing you to filter out unwanted code from stack traces with maximum flexibility.
+
+This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been invaluable in day‑to‑day work and greatly appreciated. While its implementation has been referenced, Tracciatto follows a different design philosophy. This is evident when looking at the code, and it has made several features available from the start or simply easier to implement.
+
+Attach‑based debugging is the most refined because it is the mode exercised daily. Other debugging paths evolve more slowly simply because they are not part of my regular workflow. Feedback here is always welcome.
 
 <p align=center>
 <img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
