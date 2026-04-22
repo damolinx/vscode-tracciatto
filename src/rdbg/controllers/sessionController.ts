@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ExtensionContext } from '../../extensionContext';
+import { DebugSession } from '../debugSession';
 
 export abstract class SessionController implements vscode.Disposable {
   protected readonly disposables: vscode.Disposable[];
@@ -7,7 +8,7 @@ export abstract class SessionController implements vscode.Disposable {
 
   constructor(
     protected readonly context: ExtensionContext,
-    protected readonly session: vscode.DebugSession,
+    protected readonly session: DebugSession,
   ) {
     this.initialized = false;
     this.disposables = [];
@@ -28,16 +29,4 @@ export abstract class SessionController implements vscode.Disposable {
   }
 
   protected abstract onInitialize(): Promise<void>;
-
-  protected async sendReplRequest<T = any>(expression: string, command = 'evaluate'): Promise<T> {
-    try {
-      const result = await this.session.customRequest(command, { expression, context: 'repl' });
-      return result;
-    } catch (error: any) {
-      if (error?.message !== 'Canceled') {
-        this.context.log.error(error);
-      }
-      throw error;
-    }
-  }
 }

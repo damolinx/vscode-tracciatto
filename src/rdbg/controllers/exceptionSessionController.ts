@@ -31,8 +31,8 @@ export class ExceptionSessionController extends SessionController {
     }
 
     for (const expression of expressions) {
-      await this.sendReplRequest(
-        `,eval DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new("${expression}")`,
+      await this.session.sendEvalReplRequest(
+        `DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new("${expression}")`,
       );
     }
     this.context.log.debug(`[${this.session.id}] Added catch breakpoints (${expressions.length})`);
@@ -44,8 +44,8 @@ export class ExceptionSessionController extends SessionController {
     }
 
     for (const expression of expressions) {
-      await this.sendReplRequest(
-        `,eval DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, "${expression}"])[1]`,
+      await this.session.sendEvalReplRequest(
+        `DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, "${expression}"])[1]`,
       );
     }
     this.context.log.debug(

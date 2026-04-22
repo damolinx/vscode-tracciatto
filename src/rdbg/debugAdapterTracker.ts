@@ -15,21 +15,25 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   private readonly disposables: vscode.Disposable[];
   private readonly debugSession: DebugSession;
   private readonly exceptionController: ExceptionSessionController;
+  private readonly id: string;
+  private interceptWelcome: boolean;
   private logDapMessages: boolean;
   private readonly skipPathsController: SkipPathsSessionController;
 
   constructor(
     private readonly context: ExtensionContext,
-    private readonly session: vscode.DebugSession,
+    session: vscode.DebugSession,
   ) {
+    this.id = session.id;
+    this.interceptWelcome = true;
     this.disposables = [
-      (this.debugSession = new DebugSession(this.context, this.session)),
-      (this.exceptionController = new ExceptionSessionController(this.context, this.session)),
-      (this.skipPathsController = new SkipPathsSessionController(this.context, this.session)),
+      (this.debugSession = new DebugSession(this.context, session)),
+      (this.exceptionController = new ExceptionSessionController(this.context, this.debugSession)),
+      (this.skipPathsController = new SkipPathsSessionController(this.context, this.debugSession)),
       vscode.workspace.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration('tracciatto.logDapMessages', this.session.workspaceFolder)) {
+        if (e.affectsConfiguration('tracciatto.logDapMessages', session.workspaceFolder)) {
           this.logDapMessages = this.context.configuration.getLogDapMessages(
-            this.session.workspaceFolder,
+            session.workspaceFolder,
           );
         }
       }),
@@ -37,18 +41,14 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
 
     this.context.activeDebugSession = this.debugSession;
     this.logDapMessages =
-      Boolean(this.session.configuration.showProtocolLog) ||
-      this.context.configuration.getLogDapMessages(this.session.workspaceFolder);
+      Boolean(session.configuration.showProtocolLog) ||
+      this.context.configuration.getLogDapMessages(session.workspaceFolder);
   }
 
   dispose(): void {
     this.context.activeDebugSession = undefined;
     vscode.Disposable.from(...this.disposables).dispose();
     this.disposables.length = 0;
-  }
-
-  public get id(): string {
-    return this.session.id;
   }
 
   private isEventMessage(msg: DebugProtocol.ProtocolMessage): msg is DebugProtocol.Event {
@@ -68,11 +68,20 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
       switch (message.event) {
         case 'initialized':
           this.context.log.debug(`[${this.id}] Session initialized`);
-          this.debugSession.initialize();
+          await this.debugSession.initialize();
           await Promise.all([
             this.exceptionController.initialize(),
             this.skipPathsController.initialize(),
           ]);
+          break;
+
+        case 'output':
+          if (this.interceptWelcome && message.body) {
+            if (message.body.output.startsWith('Ruby REPL:')) {
+              message.body.output = 'Ruby REPL: Use `,help` to list all debug commands\n';
+              this.interceptWelcome = false;
+            }
+          }
           break;
 
         case 'stopped':
@@ -92,6 +101,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
             this.debugSession.markRunning();
           }
           break;
+
         case 'disconnect':
           if (message.success) {
             this.context.log.debug(`[${this.id}] Session disconnected`);

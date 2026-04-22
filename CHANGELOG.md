@@ -4,6 +4,7 @@
 - Input boxes remember recent values (current sesion only).
 - Default CWD to `${fileDirname}` when there are is no open workspace.
 - **Attach to…** command is now active even when already in a debug session allowing to attach to multiple sockets concurrently.
+- Simplify REPL banner to be one line. 
 
 ## 0.2.2
 - Add **Attach to…** command to start an attach session via host:port or socket.

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
+import { DebugConfiguration } from './debugConfiguration';
 
 export enum DebugSessionState {
   Uninitialized = 'uninitialized',
@@ -9,39 +10,60 @@ export enum DebugSessionState {
 }
 
 export class DebugSession implements vscode.Disposable {
-  private state: DebugSessionState;
+  private _state: DebugSessionState;
+
   constructor(
-    protected readonly context: ExtensionContext,
+    private readonly context: ExtensionContext,
     private readonly session: vscode.DebugSession,
   ) {
-    this.state = DebugSessionState.Uninitialized;
+    this._state = DebugSessionState.Uninitialized;
   }
 
   dispose() {
     this.markTerminated();
   }
 
-  public get currentState(): DebugSessionState {
-    return this.state;
+  public get configuration(): DebugConfiguration {
+    return this.session.configuration as DebugConfiguration;
   }
 
   public get id(): string {
     return this.session.id;
   }
 
-  public initialize(): void {
+  public async initialize(): Promise<void> {
     this.markRunning();
   }
 
   public markPaused(): void {
-    this.state = DebugSessionState.Paused;
+    this._state = DebugSessionState.Paused;
   }
 
   public markRunning(): void {
-    this.state = DebugSessionState.Running;
+    this._state = DebugSessionState.Running;
   }
 
   public markTerminated(): void {
-    this.state = DebugSessionState.Terminated;
+    this._state = DebugSessionState.Terminated;
+  }
+
+  public sendEvalReplRequest(expression: string, command = 'evaluate'): Promise<void> {
+    return this.sendReplRequest(`,eval ${expression}`, command);
+  }
+
+  public async sendReplRequest(expression: string, command = 'evaluate'): Promise<void> {
+    try {
+      const result = await this.session.customRequest(command, { expression, context: 'repl' });
+      return result;
+    } catch (error: any) {
+      if (error?.message !== 'Canceled') {
+        this.context.log.error(error);
+      }
+      throw error;
+    }
+  }
+
+  public get state(): DebugSessionState {
+    return this._state;
   }
 }
