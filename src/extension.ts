@@ -8,8 +8,8 @@ import { toggleException } from './commands/toggleException';
 import { DebugType } from './constants';
 import {
   ExceptionTreeNode,
-  ExceptionTreeProvider,
   GroupTreeNode,
+  registerExceptionTree,
 } from './exceptions/exceptionTreeProvider';
 import { ExtensionContext } from './extensionContext';
 import { registerRdbgConfigurationProvider } from './providers/rdbgConfigurationProvider';
@@ -21,12 +21,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
   const context = new ExtensionContext(extensionContext);
   context.log.info('Activating extension', extensionContext.extension.packageJSON.version);
 
-  const exceptionsTree = new ExceptionTreeProvider(context);
-  const treeView = vscode.window.createTreeView('tracciatto.exceptions', {
-    showCollapseAll: true,
-    treeDataProvider: exceptionsTree,
-  });
-  context.disposables.push(exceptionsTree, treeView);
+  registerExceptionTree(context);
 
   const {
     commands: { registerCommand: cr, registerTextEditorCommand: tcr },

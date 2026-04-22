@@ -3,6 +3,15 @@ import { ExtensionContext } from '../extensionContext';
 import { Exception, EXCEPTION_CATEGORIES, ExceptionCategory } from './exception';
 import { ExceptionManager } from './exceptionManager';
 
+export function registerExceptionTree(context: ExtensionContext): void {
+  const exceptionsTree = new ExceptionTreeProvider(context);
+  const exceptionsTreeView = vscode.window.createTreeView('tracciatto.exceptions', {
+    showCollapseAll: true,
+    treeDataProvider: exceptionsTree,
+  });
+  context.disposables.push(exceptionsTree, exceptionsTreeView);
+}
+
 export interface GroupTreeNode {
   type: 'category';
   category: ExceptionCategory;
