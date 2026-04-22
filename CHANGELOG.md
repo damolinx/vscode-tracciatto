@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.2.3
-- Input boxes remember recent values (current sesion only).
+- Input boxes remember recent values (current session only).
 - Default CWD to `${fileDirname}` when there are is no open workspace.
 - **Attach to…** command is now active even when already in a debug session allowing to attach to multiple sockets concurrently.
 - Simplify REPL banner to be one line. 
