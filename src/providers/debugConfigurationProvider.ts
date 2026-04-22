@@ -42,7 +42,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
         break;
 
       case 'launch':
-        config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${workspaceFolder}';
+        config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${fileDirname}';
         config.name ??= 'Launch with rdbg';
         verificationMessage = await this.resolveLaunchConfig(config, folder, token);
         verificationMessage ??= this.verifyLaunchConfig(config as LaunchRdbgConfiguration);
