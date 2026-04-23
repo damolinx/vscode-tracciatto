@@ -1,12 +1,12 @@
 # Changelog
 
 ## 0.2.5
-- `vscode.debug.activeStackItem.frameId` can be used to detect current frameId without complex mapping.
+- `setVariable` now works on any frame (not just top one).
 
 ## 0.2.4
 - Patches to DAP behavior (disabled by default).
   - `nil` variables do not appear as expandable in the **Variables** and **Watches** views. Setting: `tracciatto.patchNilVariableExpansion`.
-  - Fake `setVariable` support. Setting: `tracciatto.patchSetVariable`.
+  - Emulate `setVariable` message support. Setting: `tracciatto.patchSetVariable`.
 
 ## 0.2.3
 - Input boxes remember recent values (current session only).

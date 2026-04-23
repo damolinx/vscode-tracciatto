@@ -120,7 +120,7 @@ The following settings are patches to DAP requests and therefore considered expe
 | Setting | Description |
 |---------|-------------|
 | `tracciatto.patchNilVariableExpansion` | Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views. This setting can be toggled at any point during a debug session, but will apply on next step. |
-| `tracciatto.patchSetVariable` | Fake `setVariable` support so variable values can be edited from the **Variables** and **Watches** views. This is a capability reported via DAP and therefore toggling its value only takes effect on debug session restart. |
+| `tracciatto.patchSetVariable` | Emulate `setVariable` DAP message support so variable values can be edited from the **Variables** and **Watches** views. This capability is reported during DAP initialization, so changes take effect only after restarting the debug session. |
 
 [↑ Back to top](#table-of-contents)
 
