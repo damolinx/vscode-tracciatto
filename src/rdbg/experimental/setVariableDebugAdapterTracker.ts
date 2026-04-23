@@ -7,6 +7,7 @@ import { DebugAdapterTracker } from '../debugAdapterTracker';
  * Experimental `setVariable` fake-support. This is expected to have issues but
  * it is created to test how far it can go. `setVariable` should be implemented
  * by rdbg.
+ * https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172
  */
 export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
   private readonly interceptedMessageSeqs: Set<number>;
