@@ -63,7 +63,10 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
 
     const evalRequest = message as DebugProtocol.EvaluateRequest;
     evalRequest.command = 'evaluate';
-    evalRequest.arguments = { expression: `${name} = ${value}`, context: 'repl', frameId: 1 };
+    const frameId = (vscode.debug.activeStackItem instanceof vscode.DebugStackFrame)
+      ? vscode.debug.activeStackItem.frameId
+      : 1;
+    evalRequest.arguments = { expression: `${name} = ${value}`, context: 'repl', frameId };
     const after = JSON.stringify(evalRequest);
     this.context.log.warn(
       `[${this.id}] dap.message(out): setVariable → evaluate. Before: ${before} After: ${after}`,

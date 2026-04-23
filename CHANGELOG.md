@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.5
+- `vscode.debug.activeStackItem.frameId` can be used to detect current frameId without complex mapping.
+
 ## 0.2.4
 - Patches to DAP behavior (disabled by default).
   - `nil` variables do not appear as expandable in the **Variables** and **Watches** views. Setting: `tracciatto.patchNilVariableExpansion`.
