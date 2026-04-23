@@ -364,6 +364,7 @@
     "vscode-debugprotocol": "^1.51.0"
   },
   "overrides": {
+    "uuid": "^14.0.0",
     "yauzl": "^3.2.1"
   }
 }
