@@ -52,16 +52,16 @@
         "category": "Tracciatto"
       },
       {
-        "command": "tracciatto.removeException",
-        "title": "Remove Exception Filter",
-        "category": "Tracciatto",
-        "icon": "$(remove-close)"
-      },
-      {
         "command": "tracciatto.debugFile",
         "title": "Debug Active Editor",
         "category": "Tracciatto",
         "enablement": "editorLangId == ruby"
+      },
+      {
+        "command": "tracciatto.removeException",
+        "title": "Remove Exception Filter",
+        "category": "Tracciatto",
+        "icon": "$(remove-close)"
       },
       {
         "command": "tracciatto.runFile",
