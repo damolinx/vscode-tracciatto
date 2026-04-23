@@ -1,7 +1,9 @@
 # Changelog
 
 ## 0.2.4
-- Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views.
+- Patches to DAP behavior (disabled by default).
+  - `nil` variables do not appear as expandable in the **Variables** and **Watches** views. Setting: `tracciatto.patchNilVariableExpansion`.
+  - Fake `setVariable` support. Setting: `tracciatto.patchSetVariable`.
 
 ## 0.2.3
 - Input boxes remember recent values (current session only).

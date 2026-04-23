@@ -112,7 +112,15 @@ Tracciatto supports the following user and workspace settings:
 | `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
 | `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
 | `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
-| `tracciatto.patchNilVariableExpansion` | Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views. | `true` |
+
+### Experiments
+
+The following settings are patches to DAP requests and therefore considered experimental/unstable. They are disabled by default and they are not exposed from the Settings UI.
+
+| Setting | Description |
+|---------|-------------|
+| `tracciatto.patchNilVariableExpansion` | Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views. This setting can be toggled at any point during a debug session, but will apply on next step. |
+| `tracciatto.patchSetVariable` | Fake `setVariable` support so variable values can be edited from the **Variables** and **Watches** views.  **Only top frame** variables work at this time as additional work is needed to map frameId and threadId across multiple DAP messages. This is a capability reported via DAP and therefore toggling its value only takes effect on debug session restart. |
 
 [↑ Back to top](#table-of-contents)
 
