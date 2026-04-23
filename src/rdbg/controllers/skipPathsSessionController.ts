@@ -1,4 +1,4 @@
-import { DebugConfiguration } from '../debugConfiguration';
+import { DebugConfiguration } from '../configurations/debugConfiguration';
 import { SessionController } from './sessionController';
 
 export class SkipPathsSessionController extends SessionController {

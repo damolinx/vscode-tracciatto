@@ -6,7 +6,8 @@ import { createInterface as createReadlineInterface } from 'readline';
 import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { DEFAULT_SOCKET_TIMEOUT } from '../providers/debugConfigurationProvider';
-import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from './debugConfiguration';
+import { AttachConfiguration } from './configurations/attachConfiguration';
+import { LaunchConfiguration } from './configurations/launchConfiguration';
 
 export function registerDebugAdapterDescriptorFactory(
   context: ExtensionContext,
@@ -29,10 +30,10 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
     switch (configuration.request) {
       case 'attach': {
-        return this.createAttachAdapter(configuration as AttachRdbgConfiguration);
+        return this.createAttachAdapter(configuration as AttachConfiguration);
       }
       case 'launch': {
-        return this.createLaunchAdapter(configuration as LaunchRdbgConfiguration);
+        return this.createLaunchAdapter(configuration as LaunchConfiguration);
       }
       default:
         throw new Error(`Unsupported debug configuration type: ${configuration.request}`);
@@ -40,7 +41,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
   }
 
   private async createAttachAdapter(
-    config: AttachRdbgConfiguration,
+    config: AttachConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
     const { socket } = config;
     if (socket) {
@@ -67,7 +68,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
   }
 
   private async createLaunchAdapter(
-    config: LaunchRdbgConfiguration,
+    config: LaunchConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor> {
     const args = this.buildArgs(config);
     const { cwd, rdbgPath } = config;
@@ -95,7 +96,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     return new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
   }
 
-  private buildArgs(config: LaunchRdbgConfiguration): string[] {
+  private buildArgs(config: LaunchConfiguration): string[] {
     const { args = [], port, program } = config;
     const mergedArgs = ['--open', '--port', (port ?? 0).toString()];
 

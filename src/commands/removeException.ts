@@ -5,7 +5,7 @@ export async function removeException(
   { exceptionManager, log }: ExtensionContext,
   nameOrNode: string | ExceptionTreeNode,
 ): Promise<void> {
-  const exceptionName = typeof nameOrNode === 'string' ? nameOrNode : nameOrNode.record.expression;
-  exceptionManager.removeException(exceptionName);
-  log.debug(`Removed exception. Name:${exceptionName}`);
+  const name = typeof nameOrNode === 'string' ? nameOrNode : nameOrNode.exception.name;
+  exceptionManager.removeException(name);
+  log.debug(`Removed exception. Name: '${name}'`);
 }

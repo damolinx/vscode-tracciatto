@@ -8,15 +8,15 @@ export async function addException(
   nameOrNode?: string | GroupTreeNode,
 ): Promise<void> {
   let category: ExceptionCategory = 'User';
-  let exceptionName: string | undefined;
+  let name: string | undefined;
   if (typeof nameOrNode === 'string') {
-    exceptionName = nameOrNode;
+    name = nameOrNode;
   } else {
-    const existingNames = new Set(exceptionManager.getAll().map(({ expression }) => expression));
-    exceptionName = await showExceptionInputBox((name) =>
+    const existingNames = new Set(exceptionManager.getAllNames());
+    name = await showExceptionInputBox((name) =>
       existingNames.has(name) ? 'Exception filter already exists' : undefined,
     );
-    if (!exceptionName) {
+    if (!name) {
       return;
     }
     if (nameOrNode) {
@@ -24,6 +24,6 @@ export async function addException(
     }
   }
 
-  exceptionManager.addException(exceptionName, category);
-  log.debug(`Added exception. Name:${exceptionName} Category: ${category}`);
+  exceptionManager.addException(name, category);
+  log.debug(`Added exception. Name: '${name}' Category: '${category}'`);
 }

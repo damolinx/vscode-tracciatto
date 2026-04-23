@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
-import { DebugConfiguration } from './debugConfiguration';
+import { DebugConfiguration } from './configurations/debugConfiguration';
 
 export enum DebugSessionState {
   Uninitialized = 'uninitialized',

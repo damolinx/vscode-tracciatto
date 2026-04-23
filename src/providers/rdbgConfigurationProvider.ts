@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
-import {
-  DebugConfigurationProvider,
-  registerDebugConfigurationProvider,
-} from './debugConfigurationProvider';
+import { parseHostPort } from '../rdbg/configurations/attachConfiguration';
+import { DebugConfigurationProvider } from './debugConfigurationProvider';
 
 export function registerRdbgConfigurationProvider(context: ExtensionContext): void {
-  registerDebugConfigurationProvider(context, 'rdbg', RdbgConfigurationProvider);
+  const provider = new RdbgConfigurationProvider(context);
+  context.disposables.push(
+    vscode.debug.registerDebugConfigurationProvider(provider.type, provider),
+  );
 }
 
 /**
@@ -15,12 +16,16 @@ export function registerRdbgConfigurationProvider(context: ExtensionContext): vo
  * `tracciatto`.
  */
 export class RdbgConfigurationProvider extends DebugConfigurationProvider {
+  constructor(context: ExtensionContext) {
+    super(context, 'rdbg');
+  }
+
   protected override resolveAttachConfig(config: vscode.DebugConfiguration): string | undefined {
     if (!config.debugPort) {
       return '"debugPort" must be defined to attach';
     }
 
-    const parsed = RdbgConfigurationProvider.parseHostPort(config.debugPort);
+    const parsed = parseHostPort(config.debugPort);
     if (parsed) {
       config.host = parsed.host;
       config.port = parsed.port;
@@ -43,11 +48,8 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
       return '"script" must be defined to launch';
     }
     config.program ??= config.script;
-
-    const normalizedCommand = config.command?.trim();
-    config.runtimeExecutable = normalizedCommand
-      ? normalizedCommand
-      : await this.resolveRuntimeExecutable(folder);
+    config.runtimeExecutable =
+      config.command?.trim() || (await this.resolveRuntimeExecutable(folder));
     return;
   }
 }

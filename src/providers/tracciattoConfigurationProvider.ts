@@ -1,18 +1,23 @@
 import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
-import {
-  DebugConfigurationProvider,
-  registerDebugConfigurationProvider,
-} from './debugConfigurationProvider';
+import { parseHostPort } from '../rdbg/configurations/attachConfiguration';
+import { DebugConfigurationProvider } from './debugConfigurationProvider';
 
 export function registerTracciattoConfigurationProvider(context: ExtensionContext): void {
-  registerDebugConfigurationProvider(context, 'tracciatto', TracciattoConfigurationProvider);
+  const provider = new TracciattoConfigurationProvider(context);
+  context.disposables.push(
+    vscode.debug.registerDebugConfigurationProvider(provider.type, provider),
+  );
 }
 
 /**
  * `tracciatto` debug configuration provider.
  */
 export class TracciattoConfigurationProvider extends DebugConfigurationProvider {
+  constructor(context: ExtensionContext) {
+    super(context, 'tracciatto');
+  }
+
   protected override resolveAttachConfig(config: vscode.DebugConfiguration): string | undefined {
     const hasPort = !!config.port;
     const hasSocket = !!config.socket;
@@ -27,7 +32,7 @@ export class TracciattoConfigurationProvider extends DebugConfigurationProvider 
 
     if (hasPort) {
       if (typeof config.port === 'string') {
-        const parsed = TracciattoConfigurationProvider.parseHostPort(config.port);
+        const parsed = parseHostPort(config.port);
         if (!parsed) {
           return '"port" has an unexpected format';
         }

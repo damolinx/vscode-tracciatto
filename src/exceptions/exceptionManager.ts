@@ -45,11 +45,31 @@ export class ExceptionManager implements vscode.Disposable {
   }
 
   public getAll(): Exception[] {
-    return [...this.exceptions.values()];
+    return Array.from(this.exceptions.values());
+  }
+
+  public getAllNames(): string[] {
+    return Array.from(this.exceptions.keys());
+  }
+
+  public getByCategory(category: ExceptionCategory): Exception[] {
+    const exceptions: Exception[] = [];
+    for (const exception of this.exceptions.values()) {
+      if (exception.category === category) {
+        exceptions.push(exception);
+      }
+    }
+    return exceptions;
   }
 
   public getEnabled(): Exception[] {
-    return [...this.exceptions.values()].filter((ex) => ex.enabled);
+    const exceptions: Exception[] = [];
+    for (const exception of this.exceptions.values()) {
+      if (exception.enabled) {
+        exceptions.push(exception);
+      }
+    }
+    return exceptions;
   }
 
   public isEnabled(name: string): boolean {
@@ -57,51 +77,47 @@ export class ExceptionManager implements vscode.Disposable {
   }
 
   public addException(name: string, category: ExceptionCategory = 'User'): void {
-    name = name.trim();
-    if (!name || this.exceptions.has(name)) {
+    const normalizedName = name.trim();
+    if (!normalizedName || this.exceptions.has(normalizedName)) {
       return;
     }
 
-    const exception: Exception = {
-      expression: name,
+    const exception = {
       category,
-      userDefined: category === 'User',
       enabled: false,
-    };
+      name: normalizedName,
+      userDefined: category === 'User' ? true : undefined,
+    } as Exception;
 
-    this.exceptions.set(name, exception);
+    this.exceptions.set(normalizedName, exception);
     this.onExceptionAddedEmitter.fire(exception);
-    void this.save();
+    this.save();
   }
 
   public removeException(name: string): void {
-    const existing = this.exceptions.get(name);
-    if (!existing) {
-      return;
-    }
-
-    if (!existing.userDefined) {
+    const exception = this.exceptions.get(name);
+    if (!exception?.userDefined) {
       return;
     }
 
     this.exceptions.delete(name);
-    this.onExceptionRemovedEmitter.fire(existing);
-    void this.save();
+    this.onExceptionRemovedEmitter.fire(exception);
+    this.save();
   }
 
   public setExceptionEnabled(name: string, enabled: boolean): void {
-    const existing = this.exceptions.get(name.trim());
-    if (!existing) {
+    const exception = this.exceptions.get(name.trim());
+    if (!exception) {
       return;
     }
 
-    if (existing.enabled === enabled) {
+    if (exception.enabled === enabled) {
       return;
     }
 
-    existing.enabled = enabled;
-    this.onExceptionChangedEmitter.fire(existing);
-    void this.save();
+    exception.enabled = enabled;
+    this.onExceptionChangedEmitter.fire(exception);
+    this.save();
   }
 
   private initializeDefaults(): void {
@@ -116,16 +132,7 @@ export class ExceptionManager implements vscode.Disposable {
     ];
 
     for (const name of builtIns) {
-      if (this.exceptions.has(name)) {
-        continue;
-      }
-
-      this.exceptions.set(name, {
-        expression: name,
-        category: 'Built-in',
-        userDefined: false,
-        enabled: false,
-      });
+      this.exceptions.set(name, { category: 'Built-in', name });
     }
   }
 
@@ -133,32 +140,32 @@ export class ExceptionManager implements vscode.Disposable {
     const stored = this.memento.get<Record<string, boolean>>(STORAGE_KEY, {});
 
     for (const [name, enabled] of Object.entries(stored)) {
-      const existing = this.exceptions.get(name);
-
-      if (existing) {
-        existing.enabled = enabled;
+      const exception = this.exceptions.get(name);
+      if (exception) {
+        exception.enabled = enabled;
         continue;
       }
 
       this.exceptions.set(name, {
-        expression: name,
         category: 'User',
-        userDefined: true,
         enabled,
+        name,
+        userDefined: true,
       });
     }
   }
 
-  private async save(): Promise<void> {
+  private save(): void {
     const data: Record<string, boolean> = {};
 
     for (const ex of this.exceptions.values()) {
       if (ex.userDefined || ex.enabled) {
-        data[ex.expression] = Boolean(ex.enabled);
+        data[ex.name] = Boolean(ex.enabled);
       }
     }
 
-    await this.memento.update(STORAGE_KEY, data);
+    // Intentionally not awaiting
+    this.memento.update(STORAGE_KEY, data);
     this.log.debug(`Saved exception filters. Count: ${Object.keys(data).length}`);
   }
 }

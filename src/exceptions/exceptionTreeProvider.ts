@@ -13,13 +13,13 @@ export function registerExceptionTree(context: ExtensionContext): void {
 }
 
 export interface GroupTreeNode {
-  type: 'category';
   category: ExceptionCategory;
+  type: 'category';
 }
 
 export interface ExceptionTreeNode {
+  exception: Exception;
   type: 'exception';
-  record: Exception;
 }
 
 export type TreeNode = GroupTreeNode | ExceptionTreeNode;
@@ -68,20 +68,20 @@ export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>,
     }
 
     const {
-      record: { enabled, expression, userDefined },
+      exception: { enabled, name, userDefined },
     } = node;
-    const item = new vscode.TreeItem(expression);
+    const item = new vscode.TreeItem(name);
     item.checkboxState = enabled
       ? { state: vscode.TreeItemCheckboxState.Checked, tooltip: 'Exception filter enabled' }
       : { state: vscode.TreeItemCheckboxState.Unchecked, tooltip: 'Exception filter disabled' };
-    item.command = { command: 'tracciatto.toggleException', title: '', arguments: [expression] };
+    item.command = { command: 'tracciatto.toggleException', title: '', arguments: [name] };
     if (userDefined) {
       item.contextValue = 'userException';
     }
     return item;
   }
 
-  getChildren(node?: TreeNode): TreeNode[] {
+  public getChildren(node?: TreeNode): TreeNode[] | undefined {
     if (!node) {
       return [...EXCEPTION_CATEGORIES]
         .sort((a, b) => a.localeCompare(b))
@@ -93,15 +93,14 @@ export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>,
 
     if (node.type === 'category') {
       return this.exceptionManager
-        .getAll()
-        .filter((ex) => ex.category === node.category)
-        .sort((a, b) => a.expression.localeCompare(b.expression))
-        .map((record) => ({
+        .getByCategory(node.category)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((exception) => ({
           type: 'exception',
-          record,
+          exception,
         }));
     }
 
-    return [];
+    return;
   }
 }

@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
-import { DebugType } from '../constants';
 import { ExtensionContext } from '../extensionContext';
-import { TracciattoConfigurationProvider } from '../providers/tracciattoConfigurationProvider';
-import { AttachRdbgConfiguration } from '../rdbg/debugConfiguration';
+import { AttachConfiguration, parseHostPort } from '../rdbg/configurations/attachConfiguration';
 
 export async function attach(context: ExtensionContext, portOrSocket?: string): Promise<boolean> {
   const targetPortOrSocket = portOrSocket ?? (await showPortOrSocketInputBox());
@@ -10,17 +8,17 @@ export async function attach(context: ExtensionContext, portOrSocket?: string): 
     return false;
   }
 
-  const baseConfig = {
-    type: 'tracciatto' as DebugType,
+  const baseConfig: Omit<AttachConfiguration, 'host' | 'port' | 'socket'> = {
+    type: 'tracciatto',
     request: 'attach',
     name: `Attach ${targetPortOrSocket}`,
     runtimeExecutable: context.configuration.getRuntimeExecutable(),
     skipPaths: [],
   };
-  const parsed = TracciattoConfigurationProvider.parseHostPort(targetPortOrSocket);
-  const config: AttachRdbgConfiguration = parsed
-    ? { ...baseConfig, host: parsed.host, port: parsed.port }
-    : { ...baseConfig, socket: targetPortOrSocket };
+  const parsed = parseHostPort(targetPortOrSocket);
+  const config = parsed
+    ? ({ ...baseConfig, host: parsed.host, port: parsed.port } as AttachConfiguration)
+    : ({ ...baseConfig, socket: targetPortOrSocket } as AttachConfiguration);
   return vscode.debug.startDebugging(undefined, config);
 }
 
@@ -48,7 +46,7 @@ export function validatePortOrSocket(input: string): string | undefined {
     return 'Value cannot be empty';
   }
 
-  const parsed = TracciattoConfigurationProvider.parseHostPort(normalizedValue);
+  const parsed = parseHostPort(normalizedValue);
   if (parsed) {
     const { port } = parsed;
     if (!Number.isInteger(port) || port < 1 || port > 65535) {

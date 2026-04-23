@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { ExtensionContext } from '../extensionContext';
-import { LaunchRdbgConfiguration } from '../rdbg/debugConfiguration';
+import { LaunchConfiguration } from '../rdbg/configurations/launchConfiguration';
 
 export async function debugEditor(
   context: ExtensionContext,
@@ -22,15 +22,14 @@ async function debugFile(context: ExtensionContext, uri: vscode.Uri): Promise<bo
   }
 
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-  const program = uri.fsPath;
-  const config: LaunchRdbgConfiguration = {
+  const config = {
     type: 'tracciatto',
     request: 'launch',
     name: `Debug ${path.basename(uri.fsPath)}`,
-    program,
+    program: vscode.workspace.asRelativePath(uri.fsPath),
     runtimeExecutable: context.configuration.getRuntimeExecutable(workspaceFolder),
     skipPaths: [],
-  };
+  } as LaunchConfiguration;
 
   return vscode.debug.startDebugging(workspaceFolder, config);
 }

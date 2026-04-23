@@ -3,53 +3,51 @@ import { SessionController } from './sessionController';
 export class ExceptionSessionController extends SessionController {
   public override async onInitialize(): Promise<void> {
     this.disposables.push(
-      this.context.exceptionManager.onExceptionAdded(({ expression, enabled }) => {
+      this.context.exceptionManager.onExceptionAdded(({ name, enabled }) => {
         if (enabled) {
-          this.addCatchBreakpoints(expression);
+          this.addCatchBreakpoints(name);
         }
       }),
-      this.context.exceptionManager.onExceptionChanged(({ expression, enabled }) => {
+      this.context.exceptionManager.onExceptionChanged(({ name, enabled }) => {
         if (enabled) {
-          this.addCatchBreakpoints(expression);
+          this.addCatchBreakpoints(name);
         } else {
-          this.deleteCatchBreakpoints(expression);
+          this.deleteCatchBreakpoints(name);
         }
       }),
-      this.context.exceptionManager.onExceptionRemoved(({ expression }) => {
-        this.deleteCatchBreakpoints(expression);
+      this.context.exceptionManager.onExceptionRemoved(({ name }) => {
+        this.deleteCatchBreakpoints(name);
       }),
     );
 
     await this.addCatchBreakpoints(
-      ...this.context.exceptionManager.getEnabled().map(({ expression }) => expression),
+      ...this.context.exceptionManager.getEnabled().map(({ name }) => name),
     );
   }
 
-  private async addCatchBreakpoints(...expressions: string[]): Promise<void> {
-    if (expressions.length === 0) {
+  private async addCatchBreakpoints(...names: string[]): Promise<void> {
+    if (names.length === 0) {
       return;
     }
 
-    for (const expression of expressions) {
+    for (const name of names) {
       await this.session.sendEvalRequest(
-        `DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new("${expression}")`,
+        `DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new("${name}")`,
       );
     }
-    this.context.log.debug(`[${this.session.id}] Added catch breakpoints (${expressions.length})`);
+    this.context.log.debug(`[${this.session.id}] Added catch breakpoints (${names.length})`);
   }
 
-  private async deleteCatchBreakpoints(...expressions: string[]): Promise<void> {
-    if (expressions.length === 0) {
+  private async deleteCatchBreakpoints(...names: string[]): Promise<void> {
+    if (names.length === 0) {
       return;
     }
 
-    for (const expression of expressions) {
+    for (const name of names) {
       await this.session.sendEvalRequest(
-        `DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, "${expression}"])[1]`,
+        `DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, "${name}"])[1]`,
       );
     }
-    this.context.log.debug(
-      `[${this.session.id}] Deleted catch breakpoints (${expressions.length})`,
-    );
+    this.context.log.debug(`[${this.session.id}] Deleted catch breakpoints (${names.length})`);
   }
 }

@@ -1,20 +1,11 @@
 import * as vscode from 'vscode';
 import { isAbsolute } from 'path';
-import { DebugType, LOCALHOST } from '../constants';
+import { DebugType } from '../constants';
 import { ExtensionContext } from '../extensionContext';
-import { AttachRdbgConfiguration, LaunchRdbgConfiguration } from '../rdbg/debugConfiguration';
+import { AttachConfiguration } from '../rdbg/configurations/attachConfiguration';
+import { LaunchConfiguration } from '../rdbg/configurations/launchConfiguration';
 
 export const DEFAULT_SOCKET_TIMEOUT = 5000;
-
-export function registerDebugConfigurationProvider<T extends DebugConfigurationProvider>(
-  context: ExtensionContext,
-  type: DebugType,
-  constructor: new (context: ExtensionContext, debugType: DebugType) => T,
-): void {
-  context.disposables.push(
-    vscode.debug.registerDebugConfigurationProvider(type, new constructor(context, 'rdbg')),
-  );
-}
 
 /**
  * Base debug configuration provider.
@@ -22,7 +13,7 @@ export function registerDebugConfigurationProvider<T extends DebugConfigurationP
 export abstract class DebugConfigurationProvider implements vscode.DebugConfigurationProvider {
   constructor(
     protected readonly context: ExtensionContext,
-    protected readonly type: DebugType,
+    public readonly type: DebugType,
   ) {}
 
   async resolveDebugConfiguration(
@@ -38,14 +29,14 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
         config.name ??= 'Attach to rdbg';
         config.socketTimeoutMs ??= DEFAULT_SOCKET_TIMEOUT;
         verificationMessage = await this.resolveAttachConfig(config, folder, token);
-        verificationMessage ??= this.verifyAttachConfig(config as AttachRdbgConfiguration);
+        verificationMessage ??= this.verifyAttachConfig(config as AttachConfiguration);
         break;
 
       case 'launch':
         config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${fileDirname}';
         config.name ??= 'Launch with rdbg';
         verificationMessage = await this.resolveLaunchConfig(config, folder, token);
-        verificationMessage ??= this.verifyLaunchConfig(config as LaunchRdbgConfiguration);
+        verificationMessage ??= this.verifyLaunchConfig(config as LaunchConfiguration);
         break;
     }
 
@@ -74,22 +65,6 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     );
 
     return Array.from(mergedSkipPaths);
-  }
-
-  public static parseHostPort(hostPort: string): { host: string; port: number } | undefined {
-    let host: string | undefined;
-    let port = NaN;
-
-    const [hostOrPort, portOrNothing] = hostPort.split(':').map((s) => s.trim());
-    if (portOrNothing) {
-      host = hostOrPort;
-      port = parseInt(portOrNothing);
-    } else {
-      host = LOCALHOST;
-      port = parseInt(hostOrPort);
-    }
-
-    return isNaN(port) ? undefined : { host, port };
   }
 
   private async readSkipPathsFile(workspaceFolder?: vscode.WorkspaceFolder): Promise<string[]> {
@@ -142,7 +117,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
       : this.context.configuration.getRuntimeExecutable(folder);
   }
 
-  private verifyAttachConfig(config: AttachRdbgConfiguration): string | undefined {
+  private verifyAttachConfig(config: AttachConfiguration): string | undefined {
     if (!config.socket && config.port === undefined) {
       return '"port" or "socket" must be defined to attach';
     }
@@ -152,7 +127,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     return;
   }
 
-  private verifyLaunchConfig(config: LaunchRdbgConfiguration): string | undefined {
+  private verifyLaunchConfig(config: LaunchConfiguration): string | undefined {
     if (!config.program) {
       return '"program" is required to launch';
     }
