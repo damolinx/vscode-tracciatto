@@ -12,17 +12,17 @@ import { DebugSession } from './debugSession';
  * to assume responsability for disposal.
  */
 export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.Disposable {
-  private readonly disposables: vscode.Disposable[];
-  private readonly debugSession: DebugSession;
-  private readonly exceptionController: ExceptionSessionController;
-  private readonly id: string;
+  protected readonly disposables: vscode.Disposable[];
+  protected readonly debugSession: DebugSession;
+  protected readonly exceptionController: ExceptionSessionController;
+  protected readonly id: string;
   private interceptWelcome: boolean;
   private logDapMessages: boolean;
   private patchNilExpansion: boolean;
-  private readonly skipPathsController: SkipPathsSessionController;
+  protected readonly skipPathsController: SkipPathsSessionController;
 
   constructor(
-    private readonly context: ExtensionContext,
+    protected readonly context: ExtensionContext,
     session: vscode.DebugSession,
   ) {
     const { configuration } = this.context;
@@ -61,17 +61,19 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     this.disposables.length = 0;
   }
 
-  private isEventMessage(msg: DebugProtocol.ProtocolMessage): msg is DebugProtocol.Event {
-    return msg.type === 'event';
+  protected isEventMessage(message: DebugProtocol.ProtocolMessage): message is DebugProtocol.Event {
+    return message.type === 'event';
   }
 
-  private isResponseMessage(msg: DebugProtocol.ProtocolMessage): msg is DebugProtocol.Response {
-    return msg.type === 'response';
+  protected isResponseMessage(
+    message: DebugProtocol.ProtocolMessage,
+  ): message is DebugProtocol.Response {
+    return message.type === 'response';
   }
 
   async onDidSendMessage(message: DebugProtocol.ProtocolMessage): Promise<void> {
     if (this.logDapMessages) {
-      this.context.log.trace(`[${this.id}] dap.message`, message);
+      this.context.log.trace(`[${this.id}] dap.message(in)`, message);
     }
 
     if (this.isEventMessage(message)) {
@@ -140,7 +142,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
 
   onWillReceiveMessage(message: any): void {
     if (this.logDapMessages) {
-      this.context.log.trace(`[${this.id}] dap.message(will)`, message);
+      this.context.log.trace(`[${this.id}] dap.message(out)`, message);
     }
   }
 

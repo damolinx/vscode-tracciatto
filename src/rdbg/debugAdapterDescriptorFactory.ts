@@ -46,9 +46,9 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     const { socket } = config;
     if (socket) {
       if ((await this.waitForSocket(socket, config.socketTimeoutMs)) === false) {
-        const msg = `Socket not found: ${socket}.`;
-        this.context.log.error(msg);
-        throw new Error(msg);
+        const message = `Socket not found: ${socket}.`;
+        this.context.log.error(message);
+        throw new Error(message);
       }
 
       this.context.log.info(`Attaching via socket: ${config.socket}`);
@@ -57,9 +57,9 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
 
     const { host, port } = config;
     if (port === undefined) {
-      const msg = 'Missing TCP port in configuration';
-      this.context.log.error(msg);
-      vscode.window.showErrorMessage(msg);
+      const message = 'Missing TCP port in configuration';
+      this.context.log.error(message);
+      vscode.window.showErrorMessage(message);
       return undefined;
     }
 
