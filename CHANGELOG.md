@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.6
+- Add schema entries for `localFs` and `localFsMap` in all configurations since these are passthrough to `rdbg`.
+
 ## 0.2.5
 - `setVariable` now works on any frame (not just top one).
 

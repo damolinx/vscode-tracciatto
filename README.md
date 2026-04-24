@@ -135,23 +135,27 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 
 | Property | Description |
 |----------|-------------|
-| `program` | Ruby file to debug (**required**) |
-| `args` | Arguments passed to the Ruby program |
-| `cwd` | Working directory |
-| `env` | Environment variables passed to the Ruby program |
-| `runtimeExecutable` | Ruby command to run (`ruby` by default) |
-| `rdbgPath` | Optional absolute path to rdbg |
-| `skipPaths` | Paths to skip when stepping |
+| `args` | Arguments passed to the Ruby program. |
+| `cwd` | Working directory. |
+| `env` | Environment variables passed to the Ruby program. |
+| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `program` | Ruby file to debug (**required**). |
+| `runtimeExecutable` | Ruby command to run (`ruby` by default). |
+| `rdbgPath` | Optional absolute path to rdbg. |
+| `skipPaths` | Paths to skip when stepping. |
 
 #### Attach Properties
 
 | Property | Description |
 |----------|-------------|
-| `port` | `[host:]port` path to the rdbg DAP server |
-| `socket` | Socket path to the rdbg DAP server |
-| `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately |
-| `rdbgPath` | Optional absolute path to rdbg |
-| `skipPaths` | Paths to skip when stepping |
+| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `port` | `[host:]port` path to the rdbg DAP server. |
+| `socket` | Socket path to the rdbg DAP server. |
+| `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately. |
+| `rdbgPath` | Optional absolute path to rdbg. |
+| `skipPaths` | Paths to skip when stepping. |
 
 ### rdbg (vscode‑rdbg)
 
@@ -165,22 +169,26 @@ This happens during extension activation, so reloading the extension is needed a
 
 | Property | Description |
 |----------|-------------|
-| `args` | Arguments passed to the Ruby program |
-| `command` | Command name (`ruby`, `rake`, `bin/rails`, `bundle exec ruby`, etc) |
-| `cwd` | Working directory |
-| `env` | Environment variables passed to the Ruby program |
-| `rdbgPath` | Absolute path to `rdbg` |
-| `script` | Absolute path to a Ruby file (**required**) |
-| `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration) |
-| `useBundler` | Use `bundle exec` to run Ruby program. Prefer `tracciatto.preferBundler` [setting](#configuration) |
+| `args` | Arguments passed to the Ruby program. |
+| `command` | Command name (`ruby`, `rake`, `bin/rails`, `bundle exec ruby`, etc). |
+| `cwd` | Working directory. |
+| `env` | Environment variables passed to the Ruby program. |
+| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `rdbgPath` | Absolute path to `rdbg`. |
+| `script` | Absolute path to a Ruby file (**required**). |
+| `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
+| `useBundler` | Use `bundle exec` to run Ruby program. Prefer `tracciatto.preferBundler` [setting](#configuration). |
 
 #### Attach Properties
 
 | Property | Description |
 |----------|-------------|
-| `debugPort` | `[hostname:]port` or socket path to the rdbg DAP server |
-| `rdbgPath` | Optional absolute path to rdbg |
-| `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration) |
+| `debugPort` | `[hostname:]port` or socket path to the rdbg DAP server. |
+| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `rdbgPath` | Optional absolute path to rdbg. |
+| `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
 
 ## Commands
 

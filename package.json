@@ -145,6 +145,14 @@
           "attach": {
             "type": "object",
             "properties": {
+              "localFs": {
+                "type": "boolean",
+                "description": "Enable local filesystem access support."
+              },
+              "localFsMap": {
+                "type": "string",
+                "description": "Map local filesystem paths to remote paths."
+              },
               "port": {
                 "type": "string",
                 "description": "[host:]port path to the rdbg DAP server."
@@ -197,6 +205,14 @@
                 "additionalProperties": {
                   "type": "string"
                 }
+              },
+              "localFs": {
+                "type": "boolean",
+                "description": "Enable local filesystem access support."
+              },
+              "localFsMap": {
+                "type": "string",
+                "description": "Map local filesystem paths to remote paths."
               },
               "program": {
                 "type": "string",
@@ -262,6 +278,14 @@
                 "type": "string",
                 "description": "[hostname:]port or socket path to the rdbg DAP server."
               },
+              "localFs": {
+                "type": "boolean",
+                "description": "Enable local filesystem access support."
+              },
+              "localFsMap": {
+                "type": "string",
+                "description": "Map local filesystem paths to remote paths."
+              },
               "rdbgPath": {
                 "type": "string",
                 "description": "Optional absolute path to dbg"
@@ -299,6 +323,14 @@
                 "type": "object",
                 "description": "Environment variables passed to the Ruby program",
                 "default": {}
+              },
+              "localFs": {
+                "type": "boolean",
+                "description": "Enable local filesystem access support."
+              },
+              "localFsMap": {
+                "type": "string",
+                "description": "Map local filesystem paths to remote paths."
               },
               "rdbgPath": {
                 "type": "string",
