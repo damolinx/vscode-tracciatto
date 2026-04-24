@@ -10,7 +10,7 @@ Some of the unique features:
 
 This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been invaluable in day‑to‑day work and greatly appreciated. While its implementation has been referenced, Tracciatto follows a different design philosophy. This is evident when looking at the code, and it has made several features available from the start or simply easier to implement.
 
-Attach‑based debugging is the most refined because it is the mode exercised daily. Other debugging paths evolve more slowly simply because they are not part of my regular workflow. Feedback here is always welcome.
+There is a natural bias in development toward the attach-based debugging scenario because it is the one I exercise daily. Feedback on other scenarios is always welcome.
 
 <p align=center>
 <img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
