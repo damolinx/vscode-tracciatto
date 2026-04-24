@@ -9,7 +9,7 @@ Some of the unique features:
 - Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces.
 - Custom behaviors like **Set Value** from the **Watch** window.
 
-This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been invaluable in day‑to‑day work and greatly appreciated. While its implementation has been referenced, Tracciatto follows a different design philosophy. This is evident when looking at the code, and it has made several features available from the start or simply easier to implement.
+This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been invaluable in day‑to‑day work and greatly appreciated. While its implementation has been referenced, Tracciatto follows a different design philosophy. This is evident when looking at the code, and with several requested features emerging naturally because of this design or just being simple to implement.
 
 There is a natural bias in development toward the attach-based debugging scenario because it is the one I exercise daily. Feedback on other scenarios is always welcome.
 
