@@ -1,8 +1,8 @@
 # Tracciatto
 
-Tracciatto is a Ruby debugger extension built on top of the `rdbg` debugger from the [`debug` gem](https://github.com/ruby/debug). The extension was created to explore debugger integration and new features using `rdbg`'s feature set as its primary guide.
+Tracciatto is a Ruby debugging extension built on top of the `rdbg` debugger from the [`debug`](https://github.com/ruby/debug) library. It provides its own [`tracciatto` debug-type](#tracciatto-1) but also supports the far more common [`rdbg` debug-type](#rdbg-vscoderdbg), allowing it to act as a drop‑in replacement in most cases. The extension exists to explore richer debugger integration, guided by `rdbg`'s capabilities and drawing on backlogs from other extensions to better understand common user needs.
 
-Some of the unique features: 
+Some of the unique features offered by this extensio, on top of general debugger support: 
 - Support for **multi‑root workspaces**.
 - Ability to attach to **multiple sockets/ports** simultaneously.
 - An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints.
