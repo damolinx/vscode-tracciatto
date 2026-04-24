@@ -2,7 +2,7 @@
 
 ## 0.2.6
 - Add schema entries for `localFs` and `localFsMap` in all configurations since these are passthrough to `rdbg`.
-- Fix: `RUBY_DEBUG_SKIP_PATH` -defined values overriden by debugger on launch/attach. 
+- Fix: `RUBY_DEBUG_SKIP_PATH` -defined values overriden on debugger launch/attach.
 
 ## 0.2.5
 - `setVariable` now works on any frame (not just top one).
