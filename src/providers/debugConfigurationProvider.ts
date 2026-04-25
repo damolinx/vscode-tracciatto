@@ -15,7 +15,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   constructor(
     protected readonly context: ExtensionContext,
     public readonly type: DebugType,
-  ) {}
+  ) { }
 
   async resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
@@ -58,9 +58,9 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     config: DebugConfiguration,
     folder?: vscode.WorkspaceFolder,
   ): Promise<string | undefined> {
-    const skipPathsFromFile: string[] = [];
+    let skipPathsFromFile: string[] = [];
     try {
-      await this.readSkipPathsFile(folder);
+      skipPathsFromFile = await this.readSkipPathsFile(folder);
     } catch (error: any) {
       return error?.message;
     }
