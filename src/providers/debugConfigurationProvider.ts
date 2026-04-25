@@ -15,7 +15,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   constructor(
     protected readonly context: ExtensionContext,
     public readonly type: DebugType,
-  ) { }
+  ) {}
 
   async resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
