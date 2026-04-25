@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { existsSync } from 'fs';
+import { isAbsolute } from 'path';
 import { ExtensionContext } from '../extensionContext';
 import { AttachConfiguration, parseHostPort } from '../rdbg/configurations/attachConfiguration';
 
@@ -19,6 +21,7 @@ export async function attach(context: ExtensionContext, portOrSocket?: string): 
   const config = parsed
     ? ({ ...baseConfig, host: parsed.host, port: parsed.port } as AttachConfiguration)
     : ({ ...baseConfig, socket: targetPortOrSocket } as AttachConfiguration);
+
   return vscode.debug.startDebugging(undefined, config);
 }
 
@@ -32,18 +35,19 @@ async function showPortOrSocketInputBox(): Promise<string | undefined> {
     value: mruPortOrSocket,
   });
 
-  if (!value) {
+  const normalizedValue = value?.trim();
+  if (!normalizedValue) {
     return;
   }
 
-  mruPortOrSocket = value;
-  return value;
+  mruPortOrSocket = normalizedValue;
+  return normalizedValue;
 }
 
-export function validatePortOrSocket(input: string): string | undefined {
-  const normalizedValue = input.trim();
+export function validatePortOrSocket(value: string): string | undefined {
+  const normalizedValue = value.trim();
   if (!normalizedValue) {
-    return 'Value cannot be empty';
+    return;
   }
 
   const parsed = parseHostPort(normalizedValue);
@@ -52,6 +56,8 @@ export function validatePortOrSocket(input: string): string | undefined {
     if (!Number.isInteger(port) || port < 1 || port > 65535) {
       return 'Port must be an integer between 1 and 65535';
     }
+  } else if (isAbsolute(normalizedValue) && !existsSync(normalizedValue)) {
+    return 'Socket path does not exist';
   }
 
   return;
