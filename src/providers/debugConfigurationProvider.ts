@@ -15,7 +15,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   constructor(
     protected readonly context: ExtensionContext,
     public readonly type: DebugType,
-  ) { }
+  ) {}
 
   async resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
@@ -102,10 +102,9 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
           `Resolved skipPathFile set is default '${DEFAULT_SKIP_PATHS_FILENAME}' but not present, ignoring`,
         );
       } else {
-        throw new Error(
-          `Skip-paths file '${candidate}' cannot be found. Check 'tracciatto.debug.skipPathsFileName' setting`,
-        );
+        this.context.log.warn(`Resolved skipPathFile '${candidate}' cannot be found, ignoring`);
       }
+      return [];
     }
 
     const data = await vscode.workspace.fs.readFile(skipPathsFileUri);
