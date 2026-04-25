@@ -3,6 +3,7 @@ import { isAbsolute } from 'path';
 import { DebugType, DEFAULT_SKIP_PATHS_FILENAME } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { AttachConfiguration } from '../rdbg/configurations/attachConfiguration';
+import { DebugConfiguration } from '../rdbg/configurations/debugConfiguration';
 import { LaunchConfiguration } from '../rdbg/configurations/launchConfiguration';
 
 export const DEFAULT_SOCKET_TIMEOUT = 5000;
@@ -14,16 +15,20 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   constructor(
     protected readonly context: ExtensionContext,
     public readonly type: DebugType,
-  ) {}
+  ) { }
 
   async resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
     config: vscode.DebugConfiguration,
     token?: vscode.CancellationToken,
   ): Promise<vscode.DebugConfiguration | undefined> {
-    config.skipPaths = await this.getMergedSkipPaths(config, folder);
+    let verificationMessage = await this.resolveBaseConfig(config as DebugConfiguration, folder);
+    if (verificationMessage) {
+      this.context.log.error(`${this.type}: ${verificationMessage}`);
+      vscode.window.showErrorMessage(`${config.name}: ${verificationMessage}`);
+      return;
+    }
 
-    let verificationMessage: string | undefined;
     switch (config.request) {
       case 'attach':
         config.name ??= 'Attach to rdbg';
@@ -49,22 +54,30 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     return config;
   }
 
-  private async getMergedSkipPaths(
-    config: vscode.DebugConfiguration,
+  private async resolveBaseConfig(
+    config: DebugConfiguration,
     folder?: vscode.WorkspaceFolder,
-  ): Promise<string[]> {
-    const skipPaths: string[] = Array.isArray(config.skipPaths) ? config.skipPaths : [];
+  ): Promise<string | undefined> {
+    const skipPathsFromFile: string[] = [];
+    try {
+      await this.readSkipPathsFile(folder);
+    } catch (error: any) {
+      return error?.message;
+    }
+
+    const skipPathsFromConfig: string[] = Array.isArray(config.skipPaths) ? config.skipPaths : [];
     const mergedSkipPaths = new Set(
       [
         ...this.context.configuration.getSkipPaths(folder),
-        ...(await this.readSkipPathsFile(folder)),
-        ...skipPaths,
+        ...skipPathsFromFile,
+        ...skipPathsFromConfig,
       ]
         .map((s) => (typeof s === 'string' ? s.trim() : ''))
         .filter(Boolean),
     );
+    config.skipPaths = Array.from(mergedSkipPaths);
 
-    return Array.from(mergedSkipPaths);
+    return;
   }
 
   private async readSkipPathsFile(workspaceFolder?: vscode.WorkspaceFolder): Promise<string[]> {

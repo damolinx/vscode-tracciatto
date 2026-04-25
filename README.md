@@ -196,7 +196,7 @@ The following commands are intended for quick verification of standalone scripts
 
 | Command | Description |
 |---------|-------------|
-| **Attach to…** | Attach to `host:port` or socket |
+| **Attach to…** | Attach to `host:port` or socket. Note that `tracciatto.debug.tracciatto.debug.skipPathsFileName` is always picked from user-settings even if a workspace is currently open. |
 | **Debug Active Editor** | Debugs the active Ruby editor |
 | **Run Active Editor** | Executes the active Ruby file |
 
