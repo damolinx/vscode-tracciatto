@@ -7,7 +7,7 @@ export class SkipPathsSessionController extends SessionController {
     const skipPathsLength = configuration.skipPaths?.length ?? 0;
     if (skipPathsLength) {
       await this.session.sendEvalRequest(
-        `DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) | ["${configuration.skipPaths.join('", "')}"]`
+        `DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) | ["${configuration.skipPaths.join('", "')}"]`,
       );
     }
     this.context.log.debug(`[${this.session.id}] Initialized skip-paths (${skipPathsLength})`);

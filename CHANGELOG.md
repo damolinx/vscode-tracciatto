@@ -2,6 +2,7 @@
 
 ## 0.2.6
 - Add schema entries for `localFs` and `localFsMap` in all configurations since these are passthrough to `rdbg`.
+- Add an error message when the skip-paths file defined by `tracciatto.debug.skipPathsFileName` is missing and is not using the default file name.
 - Fix: `RUBY_DEBUG_SKIP_PATH` -defined values overriden on debugger launch/attach.
 
 ## 0.2.5

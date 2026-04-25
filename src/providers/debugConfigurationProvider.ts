@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { isAbsolute } from 'path';
-import { DebugType } from '../constants';
+import { DebugType, DEFAULT_SKIP_PATHS_FILENAME } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { AttachConfiguration } from '../rdbg/configurations/attachConfiguration';
 import { LaunchConfiguration } from '../rdbg/configurations/launchConfiguration';
@@ -68,9 +68,14 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   }
 
   private async readSkipPathsFile(workspaceFolder?: vscode.WorkspaceFolder): Promise<string[]> {
-    const candidate = this.context.configuration.getSkipPathsFileName(workspaceFolder);
+    const candidate = this.context.configuration.getSkipPathsFileName(workspaceFolder).trim();
+    if (!candidate) {
+      this.context.log.debug('Resolved skipPathFile set to empty, ignoring');
+      return [];
+    }
+
     const skipPathsFileUri =
-      isAbsolute(candidate) || !workspaceFolder
+      !workspaceFolder || isAbsolute(candidate)
         ? vscode.Uri.file(candidate)
         : vscode.Uri.joinPath(workspaceFolder.uri, candidate);
 
@@ -78,20 +83,24 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
       (stat) => Boolean(stat.type & vscode.FileType.File),
       () => false,
     );
-    this.context.log.debug(
-      `Resolved skipPathFile. Path: '${vscode.workspace.asRelativePath(skipPathsFileUri)}' Exists: ${exists}`,
-    );
-
-    if (exists) {
-      const data = await vscode.workspace.fs.readFile(skipPathsFileUri);
-      return data
-        .toString()
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0 && !line.startsWith('#'));
+    if (!exists) {
+      if (candidate === DEFAULT_SKIP_PATHS_FILENAME) {
+        this.context.log.debug(
+          `Resolved skipPathFile set is default '${DEFAULT_SKIP_PATHS_FILENAME}' but not present, ignoring`,
+        );
+      } else {
+        throw new Error(
+          `Skip-paths file '${candidate}' cannot be found. Check 'tracciatto.debug.skipPathsFileName' setting`,
+        );
+      }
     }
 
-    return [];
+    const data = await vscode.workspace.fs.readFile(skipPathsFileUri);
+    return data
+      .toString()
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith('#'));
   }
 
   protected abstract resolveAttachConfig(

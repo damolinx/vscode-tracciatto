@@ -85,20 +85,14 @@ export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>,
     if (!node) {
       return [...EXCEPTION_CATEGORIES]
         .sort((a, b) => a.localeCompare(b))
-        .map((category) => ({
-          type: 'category',
-          category,
-        }));
+        .map((category) => ({ type: 'category', category }));
     }
 
     if (node.type === 'category') {
       return this.exceptionManager
         .getByCategory(node.category)
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map((exception) => ({
-          type: 'exception',
-          exception,
-        }));
+        .map((exception) => ({ type: 'exception', exception }));
     }
 
     return;

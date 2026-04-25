@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EXTENSION_PREFIX } from './constants';
+import { DEFAULT_SKIP_PATHS_FILENAME, EXTENSION_PREFIX } from './constants';
 
 export class Configuration {
   /**
@@ -92,7 +92,7 @@ export class Configuration {
    */
   public getSkipPathsFileName(
     scope: vscode.ConfigurationScope | undefined,
-    defaultValue = '.tracciatto-skip-paths',
+    defaultValue = DEFAULT_SKIP_PATHS_FILENAME,
   ): string {
     return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
   }
