@@ -2,15 +2,17 @@
 
 ## 0.2.6
 - Add schema entries for `localFs` and `localFsMap` in all configurations since these are passthrough to `rdbg`.
-- **Attach to…** command's input validates probably socket paths for better UX.
 - Add an error message when the skip-paths file defined by `tracciatto.debug.skipPathsFileName` is missing and is not using the default file name.
+- **Attach to…** command's input validates socket paths for better UX.
+- Patch to DAP behavior (disabled by default):
+  - Change the default maximum length of inspected values (defaults to 180). Setting: `tracciatto.patchMaxInspectedValueLength`. 
 - Fix: `RUBY_DEBUG_SKIP_PATH` initial value is overriden on debugger launch/attach.
 
 ## 0.2.5
 - `setVariable` now works on any frame (not just top one).
 
 ## 0.2.4
-- Patches to DAP behavior (disabled by default).
+- Patches to DAP behavior (disabled by default):
   - `nil` variables do not appear as expandable in the **Variables** and **Watches** views. Setting: `tracciatto.patchNilVariableExpansion`.
   - Emulate `setVariable` message support. Setting: `tracciatto.patchSetVariable`.
 

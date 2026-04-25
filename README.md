@@ -7,7 +7,10 @@ Some of the unique features offered by this extensio, on top of general debugger
 - Ability to attach to **multiple sockets/ports** simultaneously.
 - An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints.
 - Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces.
-- Custom behaviors like **Set Value** from the **Watch** window.
+
+Additionally, the extension patches behaviors in that `debug` might support in the future via [configuration](#experiments):
+- Change default maximum-length of inspected strings ([code](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
+- Emulate **Set Value** support the **Watch** window ([code](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
 This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been invaluable in day‑to‑day work and greatly appreciated. While its implementation has been referenced, Tracciatto follows a different design philosophy. This is evident when looking at the code, and with several requested features emerging naturally because of this design or just being simple to implement.
 
@@ -120,6 +123,7 @@ The following settings are patches to DAP requests and therefore considered expe
 
 | Setting | Description |
 |---------|-------------|
+| `tracciatto.patchMaxInspectedValueLength` | Override maximum length of inspected values (default: 180). This setting can be changed at any time during a debug session, but will only apply on the next step or evaluation. |
 | `tracciatto.patchNilVariableExpansion` | Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views. This setting can be toggled at any point during a debug session, but will apply on next step. |
 | `tracciatto.patchSetVariable` | Emulate `setVariable` DAP message support so variable values can be edited from the **Variables** and **Watches** views. This capability is reported during DAP initialization, so changes take effect only after restarting the debug session. |
 

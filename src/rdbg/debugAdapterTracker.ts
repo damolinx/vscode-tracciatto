@@ -18,6 +18,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   protected readonly id: string;
   private interceptWelcome: boolean;
   private logDapMessages: boolean;
+  private maxInspectedValueLength?: number;
   private patchNilExpansion: boolean;
   protected readonly skipPathsController: SkipPathsSessionController;
 
@@ -39,12 +40,18 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
       (this.exceptionController = new ExceptionSessionController(this.context, this.debugSession)),
       (this.skipPathsController = new SkipPathsSessionController(this.context, this.debugSession)),
       vscode.workspace.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration('tracciatto.logDapMessages', workspaceFolder)) {
-          this.logDapMessages = configuration.getLogDapMessages(workspaceFolder);
-        } else if (
-          e.affectsConfiguration('tracciatto.patchNilVariableExpansion', workspaceFolder)
-        ) {
-          this.patchNilExpansion = configuration.getPatchNilVariableExpansion(workspaceFolder);
+        if (e.affectsConfiguration('tracciatto')) {
+          if (e.affectsConfiguration('tracciatto.logDapMessages', workspaceFolder)) {
+            this.logDapMessages = configuration.getLogDapMessages(workspaceFolder);
+          } else if (e.affectsConfiguration('tracciatto.patchMaxInspectedValueLength')) {
+            this.maxInspectedValueLength =
+              configuration.getPatchMaxInspectedValueLength(workspaceFolder);
+            this.patchMaxInspectedValueLength(false);
+          } else if (
+            e.affectsConfiguration('tracciatto.patchNilVariableExpansion', workspaceFolder)
+          ) {
+            this.patchNilExpansion = configuration.getPatchNilVariableExpansion(workspaceFolder);
+          }
         }
       }),
     ];
@@ -52,6 +59,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     this.context.activeDebugSession = this.debugSession;
     this.logDapMessages =
       Boolean(showProtocolLog) || configuration.getLogDapMessages(workspaceFolder);
+    this.maxInspectedValueLength = configuration.getPatchMaxInspectedValueLength(workspaceFolder);
     this.patchNilExpansion = configuration.getPatchNilVariableExpansion(workspaceFolder);
   }
 
@@ -85,6 +93,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
             this.exceptionController.initialize(),
             this.skipPathsController.initialize(),
           ]);
+          await this.patchMaxInspectedValueLength(true);
           break;
 
         case 'output':
@@ -152,5 +161,19 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
 
   onWillStopSession() {
     this.dispose();
+  }
+
+  private async patchMaxInspectedValueLength(initialization: boolean): Promise<void> {
+    if (
+      initialization &&
+      (this.maxInspectedValueLength == undefined || this.maxInspectedValueLength === 180)
+    ) {
+      return;
+    }
+    const value = this.maxInspectedValueLength ?? 180;
+    await this.debugSession.sendEvalRequest(`DEBUGGER__::ThreadClient::MAX_LENGTH = ${value}`);
+    this.context.log.warn(
+      `[${this.id}] Patched DEBUGGER__::ThreadClient::MAX_LENGTH=${this.maxInspectedValueLength ?? 180}`,
+    );
   }
 }

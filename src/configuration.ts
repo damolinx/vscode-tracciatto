@@ -51,9 +51,16 @@ export class Configuration {
   }
 
   /**
-   * Whether to patch `nil` so it does not appear expandable
-   * in the Variables and Watches views.
-   * Setting is read only at the start of a debugging session.
+   * Maximum length of inspected values.
+   */
+  public getPatchMaxInspectedValueLength(
+    scope: vscode.ConfigurationScope | undefined,
+  ): number | undefined {
+    return this.getValue<number | undefined>(scope, 'patchMaxInspectedValueLength');
+  }
+
+  /**
+   * Whether to patch `nil` so it does not appear expandable.
    */
   public getPatchNilVariableExpansion(
     scope: vscode.ConfigurationScope | undefined,
