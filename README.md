@@ -251,12 +251,13 @@ VS Code allows adding some of these using the **Add Function Breakpoint** comman
 
 ### Exception Filters
 
-The **Exception Filters** view lets you easily select  Ruby exceptions should have rdbg to break at. There are two categories:
+The **Exception Filters** view provides a convenient way to manage Ruby exceptions that should trigger a breakpoint in rdbg. It is similar to its `catch` command, but provides significant advantages as these are applied automatically on the start of any type of debugging session, they can be easily toggled at any point, and you can maintain a custom list of exceptions specific to your project.
+Exceptions are categorized into two distinct groups:
 
-* **Built‑in Filters**: represent common Ruby exception classes. These filters are always available and **cannot be edited or removed**.
-* **User Filters**: you can add any Ruby exception class (e.g., `NoMethodError`, `KeyError`, `ActiveRecord::RecordNotFound`) and control whether the debugger should break when it is raised.
+* **Built‑in Filters**: common Ruby exception classes offered by default; they are disabled by default and they **cannot be edited or removed**.
+* **User Filters**: custom list of Ruby exception classes (e.g., `NoMethodError`, `KeyError`, `ActiveRecord::RecordNotFound`) you define for the current workspace.
 
-Exception filters can be toggled at any point in time, be that before or during program debugging.
+Exception filters can be toggled at any point in time, with the extension either applying in the next debug session start/launch or applying to the currently running ones.
 
 [↑ Back to top](#table-of-contents)
 
