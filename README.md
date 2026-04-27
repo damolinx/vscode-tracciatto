@@ -8,7 +8,7 @@ Some of the unique features offered by this extension, on top of general debugge
 - An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints.
 - Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces.
 
-Additionally, the extension provides patches for behaviors that the “debug” library might support in the future through [configuration](#experiments), for example:
+Additionally, the extension provides patches for behaviors that the "debug" library might support in the future through [configuration](#experiments), for example:
 - Modify the default maximum length of inspected strings ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
 - Emulate **Set Value** support for the **Watch** and similar views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
@@ -55,8 +55,11 @@ Use this mode when you want VS Code to start Ruby for you.
       "type": "tracciatto",
       "request": "launch",
       "name": "Debug current file",
-      // Using ${file} is convenient but often not what you want long-term.
-      // Update this to point to your project's entrypoint script.
+      // ${file} is convenient for initial testing, but it resolves to whatever
+      // editor is active. VS Code does not restrict this to Ruby files, so you
+      // may end up trying to debug a text file or even an Output channel.
+      // Prefer a deterministic path like `${workspaceFolder}/my_script.rb`.
+      // Use the "Debug Current File" command when you actually want the active file.
       "program": "${file}"
     }
     ```
