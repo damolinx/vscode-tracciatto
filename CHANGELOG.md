@@ -1,9 +1,12 @@
 # Changelog
 
+## 0.2.7
+- **Attach to…** input enforces port number is 1024 or higher to avoid privileged ports.
+
 ## 0.2.6
 - Add schema entries for `localFs` and `localFsMap` in all configurations since these are passthrough to `rdbg`.
 - Add an error message when the skip-paths file defined by `tracciatto.debug.skipPathsFileName` is missing and is not using the default file name.
-- **Attach to…** command's input validates socket paths for better UX.
+- **Attach to…** command's input control validates socket paths for better UX.
 - Patch to DAP behavior (disabled by default):
   - Change the default maximum length of inspected values (defaults to 180). Setting: `tracciatto.patchMaxInspectedValueLength`. 
 - Fix: `RUBY_DEBUG_SKIP_PATH` initial value is overriden on debugger launch/attach.

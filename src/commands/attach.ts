@@ -53,8 +53,8 @@ export function validatePortOrSocket(value: string): string | undefined {
   const parsed = parseHostPort(normalizedValue);
   if (parsed) {
     const { port } = parsed;
-    if (!Number.isInteger(port) || port < 1 || port > 65535) {
-      return 'Port must be an integer between 1 and 65535';
+    if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+      return 'Port must be an integer between 1024 and 65535';
     }
   } else if (isAbsolute(normalizedValue) && !existsSync(normalizedValue)) {
     return 'Socket path does not exist';
