@@ -22,7 +22,9 @@ export async function attach(context: ExtensionContext, portOrSocket?: string): 
     ? ({ ...baseConfig, host: parsed.host, port: parsed.port } as AttachConfiguration)
     : ({ ...baseConfig, socket: targetPortOrSocket } as AttachConfiguration);
 
-  return vscode.debug.startDebugging(undefined, config);
+  const folders = vscode.workspace.workspaceFolders;
+  const folder = folders?.length === 1 ? folders[0] : undefined;
+  return vscode.debug.startDebugging(folder, config);
 }
 
 let mruPortOrSocket: string | undefined;

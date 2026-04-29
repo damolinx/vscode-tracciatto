@@ -203,7 +203,7 @@ The following commands are intended for quick verification of standalone scripts
 
 | Command | Description |
 |---------|-------------|
-| **Attach to…** | Attach to `host:port` or socket. Note that `tracciatto.debug.tracciatto.debug.skipPathsFileName` is always loaded from user-settings, even if a workspace is currently open, or defaults to `.tracciatto-skip-paths`. |
+| **Attach to…** | Attach to `host:port` or socket. When exactly **one workspace folder** is open, it is used as one source for [skip-paths](#skip-path-patterns). In multi‑root workspaces no folder is selected. The `tracciatto.debug.skipPathsFileName` setting is always used as it comes from user settings. |
 | **Debug Active Editor** | Debugs the active Ruby editor |
 | **Run Active Editor** | Executes the active Ruby file |
 

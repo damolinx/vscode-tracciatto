@@ -1,7 +1,9 @@
 # Changelog
 
 ## 0.2.7
-- **Attach to…** input enforces port number is 1024 or higher to avoid privileged ports.
+- **Attach to…**:
+  - port number is must 1024 or higher to avoid privileged ports.
+  - Workspace folder is used as source for skip-paths in single-root workspaces.
 
 ## 0.2.6
 - Add schema entries for `localFs` and `localFsMap` in all configurations since these are passthrough to `rdbg`.
@@ -21,7 +23,7 @@
 
 ## 0.2.3
 - Input boxes remember recent values (current session only).
-- Default CWD to `${fileDirname}` when there are is no open workspace.
+- Default `cwd` to `${fileDirname}` when there are is no open workspace.
 - **Attach to…** command is now active even when already in a debug session allowing to attach to multiple sockets concurrently.
 - Simplify REPL banner to be one line. 
 
