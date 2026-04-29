@@ -47,8 +47,10 @@ export class DebugSession implements vscode.Disposable {
     this._state = DebugSessionState.Terminated;
   }
 
-  public sendEvalRequest(expression: string): Promise<void> {
-    return this.sendRequest('evaluate', { expression: `,eval ${expression}` });
+  public sendEvaluateRequest(expression: string, useEval = true): Promise<void> {
+    return this.sendRequest('evaluate', {
+      expression: useEval ? `,eval ${expression}` : `,${expression}`,
+    });
   }
 
   public async sendRequest(command: string, args: any): Promise<void> {

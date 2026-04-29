@@ -171,7 +171,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
       return;
     }
     const value = this.maxInspectedValueLength ?? 180;
-    await this.debugSession.sendEvalRequest(`DEBUGGER__::ThreadClient::MAX_LENGTH = ${value}`);
+    await this.debugSession.sendEvaluateRequest(`DEBUGGER__::ThreadClient::MAX_LENGTH = ${value}`);
     this.context.log.warn(
       `[${this.id}] Patched DEBUGGER__::ThreadClient::MAX_LENGTH=${this.maxInspectedValueLength ?? 180}`,
     );

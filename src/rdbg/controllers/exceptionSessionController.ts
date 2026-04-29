@@ -31,7 +31,7 @@ export class ExceptionSessionController extends SessionController {
     }
 
     for (const name of names) {
-      await this.session.sendEvalRequest(
+      await this.session.sendEvaluateRequest(
         `DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new("${name}")`,
       );
     }
@@ -44,7 +44,7 @@ export class ExceptionSessionController extends SessionController {
     }
 
     for (const name of names) {
-      await this.session.sendEvalRequest(
+      await this.session.sendEvaluateRequest(
         `DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, "${name}"])[1]`,
       );
     }
