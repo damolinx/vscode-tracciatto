@@ -33,7 +33,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
       workspaceFolder,
     } = session;
 
-    this.id = id;
+    this.id = id.slice(0, 8);
     this.interceptWelcome = true;
     this.disposables = [
       (this.debugSession = new DebugSession(this.context, session)),
