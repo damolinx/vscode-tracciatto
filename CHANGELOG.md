@@ -2,7 +2,7 @@
 
 ## 0.2.7
 - **Attach to…**:
-  - port number is must 1024 or higher to avoid privileged ports.
+  - Port number must be 1024 or higher to avoid privileged ports.
   - Workspace folder is used as source for skip-paths in single-root workspaces.
 
 ## 0.2.6
