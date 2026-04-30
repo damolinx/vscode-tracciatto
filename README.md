@@ -166,9 +166,9 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 
 ### rdbg (vscode‑rdbg)
 
-This extension is compatible with the `rdbg` debug type provided by the **vscode‑rdbg** extension. It supports both **launch** and **attach** modes, but it only accepts a subset of properties.
+This extension supports the `rdbg` debug type provided by the **vscode‑rdbg** extension. It works in both **launch** and **attach** modes, but only a subset of configuration properties is used; unsupported properties are simply ignored.
 
-> To prevent a conflict, this support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed. 
+> To avoid a conflict, support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed. To confirm its status, check the [logs](#logs) to confirm whether support has been enabled.
 
 This happens during extension activation so reloading the extension is needed after (un)installing **vscode‑rdbg**. Check the [logs](#logs) for confirmation. Note that the `tracciatto` debug type is always available.
 
