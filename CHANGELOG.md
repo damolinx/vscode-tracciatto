@@ -2,6 +2,7 @@
 
 ## 0.2.8
 - Skip-paths support `${workspaceFolder}` token replacement.
+- DAP-message log entries use a short version of the associated debug session id for readability. 
 
 ## 0.2.7
 - **Attach to…**:
