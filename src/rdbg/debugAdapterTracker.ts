@@ -15,7 +15,6 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   protected readonly disposables: vscode.Disposable[];
   protected readonly debugSession: DebugSession;
   protected readonly exceptionController: ExceptionSessionController;
-  protected readonly id: string;
   private interceptWelcome: boolean;
   private logDapMessages: boolean;
   private maxInspectedValueLength?: number;
@@ -29,11 +28,9 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     const { configuration } = this.context;
     const {
       configuration: { showProtocolLog },
-      id,
       workspaceFolder,
     } = session;
 
-    this.id = id.slice(0, 8);
     this.interceptWelcome = true;
     this.disposables = [
       (this.debugSession = new DebugSession(this.context, session)),
@@ -67,6 +64,10 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     this.context.activeDebugSession = undefined;
     vscode.Disposable.from(...this.disposables).dispose();
     this.disposables.length = 0;
+  }
+
+  public get id(): string {
+    return this.debugSession.id;
   }
 
   protected isEventMessage(message: DebugProtocol.ProtocolMessage): message is DebugProtocol.Event {

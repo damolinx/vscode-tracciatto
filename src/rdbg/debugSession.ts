@@ -11,12 +11,14 @@ export enum DebugSessionState {
 
 export class DebugSession implements vscode.Disposable {
   private _state: DebugSessionState;
+  public readonly id: string;
 
   constructor(
     private readonly context: ExtensionContext,
     private readonly session: vscode.DebugSession,
   ) {
     this._state = DebugSessionState.Uninitialized;
+    this.id = this.session.id.slice(0, 8);
   }
 
   dispose() {
@@ -25,10 +27,6 @@ export class DebugSession implements vscode.Disposable {
 
   public get configuration(): DebugConfiguration {
     return this.session.configuration as DebugConfiguration;
-  }
-
-  public get id(): string {
-    return this.session.id;
   }
 
   public async initialize(): Promise<void> {
@@ -58,7 +56,7 @@ export class DebugSession implements vscode.Disposable {
       const result = await this.session.customRequest(command, args);
       return result;
     } catch (error: any) {
-      const message = `[${this.session.id}] Failed request: '${command}', ${JSON.stringify(args)} - Error:`;
+      const message = `[${this.id}] Failed request: '${command}', ${JSON.stringify(args)} - Error:`;
       if (error?.message !== 'Canceled') {
         this.context.log.error(message, error);
       } else {
