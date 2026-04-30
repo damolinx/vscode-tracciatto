@@ -35,8 +35,7 @@ export class ExtensionContext {
   }
 
   public get supportRdbgDebugType(): boolean {
-    this._supportRdbgDebugType ??= !vscode.extensions.getExtension('KoichiSasada.vscode-rdbg')
-      ?.isActive;
+    this._supportRdbgDebugType ??= !vscode.extensions.getExtension('KoichiSasada.vscode-rdbg');
     return this._supportRdbgDebugType;
   }
 }
