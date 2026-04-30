@@ -8,7 +8,7 @@ Some of the unique features offered by this extension, on top of general debugge
 - An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints.
 - Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces.
 
-Additionally, the extension provides patches for behaviors that the "debug" library might support in the future through [configuration](#experiments), for example:
+Additionally, the extension provides patches for behaviors that the "debug" library might support in the future through [configuration](#debug-protocol-overrides), for example:
 - Modify the default maximum length of inspected strings ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
 - Emulate **Set Value** support for the **Watch** and similar views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
@@ -25,6 +25,7 @@ Development tends to favor the attach-based debugging scenario because it’s th
   - [Launching a debug session](#launching-a-debug-session)
   - [Attaching to a running process](#attaching-to-a-running-process)
 - [Configuration](#configuration)
+  - [Debug Protocol Overrides](#debug-protocol-overrides)
 - [Debug Configurations](#debug-configurations)
   - [`tracciatto`](#tracciatto-1)
   - [`rdbg` (vscode‑rdbg)](#rdbg-vscoderdbg)
@@ -120,15 +121,18 @@ Tracciatto supports the following user and workspace settings:
 | `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
 | `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
 
-### Experiments
 
-The following settings are patches to DAP requests and therefore considered experimental/unstable. They are disabled by default and they are not exposed from the Settings UI.
+### Debug Protocol Overrides
+
+The following settings customize debugger behavior by modifying specific Debug Adapter Protocol messages. They affect UI surfaces that render debugger results like the **Variables** and **Watches** views, or the **Debug** console itself.
 
 | Setting | Description |
-|---------|-------------|
-| `tracciatto.patchMaxInspectedValueLength` | Override maximum length of inspected values (default: 180). This setting can be changed at any time during a debug session, but will only apply on the next step or evaluation. |
-| `tracciatto.patchNilVariableExpansion` | Patch `nil` variables so they do not appear as expandable in the **Variables** and **Watches** views. This setting can be toggled at any point during a debug session, but will apply on next step. |
-| `tracciatto.patchSetVariable` | Emulate `setVariable` DAP message support so variable values can be edited from the **Variables** and **Watches** views. This capability is reported during DAP initialization, so changes take effect only after restarting the debug session. |
+|--------|-------------|
+| `tracciatto.patchMaxInspectedValueLength` | Chnages the maximum length of text returned from the debugger for inspected values. `rdbg` [sets](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L776) this to be 180. Changes to this setting apply on the next step or evaluation. |
+| `tracciatto.patchNilVariableExpansion` | Prevents `nil` variables from appearing as being expandable in debugger views like **Watches**. Changes to this setting apply on the next step or evaluation. |
+| `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action. Changes to this setting apply on the next debug session. |
+
+These changes are protocol‑compliant, but they modify low‑level DAP behavior so they can be disabled if they cause any issues.
 
 [↑ Back to top](#table-of-contents)
 

@@ -97,38 +97,60 @@
         }
       ]
     },
-    "configuration": {
-      "properties": {
-        "tracciatto.debug.preferBundler": {
-          "type": "boolean",
-          "default": true,
-          "markdownDescription": "Prefer running `bundle exec` when a Gemfile is present and no `runtimeExecutable` is explicitly set in the configuration file."
-        },
-        "tracciatto.debug.runtimeExecutable": {
-          "type": "string",
-          "default": "ruby",
-          "description": "Path to the Ruby executable used for debugging."
-        },
-        "tracciatto.debug.skipPaths": {
-          "type": "array",
-          "items": {
-            "type": "string"
+    "configuration": [
+      {
+        "properties": {
+          "tracciatto.debug.preferBundler": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Prefer running `bundle exec` when a Gemfile is present and no `runtimeExecutable` is explicitly set in the configuration file."
           },
-          "default": [],
-          "description": "Paths to skip when stepping in the Ruby debugger."
-        },
-        "tracciatto.debug.skipPathsFileName": {
-          "type": "string",
-          "default": ".tracciatto-filter",
-          "description": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
-        },
-        "tracciatto.logDapMessages": {
-          "type": "boolean",
-          "default": false,
-          "description": "Log Debug Adapter Protocol messages at trace level (for extension or DAP debugging)."
+          "tracciatto.debug.runtimeExecutable": {
+            "type": "string",
+            "default": "ruby",
+            "description": "Path to the Ruby executable used for debugging."
+          },
+          "tracciatto.debug.skipPaths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "Paths to skip when stepping in the Ruby debugger."
+          },
+          "tracciatto.debug.skipPathsFileName": {
+            "type": "string",
+            "default": ".tracciatto-filter",
+            "description": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
+          },
+          "tracciatto.logDapMessages": {
+            "type": "boolean",
+            "default": false,
+            "description": "Log Debug Adapter Protocol messages at trace level (for extension or DAP debugging)."
+          }
+        }
+      },
+      {
+        "title": "Debug Protocol Overrides",
+        "properties": {
+          "tracciatto.patchMaxInspectedValueLength": {
+            "type": "number",
+            "default": 180,
+            "markdownDescription": "Sets the maximum length of the string representation shown for inspected values. Changes take effect on the next step or evaluation, if you are already in a debug session."
+          },
+          "tracciatto.patchNilVariableExpansion": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Prevents `nil` variables from appearing as expandable in the **Variables** and **Watches** views. Changes take effect on the next step or evaluation, if you are already in a debug session."
+          },
+          "tracciatto.patchSetVariable": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Enables changing variable values from the **Variables** and **Watches** views. Changes take effect at the start of the next debug session."
+          }
         }
       }
-    },
+    ],
     "breakpoints": [
       {
         "language": "ruby"
@@ -360,7 +382,7 @@
         {
           "id": "tracciatto.exceptions",
           "name": "Exception Filters",
-          "icon": "debug-alt"
+          "icon": "$(debug-alt)"
         }
       ]
     }
