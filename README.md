@@ -14,7 +14,7 @@ Additionally, the extension provides patches for behaviors that the "debug" libr
 
 This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
 
-Development tends to favor the attach-based debugging scenario because it’s the one I use daily.  Feedback on other scenarios is always welcome.
+Development tends to favor the attach-based debugging scenario because it’s the one I use daily. Feedback on other scenarios is always welcome.
 
 <p align=center>
 <img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
@@ -47,7 +47,6 @@ Press F5 on any `.rb` file to automatically create debug configurations in `.vsc
 ### Launching a debug session
 
 Use this mode when you want VS Code to start Ruby for you.
-
 
 1. Add a `launch` configuration to `.vscode/launch.json`
 
@@ -120,7 +119,6 @@ Tracciatto supports the following user and workspace settings:
 | `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
 | `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
 | `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
-
 
 ### Debug Protocol Overrides
 
@@ -217,17 +215,17 @@ The following commands are intended for quick verification of standalone scripts
 
 The following breakpoint types are supported from UI:
 
-- **Line Breakpoint**: stops at a specific file/line.  
-  - Set by clicking the editor gutter or pressing **F9**.  
+- **Line Breakpoint**: stops at a specific file/line.
+  - Set by clicking the editor gutter or pressing **F9**.
   - **Debug console**: `break <file>:<line>`
 
-- **Conditional Line Breakpoint**: stops only if an expression evaluates truthy.  
-  - Set by right‑clicking a line breakpoint → **Edit Breakpoint…**.  
+- **Conditional Line Breakpoint**: stops only if an expression evaluates truthy.
+  - Set by right‑clicking a line breakpoint → **Edit Breakpoint…**.
   - **Debug console**: `break <file>:<line> if <expr>`
 
-- **Catch Breakpoint**: stops when a specific exception class is raised.  
-  - rdbg's native integration only exposes **rescue any exception** and **rescue RuntimeError** in the VS Code **Breakpoints** view.  
-  - Tracciatto expands this via the [Exception Filters](#exception-filters) view.  
+- **Catch Breakpoint**: stops when a specific exception class is raised.
+  - rdbg's native integration only exposes **rescue any exception** and **rescue RuntimeError** in the VS Code **Breakpoints** view.
+  - Tracciatto expands this via the [Exception Filters](#exception-filters) view.
   - **Debug console**: `catch <ExceptionClass>`
 
 The following breakpoint types depend on **runtime entities** (methods, objects, or expressions). 
@@ -236,24 +234,24 @@ The following breakpoint types depend on **runtime entities** (methods, objects,
 
 VS Code allows adding some of these using the **Add Function Breakpoint** command, but rdbg will silently fail to set them up during session startup unless the method/object already exists (e.g., when attaching to a long‑running process).
 
-- **Method Breakpoint**: stops when a method is called.  
-  - Supported in VS Code as function breakpoints.  
+- **Method Breakpoint**: stops when a method is called.
+  - Supported in VS Code as function breakpoints.
   - **Debug console**: `break <Class>.<method>` or `break <Class>#<method>`
 
-- **Object Breakpoint**: stops when a specific object is used as receiver/argument.  
-  - No VS Code UI entrypoint.  
+- **Object Breakpoint**: stops when a specific object is used as receiver/argument.
+  - No VS Code UI entrypoint.
   - **Debug console**: `watch object <expr>`
 
-- **Watch Breakpoint**: stops when the value of an expression changes.  
+- **Watch Breakpoint**: stops when the value of an expression changes.
   - No VS Code UI entrypoint.
   - **Debug console**: `watch <expr>`
 
-- **Temporary Breakpoint**: stops once, then removes itself.  
-  - No VS Code UI entrypoint.  
+- **Temporary Breakpoint**: stops once, then removes itself.
+  - No VS Code UI entrypoint.
   - **Debug console**: `break <file>:<line> once`
 
-- **Tracepoint (line/call/exception/object)**: logs events without stopping.  
-  No VS Code UI entrypoint.  
+- **Tracepoint (line/call/exception/object)**: logs events without stopping.
+  No VS Code UI entrypoint.
   **Debug console**: `trace <event>` (e.g., `trace call`, `trace line`)
 
 ### Exception Filters
