@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { isAbsolute } from 'path';
-import { DebugType, DEFAULT_SKIP_PATHS_FILENAME } from '../constants';
+import { DebugType } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { AttachConfiguration } from '../rdbg/configurations/attachConfiguration';
 import { DebugConfiguration } from '../rdbg/configurations/debugConfiguration';
@@ -58,61 +57,13 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     config: DebugConfiguration,
     folder?: vscode.WorkspaceFolder,
   ): Promise<string | undefined> {
-    let skipPathsFromFile: string[] = [];
     try {
-      skipPathsFromFile = await this.readSkipPathsFile(folder);
+      config.skipPaths = await this.context.skipPathProvider.resolveSkipPaths(config, folder);
     } catch (error: any) {
       return error?.message;
     }
 
-    const skipPathsFromConfig: string[] = Array.isArray(config.skipPaths) ? config.skipPaths : [];
-    const mergedSkipPaths = new Set(
-      [
-        ...this.context.configuration.getSkipPaths(folder),
-        ...skipPathsFromFile,
-        ...skipPathsFromConfig,
-      ]
-        .map((s) => (typeof s === 'string' ? s.trim() : ''))
-        .filter(Boolean),
-    );
-    config.skipPaths = Array.from(mergedSkipPaths);
-
     return;
-  }
-
-  private async readSkipPathsFile(workspaceFolder?: vscode.WorkspaceFolder): Promise<string[]> {
-    const candidate = this.context.configuration.getSkipPathsFileName(workspaceFolder).trim();
-    if (!candidate) {
-      this.context.log.debug('Resolved skipPathFile set to empty, ignoring');
-      return [];
-    }
-
-    const skipPathsFileUri =
-      !workspaceFolder || isAbsolute(candidate)
-        ? vscode.Uri.file(candidate)
-        : vscode.Uri.joinPath(workspaceFolder.uri, candidate);
-
-    const exists = await vscode.workspace.fs.stat(skipPathsFileUri).then(
-      (stat) => Boolean(stat.type & vscode.FileType.File),
-      () => false,
-    );
-    if (!exists) {
-      if (candidate === DEFAULT_SKIP_PATHS_FILENAME) {
-        this.context.log.debug(
-          `Resolved skipPathFile set is default '${DEFAULT_SKIP_PATHS_FILENAME}' but not present, ignoring`,
-        );
-      } else {
-        this.context.log.warn(`Resolved skipPathFile '${candidate}' cannot be found, ignoring`);
-      }
-      return [];
-    }
-
-    const data = await vscode.workspace.fs.readFile(skipPathsFileUri);
-    return data
-      .toString()
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0 && !line.startsWith('#'));
   }
 
   protected abstract resolveAttachConfig(

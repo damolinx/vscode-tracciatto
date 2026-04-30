@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.8
+- Skip-paths support `${workspaceFolder}` token replacement.
+
 ## 0.2.7
 - **Attach to…**:
   - Port number must be 1024 or higher to avoid privileged ports.

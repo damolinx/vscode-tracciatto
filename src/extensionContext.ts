@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { Configuration } from './configuration';
 import { ExceptionManager } from './exceptions/exceptionManager';
 import { DebugSession } from './rdbg/debugSession';
+import { SkipPathProvider } from './skipPaths/skipPathProvider';
 
 export class ExtensionContext {
   private _activeDebugSession?: DebugSession;
@@ -9,12 +10,14 @@ export class ExtensionContext {
   public readonly configuration: Configuration;
   public readonly exceptionManager: ExceptionManager;
   public readonly log: vscode.LogOutputChannel;
+  public readonly skipPathProvider: SkipPathProvider;
 
   constructor(public readonly extensionContext: vscode.ExtensionContext) {
     this.configuration = new Configuration();
     this.log = vscode.window.createOutputChannel('Tracciatto', { log: true });
 
     this.exceptionManager = new ExceptionManager(this.extensionContext, this.log);
+    this.skipPathProvider = new SkipPathProvider(this.configuration, this.log);
     this.disposables.push(this.exceptionManager, this.log);
   }
 

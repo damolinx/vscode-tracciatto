@@ -170,7 +170,7 @@ This extension is compatible with the `rdbg` debug type provided by the **vscode
 
 > To prevent a conflict, this support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed and active. 
 
-This happens during extension activation, so reloading the extension is needed after disabling or (un)installing **vscode‑rdbg**. Check the [logs](#logs) for confirmation. Note that the `tracciatto` debug type is always available.
+This happens during extension activation so reloading the extension is needed after disabling or (un)installing **vscode‑rdbg**. Check the [logs](#logs) for confirmation. Note that the `tracciatto` debug type is always available.
 
 #### Launch Properties
 
@@ -222,7 +222,7 @@ The following breakpoint types are supported from UI:
   - **Debug console**: `break <file>:<line> if <expr>`
 
 - **Catch Breakpoint**: stops when a specific exception class is raised.  
-  - rdbgs native integration only exposes **rescue any exception** and **rescue RuntimeError** in the VS Code **Breakpoints** view.  
+  - rdbg's native integration only exposes **rescue any exception** and **rescue RuntimeError** in the VS Code **Breakpoints** view.  
   - Tracciatto expands this via the [Exception Filters](#exception-filters) view.  
   - **Debug console**: `catch <ExceptionClass>`
 
@@ -266,9 +266,11 @@ Exception filters can be toggled at any point in time, with the extension either
 
 ## Skip-Path Patterns
 
-Rdbg supports *skip‑paths* glob patterns that tell the debugger which files it should not step into. This affects not only step-by-step debugging but also specific frames the debugger shows as part of the current call stack. For complex projects, this is invaluable as there might be significant portions of the stack you do not care about at a given point in time, e.g. gem code.
+Rdbg supports *skip‑paths* glob patterns that tell the debugger which files it should not step into. This affects not only step-by-step debugging but also specific frames the debugger shows as part of the current call stack. For complex projects, this is invaluable as there might be significant portions of the stack you do not care about at a given point in time, e.g. gem code. 
 
-Tracciatto aligns with this model by allowing skip‑paths to come from multiple sources. Patterns are merged and passed to `rdbg` via the `RUBY_DEBUG_SKIP_PATH` environment variable. There are three possible sources for skip‑paths:
+Tracciatto aligns with this model by allowing skip‑paths to come from multiple sources. Patterns are merged and passed to `rdbg` via the `RUBY_DEBUG_SKIP_PATH` environment variable. 
+
+Different users and teams have different needs. You may always want to skip stepping into Rails internals across all projects, while each workspace may define additional project‑specific patterns. Launch configurations can then add temporary overrides without modifying shared files, this is why there are three possible sources for skip‑paths:
 
 ### **1. Launch configuration**
 
@@ -298,7 +300,7 @@ Supported constructs:
 - `?`: match a single character
 - `[abc]`: character classes
 
-Comments can be added by startiing a line with `#` (Ruby comment). Blank lines are allowed.
+Comments can be added by starting a line with `#` (Ruby comment). Blank lines are allowed.
 
 **Examples**
 ```
@@ -335,9 +337,9 @@ Use this table to decide which source fits your workflow:
 
 This layered approach provides maximum flexibility: global preferences, project‑level rules, and session‑specific overrides can all coexist cleanly.
 
-### Why multiple sources?
+### **Token Replacement**
 
-Different users and teams have different needs. You may always want to skip stepping into Rails internals across all projects, while each workspace may define additional project‑specific patterns. Launch configurations can then add temporary overrides without modifying shared files.
+Tracciatto supports the `${workspaceFolder}` token as **prefix** on skip-paths. For example, `${workspaceFolder}/lib` becomes `/Users/user/project/lib`, while `${workspaceFolder}lib` becomes `/Users/user/projectlib`.
 
 [↑ Back to top](#table-of-contents)
 
