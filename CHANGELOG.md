@@ -4,6 +4,7 @@
 - **Attach to…**:
   - Improve socket path validation.
   - MRU valid values saved across sessions.
+- **Set Value**: improve UI error messages so they provide more detail than just "Failed".
 - Fix: `bundle exec` not used in all expected cases.
   - As a side effect, a `LoadError` from a bad `require` would cause the debugger to terminate silently.
 

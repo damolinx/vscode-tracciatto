@@ -32,21 +32,23 @@ type VariablesRequest = DebugProtocol.VariablesRequest & {
 
 export type KnownRequest = EvaluateRequest | SetVariableRequest | VariablesRequest;
 
-type SafeResponse<T extends DebugProtocol.Response, C extends string> =
+type SafeResponse<T extends DebugProtocol.Response, Cmd extends string> =
   | (Omit<T, 'body' | 'success'> & {
-      command: C;
+      command: Cmd;
       success: true;
       body: NonNullable<T['body']>;
     })
   | (Omit<T, 'body' | 'success'> & {
-      command: C;
+      command: Cmd;
       success: false;
       body?: undefined;
     });
 
 export type ContinueResponse = SafeResponse<DebugProtocol.ContinueResponse, 'continue'>;
 export type DisconnectResponse = SafeResponse<DebugProtocol.DisconnectResponse, 'disconnect'>;
-export type EvaluateResponse = SafeResponse<DebugProtocol.EvaluateResponse, 'evaluate'>;
+export type EvaluateResponse = DebugProtocol.EvaluateResponse & {
+  command: 'evaluate';
+};
 export type InitializeResponse = SafeResponse<DebugProtocol.InitializeResponse, 'initialize'>;
 export type SetVariableResponse = SafeResponse<DebugProtocol.SetVariableResponse, 'setVariable'>;
 export type ScopesResponse = SafeResponse<DebugProtocol.ScopesResponse, 'scopes'>;
