@@ -13,9 +13,10 @@ export async function addException(
     name = nameOrNode;
   } else {
     const existingNames = new Set(exceptionManager.getAllNames());
-    name = await showExceptionInputBox((name) =>
-      existingNames.has(name) ? 'Exception filter already exists' : undefined,
-    );
+    name = await showExceptionInputBox({
+      additionalValidator: (value) =>
+        existingNames.has(value) ? 'Exception filter already exists' : undefined,
+    });
     if (!name) {
       return;
     }

@@ -1,23 +1,24 @@
 import * as vscode from 'vscode';
 
 let mruExceptionName: string | undefined;
-export async function showExceptionInputBox(
-  additionalValidator?: (name: string) => string | undefined,
-): Promise<string | undefined> {
-  const value = await vscode.window.showInputBox({
+export async function showExceptionInputBox(options?: {
+  additionalValidator?: (name: string) => string | undefined;
+  value?: string;
+}): Promise<string | undefined> {
+  const exceptionName = await vscode.window.showInputBox({
     ignoreFocusOut: true,
     prompt: 'e.g., NoMethodError, NameError, ActiveRecord::RecordNotFound',
     placeHolder: 'Enter a Ruby error constant name',
-    validateInput: (value) => validateExceptionName(value, additionalValidator),
-    value: mruExceptionName,
+    validateInput: (value) => validateExceptionName(value, options?.additionalValidator),
+    value: options?.value ?? mruExceptionName,
   });
 
-  if (!value) {
+  if (!exceptionName) {
     return;
   }
 
-  mruExceptionName = value;
-  return value;
+  mruExceptionName = exceptionName;
+  return exceptionName;
 }
 
 function validateExceptionName(

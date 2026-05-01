@@ -105,6 +105,26 @@ export class ExceptionManager implements vscode.Disposable {
     this.save();
   }
 
+  public renameException(oldName: string, newName: string): boolean {
+    if (oldName === newName) {
+      return false;
+    }
+
+    const oldException = this.exceptions.get(oldName);
+    if (!oldException) {
+      return false;
+    }
+    this.exceptions.delete(oldName);
+
+    const newException = { ...oldException, name: newName };
+    this.exceptions.set(newName, newException);
+
+    this.onExceptionRemovedEmitter.fire(oldException);
+    this.onExceptionAddedEmitter.fire(newException);
+    this.save();
+    return true;
+  }
+
   public setExceptionEnabled(name: string, enabled: boolean): void {
     const exception = this.exceptions.get(name.trim());
     if (!exception) {

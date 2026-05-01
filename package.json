@@ -58,6 +58,12 @@
         "enablement": "editorLangId == ruby"
       },
       {
+        "command": "tracciatto.editException",
+        "title": "Edit Exception Filter",
+        "category": "Tracciatto",
+        "icon": "$(edit)"
+      },
+      {
         "command": "tracciatto.removeException",
         "title": "Remove Exception Filter",
         "category": "Tracciatto",
@@ -73,6 +79,10 @@
     "menus": {
       "commandPalette": [
         {
+          "command": "tracciatto.editException",
+          "when": "false"
+        },
+        {
           "command": "tracciatto.removeException",
           "when": "false"
         }
@@ -81,6 +91,11 @@
         {
           "command": "tracciatto.addException",
           "when": "view == tracciatto.exceptions && viewItem =~ /userGroup/",
+          "group": "inline"
+        },
+        {
+          "command": "tracciatto.editException",
+          "when": "view == tracciatto.exceptions && viewItem =~ /userException/",
           "group": "inline"
         },
         {
