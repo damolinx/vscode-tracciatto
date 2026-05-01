@@ -3,16 +3,16 @@
 Tracciatto is a Ruby debugging extension built on top of the `rdbg` debugger from the [`debug`](https://github.com/ruby/debug) library. It provides its own [`tracciatto` debug-type](#tracciatto-1) and supports the [`rdbg` debug-type](#rdbg-vscoderdbg). The extension exists to explore richer debugger integration, guided by `rdbg`'s capabilities and drawing on backlogs from other extensions to better understand common user needs.
 
 Some of the unique features offered by this extension, on top of general debugger support: 
-- Support for **multi‑root workspaces**.
-- Ability to attach to **multiple sockets/ports** simultaneously.
-- An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints.
-- Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces.
+- Support for **multi‑root workspaces**
+- Ability to attach to **multiple sockets/ports** simultaneously
+- An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints
+- Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces
 
 Additionally, the extension provides custom for behaviors that the "debug" library might support in the future through [configuration](#debug-protocol-overrides), for example:
 - Modify the default maximum length of inspected strings ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
 - Emulate **Set Value** support for the **Watch** and similar views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
-This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
+This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and it is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
 
 Development tends to favor the attach-based debugging scenario because it’s the one I use daily. Feedback on other scenarios is always welcome.
 
