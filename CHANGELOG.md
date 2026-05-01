@@ -3,7 +3,7 @@
 ## 0.2.10
 - **Attach to…**:
   - Improve socket path validation.
-  - MRU valid values saved across sessions.
+  - MRU value saved across sessions.
 - Improve **Set Value** error messages so they provide more detail than just "Failed".
 - Add **Edit Exception Filter** action to **Exception Filters**.
 - Fix: `bundle exec` not used in all expected cases.
