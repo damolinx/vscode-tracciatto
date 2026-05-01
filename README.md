@@ -127,12 +127,14 @@ The following settings customize debugger behavior by modifying specific Debug A
 | Setting | Description | Default |
 |---------|-------------|---------|
 | `tracciatto.patchMaxInspectedValueLength` | Changes the maximum length of text returned from the debugger for inspected values. `rdbg` [sets](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L776) this to be 180. Changes to this setting apply on the next step or evaluation. | 180 |
-| `tracciatto.patchNilVariableExpansion` | Prevents `nil` variables from appearing as being expandable in debugger views like **Watches**. Changes to this setting apply on the next step or evaluation. | `true` |
+| `tracciatto.patchSimpleTypeExpansion` | Prevents simple types from appearing as expandable in debugger views like **Watches**. Changes to this setting apply on the next step or evaluation. | `true` |
 | `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action. Changes to this setting apply on the next debug session. | `false` |
 
 These changes are protocol‑compliant, but they modify low‑level DAP behavior so they can be disabled if they cause any issues. 
 
-**Set Value**, enabled by `tracciatto.patchSetVariable`, is particularly sensitive to context and variable types, and some scenarios might not be ever possible from the extension side (i.e. `rdbg` is th eonly reasonable source). You should see a **Failed** error when a given scenario is not possible.
+**Notes**
+* `tracciatto.patchSimpleTypeExpansion`: Simple types: `Complex`, `BigDecimal`, `FalseClass`, `Float`, `Integer`, `NilClass`, `Rational`, `Regexp`, `String`, `Symbol`, `Time`, `TrueClass`
+* `tracciatto.patchSetVariable`: **Set Value** is particularly sensitive to context and variable types, and some scenarios might not be ever possible from the extension side (i.e. `rdbg` is th eonly reasonable source). You should see a **Failed** error when a given scenario is not possible.
 
 [↑ Back to top](#table-of-contents)
 

@@ -48,6 +48,7 @@ export type ContinueResponse = SafeResponse<DebugProtocol.ContinueResponse, 'con
 export type DisconnectResponse = SafeResponse<DebugProtocol.DisconnectResponse, 'disconnect'>;
 export type EvaluateResponse = SafeResponse<DebugProtocol.EvaluateResponse, 'evaluate'>;
 export type InitializeResponse = SafeResponse<DebugProtocol.InitializeResponse, 'initialize'>;
+export type SetVariableResponse = SafeResponse<DebugProtocol.SetVariableResponse, 'setVariable'>;
 export type ScopesResponse = SafeResponse<DebugProtocol.ScopesResponse, 'scopes'>;
 export type VariablesResponse = SafeResponse<DebugProtocol.VariablesResponse, 'variables'>;
 
@@ -56,6 +57,7 @@ export type KnownResponse =
   | DisconnectResponse
   | EvaluateResponse
   | InitializeResponse
+  | SetVariableResponse
   | ScopesResponse
   | VariablesResponse;
 

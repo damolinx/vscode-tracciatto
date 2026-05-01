@@ -60,13 +60,13 @@ export class Configuration {
   }
 
   /**
-   * Whether to patch `nil` so it does not appear expandable.
+   * Whether to patch simple types so it does not appear expandable.
    */
-  public getPatchNilVariableExpansion(
+  public getPatchSimpleTypeExpansion(
     scope: vscode.ConfigurationScope | undefined,
     defaultValue = false,
   ): boolean {
-    return this.getValue<boolean>(scope, 'patchNilVariableExpansion', defaultValue) ?? defaultValue;
+    return this.getValue<boolean>(scope, 'patchSimpleTypeExpansion', defaultValue) ?? defaultValue;
   }
 
   /**

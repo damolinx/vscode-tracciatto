@@ -138,10 +138,10 @@
             "default": 180,
             "markdownDescription": "Sets the maximum length of the string representation shown for inspected values. Changes take effect on the next step or evaluation, if you are already in a debug session."
           },
-          "tracciatto.patchNilVariableExpansion": {
+          "tracciatto.patchSimpleTypeExpansion": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Prevents `nil` variables from appearing as expandable in the **Variables** and **Watches** views. Changes take effect on the next step or evaluation, if you are already in a debug session."
+            "markdownDescription": "Prevents simple types from appearing as expandable in the **Variables** and **Watches** views. Changes take effect on the next step or evaluation, if you are already in a debug session."
           },
           "tracciatto.patchSetVariable": {
             "type": "boolean",

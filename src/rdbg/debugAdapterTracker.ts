@@ -11,6 +11,21 @@ import {
 } from './debugProtocolMessage';
 import { DebugSession, DebugSessionState, DEFAULT_MAX_INSPECTED_LENGTH } from './debugSession';
 
+const SIMPLE_TYPES = new Set([
+  'Complex',
+  'BigDecimal',
+  'FalseClass',
+  'Float',
+  'Integer',
+  'NilClass',
+  'Rational',
+  'Regexp',
+  'String',
+  'Symbol',
+  'Time',
+  'TrueClass',
+]);
+
 /**
  * This class tracks communication with rdbg DAP and signals appropriate session
  * components for initialization. It is {@link vscode.Disposable Disposable} but
@@ -24,7 +39,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   private interceptWelcome: boolean;
   private logDapMessages: boolean;
   private maxInspectedValueLength?: number;
-  private patchNilExpansion: boolean;
+  private patchSimpleTypeExpansion: boolean;
   protected readonly skipPathsController: SkipPathsSessionController;
 
   constructor(
@@ -51,9 +66,10 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
               configuration.getPatchMaxInspectedValueLength(workspaceFolder);
             this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
           } else if (
-            e.affectsConfiguration('tracciatto.patchNilVariableExpansion', workspaceFolder)
+            e.affectsConfiguration('tracciatto.patchSimpleTypeExpansion', workspaceFolder)
           ) {
-            this.patchNilExpansion = configuration.getPatchNilVariableExpansion(workspaceFolder);
+            this.patchSimpleTypeExpansion =
+              configuration.getPatchSimpleTypeExpansion(workspaceFolder);
           }
         }
       }),
@@ -63,7 +79,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     this.logDapMessages =
       Boolean(showProtocolLog) || configuration.getLogDapMessages(workspaceFolder);
     this.maxInspectedValueLength = configuration.getPatchMaxInspectedValueLength(workspaceFolder);
-    this.patchNilExpansion = configuration.getPatchNilVariableExpansion(workspaceFolder);
+    this.patchSimpleTypeExpansion = configuration.getPatchSimpleTypeExpansion(workspaceFolder);
   }
 
   dispose(): void {
@@ -140,15 +156,20 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
         break;
 
       case 'evaluate':
-        if (this.patchNilExpansion && message.body.result === 'nil') {
+      case 'setVariable':
+        if (
+          this.patchSimpleTypeExpansion &&
+          message.body.type &&
+          SIMPLE_TYPES.has(message.body.type)
+        ) {
           message.body.variablesReference = 0;
         }
         break;
 
       case 'variables':
-        if (this.patchNilExpansion) {
+        if (this.patchSimpleTypeExpansion) {
           for (const variable of message.body.variables) {
-            if (variable.value === 'nil') {
+            if (variable.type && SIMPLE_TYPES.has(variable.type)) {
               variable.variablesReference = 0;
             }
           }

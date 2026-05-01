@@ -12,7 +12,10 @@ import { isRequestMessage, KnownEvent, KnownResponse } from '../debugProtocolMes
  */
 export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
   private readonly interceptedMessageSeqs: Map<number, { name: string }>;
-  private readonly variablesReference: Map<number, { name: string; type?: string, variablesReference: number }>;
+  private readonly variablesReference: Map<
+    number,
+    { name: string; type?: string; variablesReference: number }
+  >;
 
   constructor(context: ExtensionContext, session: vscode.DebugSession) {
     super(context, session);
@@ -41,7 +44,11 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
         case 'evaluate':
           if (intercepted) {
             this.rewriteAsSetVariable(message);
-            this.variablesReference.set(message.body.variablesReference, { name: intercepted.name, type: message.body.type, variablesReference: message.body.variablesReference });
+            this.variablesReference.set(message.body.variablesReference, {
+              name: intercepted.name,
+              type: message.body.type,
+              variablesReference: message.body.variablesReference,
+            });
           }
           break;
 
