@@ -47,10 +47,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     session: vscode.DebugSession,
   ) {
     const { configuration } = this.context;
-    const {
-      configuration: { showProtocolLog },
-      workspaceFolder,
-    } = session;
+    const { workspaceFolder } = session;
 
     this.interceptWelcome = true;
     this.disposables = [
@@ -77,7 +74,8 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
 
     this.context.activeDebugSession = this.debugSession;
     this.logDapMessages =
-      Boolean(showProtocolLog) || configuration.getLogDapMessages(workspaceFolder);
+      Boolean(session.configuration.showProtocolLog) ||
+      configuration.getLogDapMessages(workspaceFolder);
     this.maxInspectedValueLength = configuration.getPatchMaxInspectedValueLength(workspaceFolder);
     this.patchSimpleTypeExpansion = configuration.getPatchSimpleTypeExpansion(workspaceFolder);
   }
