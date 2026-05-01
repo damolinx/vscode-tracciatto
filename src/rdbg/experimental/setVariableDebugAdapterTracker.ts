@@ -88,7 +88,7 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
     const expression = this.resolveAssignmentExpression(message);
     if (!expression) {
       evalRequest.arguments = { expression: '' };
-      this.context.log.warn(
+      this.context.log.debug(
         `[${this.id}] dap.message(out): setVariable → evaluate. ${JSON.stringify(evalRequest)}`,
       );
       return;
@@ -101,7 +101,7 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
       frameId: this.debugSession.frameId,
     };
 
-    this.context.log.warn(
+    this.context.log.debug(
       `[${this.id}] dap.message(out): setVariable → evaluate. ${JSON.stringify(evalRequest)}`,
     );
   }
@@ -178,7 +178,7 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
           value: message.body.result,
           variablesReference: message.body.variablesReference,
         };
-        this.context.log.warn(
+        this.context.log.debug(
           `[${this.id}] dap.message(in): evaluate → setVariable. ${JSON.stringify(setVariableResponse)}`,
         );
         break;

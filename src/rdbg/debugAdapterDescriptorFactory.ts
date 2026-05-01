@@ -63,7 +63,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
       return undefined;
     }
 
-    this.context.log.info(`Attaching via TCP: ${[host, port].join(':')}`);
+    this.context.log.info(`Attaching via TCP: ${[host, port].filter(Boolean).join(':')}`);
     return new vscode.DebugAdapterServer(port, host);
   }
 

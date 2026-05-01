@@ -1,8 +1,15 @@
 # Changelog
 
+## 0.2.10
+- **Attach to…**:
+  - Improve socket path validation.
+  - MRU valid values saved across sessions.
+- Fix: `bundle exec` not used in all expected cases.
+  - As a side effect, a `LoadError` from a bad `require` would cause the debugger to terminate silently.
+
 ## 0.2.9
 - Enable DAP customizations by default and add them to the Settings UI.
-  - Improve **Set Value** behavior in sevaral scenarios.
+  - Improve **Set Value** behavior in several scenarios.
 - Rename `tracciatto.patchNilVariableExpansion` to `tracciatto.patchSimpleTypeExpansion` to accomodate for more types (check the README).
 - Fix: `rdbg` debug-type support can only be enabled if **vscode-rdbg** is not installed.
 - Fix: Blank icon for **Exception Filters**.
@@ -28,7 +35,7 @@
 - `setVariable` now works on any frame (not just top one).
 
 ## 0.2.4
-- Patches to DAP behavior (disabled by default):
+- Patch to DAP behavior (disabled by default):
   - `nil` variables do not appear as expandable in the **Variables** and **Watches** views. Setting: `tracciatto.patchNilVariableExpansion`.
   - Emulate `setVariable` message support. Setting: `tracciatto.patchSetVariable`.
 

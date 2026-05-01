@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { isAbsolute } from 'path';
 import { Configuration } from '../configuration';
-import { DEFAULT_SKIP_PATHS_FILENAME } from '../constants';
 
 const WORKSPACE_TOKEN = '${workspaceFolder}';
 
@@ -57,13 +56,7 @@ export class SkipPathProvider {
       () => false,
     );
     if (!exists) {
-      if (skipPathsFile === DEFAULT_SKIP_PATHS_FILENAME) {
-        this.log.debug(
-          `Resolved skipPathFile set is default '${DEFAULT_SKIP_PATHS_FILENAME}' but not present, ignoring`,
-        );
-      } else {
-        this.log.warn(`Resolved skipPathFile '${skipPathsFile}' cannot be found, ignoring`);
-      }
+      this.log.info(`Resolved skipPathFile '${skipPathsFile}' not found, ignoring`);
       return [];
     }
 

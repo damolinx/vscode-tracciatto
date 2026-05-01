@@ -70,7 +70,7 @@ export class DebugSession implements vscode.Disposable {
 
   public async setMaxInspectedValueLength(length = DEFAULT_MAX_INSPECTED_LENGTH): Promise<number> {
     await this.sendEvaluateRequest(`DEBUGGER__::ThreadClient::MAX_LENGTH = ${length}`);
-    this.context.log.warn(`[${this.id}] DEBUGGER__::ThreadClient::MAX_LENGTH=${length}`);
+    this.context.log.debug(`[${this.id}] DEBUGGER__::ThreadClient::MAX_LENGTH=${length}`);
     return length;
   }
 

@@ -1,40 +1,48 @@
 import * as vscode from 'vscode';
-import { existsSync } from 'fs';
+import { lstatSync } from 'fs';
 import { isAbsolute } from 'path';
 import { ExtensionContext } from '../extensionContext';
-import { AttachConfiguration, parseHostPort } from '../rdbg/configurations/attachConfiguration';
+import {
+  createAttachConfiguration,
+  parseHostPort,
+} from '../rdbg/configurations/attachConfiguration';
 
 export async function attach(context: ExtensionContext, portOrSocket?: string): Promise<boolean> {
-  const targetPortOrSocket = portOrSocket ?? (await showPortOrSocketInputBox());
+  const targetPortOrSocket = portOrSocket ?? (await showPortOrSocketInputBox(context));
   if (!targetPortOrSocket) {
     return false;
   }
 
-  const baseConfig: Omit<AttachConfiguration, 'host' | 'port' | 'socket'> = {
-    type: 'tracciatto',
-    request: 'attach',
-    name: `Attach ${targetPortOrSocket}`,
-    runtimeExecutable: context.configuration.getRuntimeExecutable(),
-    skipPaths: [],
-  };
-  const parsed = parseHostPort(targetPortOrSocket);
-  const config = parsed
-    ? ({ ...baseConfig, host: parsed.host, port: parsed.port } as AttachConfiguration)
-    : ({ ...baseConfig, socket: targetPortOrSocket } as AttachConfiguration);
-
   const folders = vscode.workspace.workspaceFolders;
   const folder = folders?.length === 1 ? folders[0] : undefined;
+  const config = createAttachConfiguration(targetPortOrSocket);
   return vscode.debug.startDebugging(folder, config);
 }
 
-let mruPortOrSocket: string | undefined;
-async function showPortOrSocketInputBox(): Promise<string | undefined> {
+async function showPortOrSocketInputBox(
+  { extensionContext }: ExtensionContext,
+  mruKey = 'attach.mruPortOrSocket',
+): Promise<string | undefined> {
+  let debounceTimer: NodeJS.Timeout | undefined;
+
   const value = await vscode.window.showInputBox({
     ignoreFocusOut: true,
-    prompt: 'Enter a host:port or a UNIX socket path',
-    placeHolder: 'e.g. 127.0.0.1:12345 or /tmp/rdbg.sock',
-    validateInput: validatePortOrSocket,
-    value: mruPortOrSocket,
+    placeHolder: 'e.g. 12345, 127.0.0.1:12345, /tmp/rdbg.sock',
+    prompt: 'Enter a [host:]port or a socket path',
+    validateInput: (value: string) =>
+      new Promise((resolve) => {
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        debounceTimer = setTimeout(() => {
+          const validation = validatePortOrSocket(value);
+          if (!validation) {
+            extensionContext.workspaceState.update(mruKey, value.trim());
+          }
+          resolve(validation);
+        }, 250);
+      }),
+    value: extensionContext.workspaceState.get(mruKey),
   });
 
   const normalizedValue = value?.trim();
@@ -42,11 +50,10 @@ async function showPortOrSocketInputBox(): Promise<string | undefined> {
     return;
   }
 
-  mruPortOrSocket = normalizedValue;
   return normalizedValue;
 }
 
-export function validatePortOrSocket(value: string): string | undefined {
+function validatePortOrSocket(value: string): string | undefined {
   const normalizedValue = value.trim();
   if (!normalizedValue) {
     return;
@@ -54,12 +61,25 @@ export function validatePortOrSocket(value: string): string | undefined {
 
   const parsed = parseHostPort(normalizedValue);
   if (parsed) {
-    const { port } = parsed;
-    if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+    if (!Number.isInteger(parsed.port) || parsed.port < 1024 || parsed.port > 65535) {
       return 'Port must be an integer between 1024 and 65535';
     }
-  } else if (isAbsolute(normalizedValue) && !existsSync(normalizedValue)) {
+    return;
+  }
+
+  if (!isAbsolute(normalizedValue)) {
+    return 'Socket path must be an absolute path';
+  }
+
+  const stat = lstatSync(normalizedValue, { throwIfNoEntry: false });
+  if (!stat) {
     return 'Socket path does not exist';
+  }
+  if (stat.isDirectory()) {
+    return 'Socket path cannot be a directory';
+  }
+  if (process.platform !== 'win32' && !stat.isSocket()) {
+    return 'Path must point to a socket';
   }
 
   return;
