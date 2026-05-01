@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
 import { DebugConfiguration } from './configurations/debugConfiguration';
 
+export const DEFAULT_MAX_INSPECTED_LENGTH = 180;
+
 export enum DebugSessionState {
   Uninitialized = 'uninitialized',
   Running = 'running',
@@ -22,27 +24,27 @@ export class DebugSession implements vscode.Disposable {
   }
 
   dispose() {
-    this.markTerminated();
+    this.state = DebugSessionState.Terminated;
   }
 
   public get configuration(): DebugConfiguration {
     return this.session.configuration as DebugConfiguration;
   }
 
+  public get frameId(): number | undefined {
+    return vscode.debug.activeStackItem?.session.id === this.session.id
+      ? (vscode.debug.activeStackItem as vscode.DebugStackFrame).frameId
+      : undefined;
+  }
+
+  public get threadId(): number | undefined {
+    return vscode.debug.activeStackItem?.session.id === this.session.id
+      ? (vscode.debug.activeStackItem as vscode.DebugThread).threadId
+      : undefined;
+  }
+
   public async initialize(): Promise<void> {
-    this.markRunning();
-  }
-
-  public markPaused(): void {
-    this._state = DebugSessionState.Paused;
-  }
-
-  public markRunning(): void {
-    this._state = DebugSessionState.Running;
-  }
-
-  public markTerminated(): void {
-    this._state = DebugSessionState.Terminated;
+    this.state = DebugSessionState.Running;
   }
 
   public sendEvaluateRequest(expression: string, useEval = true): Promise<void> {
@@ -66,7 +68,17 @@ export class DebugSession implements vscode.Disposable {
     }
   }
 
+  public async setMaxInspectedValueLength(length = DEFAULT_MAX_INSPECTED_LENGTH): Promise<number> {
+    await this.sendEvaluateRequest(`DEBUGGER__::ThreadClient::MAX_LENGTH = ${length}`);
+    this.context.log.warn(`[${this.id}] DEBUGGER__::ThreadClient::MAX_LENGTH=${length}`);
+    return length;
+  }
+
   public get state(): DebugSessionState {
     return this._state;
+  }
+
+  public set state(value: DebugSessionState) {
+    this._state = value;
   }
 }

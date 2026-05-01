@@ -2,6 +2,7 @@
 
 ## 0.2.9
 - Enable DAP customizations by default and add them to the Settings UI.
+  - Improve **Set Value** behavior in sevaral scenarios.
 - Fix: `rdbg` debug-type support can only be enabled if **vscode-rdbg** is not installed.
 - Fix: Blank icon for **Exception Filters**.
 

@@ -3,7 +3,13 @@ import type { DebugProtocol } from 'vscode-debugprotocol';
 import { ExtensionContext } from '../extensionContext';
 import { ExceptionSessionController } from './controllers/exceptionSessionController';
 import { SkipPathsSessionController } from './controllers/skipPathsSessionController';
-import { DebugSession } from './debugSession';
+import {
+  isEventMessage,
+  isResponseMessage,
+  KnownEvent,
+  KnownResponse,
+} from './debugProtocolMessage';
+import { DebugSession, DebugSessionState, DEFAULT_MAX_INSPECTED_LENGTH } from './debugSession';
 
 /**
  * This class tracks communication with rdbg DAP and signals appropriate session
@@ -43,7 +49,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
           } else if (e.affectsConfiguration('tracciatto.patchMaxInspectedValueLength')) {
             this.maxInspectedValueLength =
               configuration.getPatchMaxInspectedValueLength(workspaceFolder);
-            this.patchMaxInspectedValueLength(false);
+            this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
           } else if (
             e.affectsConfiguration('tracciatto.patchNilVariableExpansion', workspaceFolder)
           ) {
@@ -70,87 +76,88 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     return this.debugSession.id;
   }
 
-  protected isEventMessage(message: DebugProtocol.ProtocolMessage): message is DebugProtocol.Event {
-    return message.type === 'event';
-  }
-
-  protected isResponseMessage(
-    message: DebugProtocol.ProtocolMessage,
-  ): message is DebugProtocol.Response {
-    return message.type === 'response';
-  }
-
   async onDidSendMessage(message: DebugProtocol.ProtocolMessage): Promise<void> {
     if (this.logDapMessages) {
       this.context.log.trace(`[${this.id}] dap.message(in)`, message);
     }
 
-    if (this.isEventMessage(message)) {
-      switch (message.event) {
-        case 'initialized':
-          this.context.log.debug(`[${this.id}] Session initialized`);
-          await this.debugSession.initialize();
-          await Promise.all([
-            this.exceptionController.initialize(),
-            this.skipPathsController.initialize(),
-          ]);
-          await this.patchMaxInspectedValueLength(true);
-          break;
-
-        case 'output':
-          if (this.interceptWelcome && message.body) {
-            if (message.body.output.startsWith('Ruby REPL:')) {
-              message.body.output = 'Ruby REPL: Use `,help` to list all debug commands\n';
-              this.interceptWelcome = false;
-            }
-          }
-          break;
-
-        case 'stopped':
-          this.context.log.debug(`[${this.id}] Session stopped (${message.body?.reason ?? ''})`);
-          this.debugSession.markPaused();
-          break;
-
-        case 'terminated':
-          this.context.log.debug(`[${this.id}] Session terminated`);
-          this.debugSession.markTerminated();
-          break;
-      }
-    } else if (this.isResponseMessage(message)) {
-      switch (message.command) {
-        case 'continue':
-          if (message.success) {
-            this.debugSession.markRunning();
-          }
-          break;
-
-        case 'disconnect':
-          if (message.success) {
-            this.context.log.debug(`[${this.id}] Session disconnected`);
-            this.debugSession.markTerminated();
-          }
-          break;
-
-        case 'evaluate':
-          if (this.patchNilExpansion && message.body?.result === 'nil') {
-            message.body.variablesReference = 0;
-          }
-          break;
-
-        case 'variables':
-          if (this.patchNilExpansion && message.body?.variables?.length) {
-            for (const variable of message.body.variables) {
-              if (variable.value === 'nil') {
-                variable.variablesReference = 0;
-              }
-            }
-          }
-          break;
-      }
+    if (isEventMessage(message)) {
+      await this.onDidSendEventMessage(message);
+    } else if (isResponseMessage(message)) {
+      await this.onDidSendResponseMessage(message);
     }
   }
 
-  onWillReceiveMessage(message: any): void {
+  protected async onDidSendEventMessage(message: KnownEvent): Promise<void> {
+    switch (message.event) {
+      case 'initialized':
+        this.context.log.debug(`[${this.id}] Session initialized`);
+        await this.debugSession.initialize();
+        await Promise.all([
+          this.exceptionController.initialize(),
+          this.skipPathsController.initialize(),
+        ]);
+        if (
+          this.maxInspectedValueLength !== undefined &&
+          this.maxInspectedValueLength !== DEFAULT_MAX_INSPECTED_LENGTH
+        ) {
+          await this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
+        }
+        break;
+
+      case 'output':
+        if (this.interceptWelcome && message.body.output.startsWith('Ruby REPL:')) {
+          message.body.output = 'Ruby REPL: Use `,help` to list all debug commands\n';
+          this.interceptWelcome = false;
+        }
+        break;
+
+      case 'stopped':
+        this.context.log.debug(`[${this.id}] Session stopped (${message.body?.reason ?? ''})`);
+        this.debugSession.state = DebugSessionState.Paused;
+        break;
+
+      case 'terminated':
+        this.context.log.debug(`[${this.id}] Session terminated`);
+        this.debugSession.state = DebugSessionState.Terminated;
+        break;
+    }
+  }
+
+  protected async onDidSendResponseMessage(message: KnownResponse): Promise<void> {
+    if (!message.success) {
+      return;
+    }
+
+    switch (message.command) {
+      case 'continue':
+        this.debugSession.state = DebugSessionState.Running;
+        break;
+
+      case 'disconnect':
+        this.context.log.debug(`[${this.id}] Session disconnected`);
+        this.debugSession.state = DebugSessionState.Terminated;
+        break;
+
+      case 'evaluate':
+        if (this.patchNilExpansion && message.body.result === 'nil') {
+          message.body.variablesReference = 0;
+        }
+        break;
+
+      case 'variables':
+        if (this.patchNilExpansion) {
+          for (const variable of message.body.variables) {
+            if (variable.value === 'nil') {
+              variable.variablesReference = 0;
+            }
+          }
+        }
+        break;
+    }
+  }
+
+  onWillReceiveMessage(message: DebugProtocol.ProtocolMessage): void {
     if (this.logDapMessages) {
       this.context.log.trace(`[${this.id}] dap.message(out)`, message);
     }
@@ -162,19 +169,5 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
 
   onWillStopSession() {
     this.dispose();
-  }
-
-  private async patchMaxInspectedValueLength(initialization: boolean): Promise<void> {
-    if (
-      initialization &&
-      (this.maxInspectedValueLength == undefined || this.maxInspectedValueLength === 180)
-    ) {
-      return;
-    }
-    const value = this.maxInspectedValueLength ?? 180;
-    await this.debugSession.sendEvaluateRequest(`DEBUGGER__::ThreadClient::MAX_LENGTH = ${value}`);
-    this.context.log.warn(
-      `[${this.id}] Patched DEBUGGER__::ThreadClient::MAX_LENGTH=${this.maxInspectedValueLength ?? 180}`,
-    );
   }
 }
