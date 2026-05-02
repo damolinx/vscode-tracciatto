@@ -152,6 +152,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
         }
         reject(new Error(error));
       });
+      child.on('error', (error) => reject(error));
     });
     return rdbgPort;
   }
