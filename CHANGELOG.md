@@ -6,6 +6,7 @@
   - MRU value saved across sessions.
 - Improve **Set Value** error messages so they provide more detail than just "Failed".
 - Add **Edit Exception Filter** action to **Exception Filters**.
+- Disable `supportsStepBack` capability.
 - Fix: `bundle exec` not used in all expected cases.
   - As a side effect, a `LoadError` from a bad `require` would cause the debugger to terminate silently.
 

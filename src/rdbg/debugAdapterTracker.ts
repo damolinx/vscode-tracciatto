@@ -164,6 +164,12 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
         }
         break;
 
+      case 'initialize':
+        if (message.success) {
+          message.body.supportsStepBack = false;
+        }
+        break;
+
       case 'variables':
         if (this.patchSimpleTypeExpansion) {
           for (const variable of message.body.variables) {

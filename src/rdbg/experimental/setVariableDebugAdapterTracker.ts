@@ -56,7 +56,6 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
 
       case 'initialize':
         if (message.success) {
-          message.body ??= {};
           message.body.supportsSetVariable = true;
         }
         break;
