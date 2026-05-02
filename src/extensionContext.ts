@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { Configuration } from './configuration';
 import { ExceptionManager } from './exceptions/exceptionManager';
+import { SkipPathProvider } from './providers/skipPathProvider';
 import { DebugSession } from './rdbg/debugSession';
-import { SkipPathProvider } from './skipPaths/skipPathProvider';
 
 export class ExtensionContext {
   private _activeDebugSession?: DebugSession;
