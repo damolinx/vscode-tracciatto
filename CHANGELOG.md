@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.0
+- Add extensible Ruby version manager support, including built‑in integration for `asdf`, `rbenv`, and `rvm`, plus a fully customizable `custom` mode for any environment tool.
+
 ## 0.2.10
 - **Attach to…**:
   - Improve socket path validation.

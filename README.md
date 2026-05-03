@@ -8,13 +8,13 @@ Some of the unique features offered by this extension, on top of general debugge
 - An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints
 - Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces
 
-Additionally, the extension provides custom for behaviors that the "debug" library might support in the future through [configuration](#debug-protocol-overrides), for example:
+Additionally, the extension provides custom behaviors that the "debug" library might support in the future through [configuration](#debug-protocol-overrides), for example:
 - Modify the default maximum length of inspected strings ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
 - Emulate **Set Value** support for the **Watch** and similar views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
 This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and it is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
 
-Development tends to favor the attach-based debugging scenario because it’s the one I use daily. Feedback on other scenarios is always welcome.
+Development tends to favor the attach-based debugging scenario because it's the one I use daily. Feedback on other scenarios is always welcome.
 
 <p align=center>
 <img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
@@ -26,6 +26,7 @@ Development tends to favor the attach-based debugging scenario because it’s th
   - [Attaching to a running process](#attaching-to-a-running-process)
 - [Configuration](#configuration)
   - [Debug Protocol Overrides](#debug-protocol-overrides)
+  - [Version Managers](#version-managers)
 - [Debug Configurations](#debug-configurations)
   - [`tracciatto`](#tracciatto-1)
   - [`rdbg` (vscode‑rdbg)](#rdbg-vscoderdbg)
@@ -134,7 +135,60 @@ These changes are protocol‑compliant, but they modify low‑level DAP behavior
 
 **Notes**
 * `tracciatto.patchSimpleTypeExpansion`: Simple types: `Complex`, `BigDecimal`, `FalseClass`, `Float`, `Integer`, `NilClass`, `Rational`, `Regexp`, `String`, `Symbol`, `Time`, `TrueClass`
-* `tracciatto.patchSetVariable`: **Set Value** is particularly sensitive to context and variable types, and some scenarios might not be ever possible from the extension side (i.e. `rdbg` is th eonly reasonable source). You should see a **Failed** error when a given scenario is not possible.
+* `tracciatto.patchSetVariable`: **Set Value** is particularly sensitive to context and variable types, and some scenarios might not be ever possible from the extension side (i.e. `rdbg` is the only reasonable source). You should see a **Failed** error when a given scenario is not possible.
+
+[↑ Back to top](#table-of-contents)
+
+### Version Managers
+
+| Setting | Description | Default |
+|--------|-------------|---------|
+| `tracciatto.rubyEnvironmentManager` | Select a version manager: `none`, `asdf`, `rbenv`, `rvm`, or use `custom` to provide your own command via `tracciatto.customRubyEnvironmentCommand`. See [Managers](#managers) for details. | `none` |
+| `tracciatto.customRubyEnvironmentCommand` | A command-line used to retrieve the Ruby environment. See [Custom Managers](#custom-managers) for details. | |
+| `tracciatto.customRubyEnvironmentCommandOutputFormat` | Specifies the output format of the command defined by the `tracciatto.customRubyEnvironmentCommand` setting. | `json`|
+
+#### Managers
+
+Managers are used to discover the base environment used to **launch** a debug program. Any environment values defined in your debug configuration are applied on top of it.  
+The environment is isolated per workspace folder and per debug session, making it **compatible** with **multi-root workspaces**.
+
+The environment is calculated once and cached, with invalidation rules. If the environment seems incorrect, reload the current window.
+
+The following managers are supported:
+
+- `none`: Tracciatto does not use any version manager. Ruby is launched exactly as configured in your debug configuration or as found on your system PATH.
+- `asdf`: Use `asdf` to resolve the Ruby version and environment.
+- `rbenv`: Use `rbenv` to resolve the Ruby version and environment.
+- `rvm`: Use RVM to resolve the Ruby version and environment.
+- `custom`: See [Custom Managers](#custom-managers).
+
+##### Custom Managers
+
+The `custom` manager-type gives you **full control** over how Ruby is resolved.  
+It also allows supporting any future or niche manager without waiting for an extension update.
+
+Once enabled, you must provide a command-line for the `tracciatto.customRubyEnvironmentCommand` setting.
+
+This command must print the Ruby environment as either:
+
+  - JSON (`JSON.dump(ENV.to_h)`), e.g. `rbenv exec ruby -- -rjson -e 'print JSON.dump(ENV.to_h)'`
+
+or
+  - one `KEY=VALUE` pair per line, e.g. `rbenv exec ruby -e 'ENV.each { |k,v| puts "#{k}=#{v}" }'`
+
+Use the `tracciatto.customRubyEnvironmentCommandOutputFormat` setting to specify the format the command outputs.
+
+The following table shows examples of how to configure common tools using `custom` (generated using Copilot; results may vary):
+
+| Manager | Example | Notes |
+|---------|---------|-------|
+| mise | `mise exec ruby -- -rjson -e 'print JSON.dump(ENV.to_h)'` | Uses mise's environment for the current directory |
+| chruby | `chruby-exec ruby -- ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Requires `chruby-exec` |
+| direnv | `direnv exec . ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Runs Ruby inside the direnv-managed environment |
+| nix-shell | `nix-shell --run "ruby -rjson -e 'print JSON.dump(ENV.to_h)'"` | Uses the project's nix shell |
+| devbox | `devbox run -- ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Uses devbox's environment |
+| Docker | `docker compose exec app ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | For containerized Ruby apps |
+| WSL | `wsl ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Uses Ruby inside WSL |
 
 [↑ Back to top](#table-of-contents)
 
@@ -152,7 +206,7 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 | `cwd` | Working directory. |
 | `env` | Environment variables passed to the Ruby program. |
 | `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings, e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `program` | Ruby file to debug (**required**). |
 | `runtimeExecutable` | Ruby command to run (`ruby` by default). |
 | `rdbgPath` | Optional absolute path to rdbg. |
@@ -163,7 +217,7 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 | Property | Description |
 |----------|-------------|
 | `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `port` | `[host:]port` path to the rdbg DAP server. |
 | `socket` | Socket path to the rdbg DAP server. |
 | `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately. |
@@ -176,7 +230,7 @@ This extension supports the `rdbg` debug type provided by the **vscode‑rdbg** 
 
 > To avoid a conflict, support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed. To confirm its status, check the [logs](#logs) to confirm whether support has been enabled.
 
-This happens during extension activation so reloading the extension is needed after (un)installing **vscode‑rdbg**. Check the [logs](#logs) for confirmation. Note that the `tracciatto` debug type is always available.
+This happens during extension activation, so reloading the extension is needed after (un)installing **vscode‑rdbg**. Check the [logs](#logs) for confirmation. Note that the `tracciatto` debug type is always available.
 
 #### Launch Properties
 
@@ -187,7 +241,7 @@ This happens during extension activation so reloading the extension is needed af
 | `cwd` | Working directory. |
 | `env` | Environment variables passed to the Ruby program. |
 | `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `rdbgPath` | Absolute path to `rdbg`. |
 | `script` | Absolute path to a Ruby file (**required**). |
 | `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
@@ -199,7 +253,7 @@ This happens during extension activation so reloading the extension is needed af
 |----------|-------------|
 | `debugPort` | `[hostname:]port` or socket path to the rdbg DAP server. |
 | `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `rdbgPath` | Optional absolute path to rdbg. |
 | `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
 
@@ -236,31 +290,31 @@ The following breakpoint types depend on **runtime entities** (methods, objects,
 
 > These breakpoints **cannot be preset** in the general case because the target entities do not exist until the Ruby VM loads the relevant code. They can only reliably be defined **during an active debug session**.
 
-VS Code allows adding some of these using the **Add Function Breakpoint** command, but rdbg will silently fail to set them up during session startup unless the method/object already exists (e.g., when attaching to a long‑running process).
+VS Code allows adding some of these using the **Add Function Breakpoint** command, but rdbg will silently fail to set them up at session startup unless the method/object already exists (e.g., when attaching to a long‑running process).
 
 - **Method Breakpoint**: stops when a method is called.
   - Supported in VS Code as function breakpoints.
   - **Debug console**: `break <Class>.<method>` or `break <Class>#<method>`
 
 - **Object Breakpoint**: stops when a specific object is used as receiver/argument.
-  - No VS Code UI entrypoint.
+  - No VS Code UI entry point.
   - **Debug console**: `watch object <expr>`
 
 - **Watch Breakpoint**: stops when the value of an expression changes.
-  - No VS Code UI entrypoint.
+  - No VS Code UI entry point.
   - **Debug console**: `watch <expr>`
 
 - **Temporary Breakpoint**: stops once, then removes itself.
-  - No VS Code UI entrypoint.
+  - No VS Code UI entry point.
   - **Debug console**: `break <file>:<line> once`
 
 - **Tracepoint (line/call/exception/object)**: logs events without stopping.
-  No VS Code UI entrypoint.
-  **Debug console**: `trace <event>` (e.g., `trace call`, `trace line`)
+  - No VS Code UI entry point.
+  - **Debug console**: `trace <event>` (e.g., `trace call`, `trace line`)
 
 ### Exception Filters
 
-The **Exception Filters** view provides a convenient way to manage Ruby exceptions that should trigger a breakpoint in rdbg. It is similar to its `catch` command, but provides significant advantages as these are applied automatically on the start of any type of debugging session, they can be easily toggled at any point, and you can maintain a custom list of exceptions specific to your project.
+The **Exception Filters** view provides a convenient way to manage Ruby exceptions that should trigger a breakpoint in rdbg. It is similar to its `catch` command, but provides significant advantages as these are applied automatically at the start of any type of debugging session, they can be easily toggled at any point, and you can maintain a custom list of exceptions specific to your project.
 Exceptions are categorized into two distinct groups:
 
 * **Built‑in Filters**: common Ruby exception classes offered by default; they are disabled by default and they **cannot be edited or removed**.

@@ -164,6 +164,50 @@
             "markdownDescription": "Enables changing variable values from the **Variables** and **Watches** views. Changes take effect at the start of the next debug session."
           }
         }
+      },
+      {
+        "title": "Ruby Environment",
+        "properties": {
+          "tracciatto.rubyEnvironmentManager": {
+            "type": "string",
+            "scope": "resource",
+            "default": "none",
+            "enum": [
+              "none",
+              "asdf",
+              "rbenv",
+              "rvm",
+              "custom"
+            ],
+            "markdownEnumDescriptions": [
+              "Do not use a Ruby version manager.",
+              "Use asdf to resolve the Ruby version and environment.",
+              "Use rbenv to resolve the Ruby version and environment.",
+              "Use RVM to resolve the Ruby version and environment.",
+              "Use a custom command to produce the Ruby environment. See [`customRubyEnvironmentCommand`](#tracciatto.customRubyEnvironmentCommand)."
+            ],
+            "markdownDescription": "Select the Ruby version manager used to resolve the environment for launching Ruby and rdbg. Defaults to `none`."
+          },
+          "tracciatto.customRubyEnvironmentCommand": {
+            "type": "string",
+            "scope": "resource",
+            "markdownDescription": "A command line that prints the Ruby environment when [`rubyEnvironmentManager`](#tracciatto.rubyEnvironmentManager) is set to `custom`. The command must output either JSON or KEY=VALUE lines representing the environment."
+          },
+          "tracciatto.customRubyEnvironmentCommandOutputFormat": {
+            "type": "string",
+            "scope": "resource",
+            "default": "json",
+            "enum": [
+              "json",
+              "line"
+            ],
+            "markdownEnumDescriptions": [
+              "Custom command prints a JSON object",
+              "Custom command prints one `KEY=VALUE` pair per line"
+            ],
+            "markdownDescription": "Specifies the output format of the command provided in [`customRubyEnvironmentCommand`](#tracciatto.customRubyEnvironmentCommand)."
+          }
+        }
       }
     ],
     "breakpoints": [

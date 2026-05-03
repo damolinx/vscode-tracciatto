@@ -25,7 +25,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
   constructor(private readonly context: ExtensionContext) {}
 
   async createDebugAdapterDescriptor(
-    { configuration }: vscode.DebugSession,
+    { configuration, workspaceFolder }: vscode.DebugSession,
     _executable: vscode.DebugAdapterExecutable | undefined,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
     switch (configuration.request) {
@@ -33,7 +33,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
         return this.createAttachAdapter(configuration as AttachConfiguration);
       }
       case 'launch': {
-        return this.createLaunchAdapter(configuration as LaunchConfiguration);
+        return this.createLaunchAdapter(configuration as LaunchConfiguration, workspaceFolder);
       }
       default:
         throw new Error(`Unsupported debug configuration type: ${configuration.request}`);
@@ -69,13 +69,19 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
 
   private async createLaunchAdapter(
     config: LaunchConfiguration,
+    folder?: vscode.WorkspaceFolder,
   ): Promise<vscode.DebugAdapterDescriptor> {
+    const { cwd } = config;
     const args = this.buildArgs(config);
-    const { cwd, rdbgPath } = config;
-    const cmd = rdbgPath || 'rdbg';
-    const env = { ...process.env, ...config.env };
-    this.context.log.info(`Running: '${cmd} ${args.join(' ')}'${cwd ? ` Cwd: '${cwd}'` : ''}`);
+    const cmd = config.rdbgPath || 'rdbg';
+    const env = {
+      ...((await this.context.rubyEnvProvider.resolveEnv(folder)) ?? process.env),
+      ...config.env,
+    };
 
+    this.context.log.info(
+      `Running: "${cmd} ${args.join(' ').replace(/"/g, '\\"')}"${cwd ? ` Cwd: '${cwd}'` : ''}`,
+    );
     const child = cp.spawn(cmd, args, { cwd, env, shell: false });
     child
       .on('error', (err) => {
@@ -105,30 +111,29 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     return mergedArgs;
   }
 
-  private resolveRuntimeExecutable(config: vscode.DebugConfiguration): string[] {
-    const candidate = config.runtimeExecutable;
-    if (typeof candidate !== 'string' || !candidate) {
-      throw new Error(`Invalid "runtimeExecutable" value: ${candidate}`);
+  private resolveRuntimeExecutable({ runtimeExecutable }: vscode.DebugConfiguration): string[] {
+    if (typeof runtimeExecutable !== 'string') {
+      throw new Error(`Invalid "runtimeExecutable" value: ${runtimeExecutable}`);
     }
 
-    if (isAbsolute(candidate)) {
-      return [candidate];
+    if (isAbsolute(runtimeExecutable)) {
+      return [runtimeExecutable];
     }
 
-    const candidateWithArgs = candidate.split(/\s+/);
+    const cmdWithArgs = runtimeExecutable.split(/\s+/);
 
     const whichCmd = process.platform === 'win32' ? 'where' : 'which';
-    const result = cp.spawnSync(whichCmd, [candidateWithArgs[0]], { encoding: 'utf8' });
+    const result = cp.spawnSync(whichCmd, [cmdWithArgs[0]], { encoding: 'utf8' });
 
     if (result.status === 0) {
       const firstLine = result.stdout.split(/\r?\n/).find((l) => l.trim().length > 0);
       if (firstLine) {
-        return candidateWithArgs;
+        return cmdWithArgs;
       }
     }
 
     throw new Error(
-      `Unable to resolve runtime executable "${candidateWithArgs[0]}". Set "runtimeExecutable" to a full path in your debug configuration.`,
+      `Unable to resolve runtime executable "${cmdWithArgs[0]}". Set "runtimeExecutable" to a full path in your debug configuration.`,
     );
   }
 
