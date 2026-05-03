@@ -182,12 +182,12 @@ The following table shows examples of how to configure common tools using `custo
 
 | Manager | Example | Notes |
 |---------|---------|-------|
-| mise | `mise exec ruby -- -rjson -e 'print JSON.dump(ENV.to_h)'` | Uses mise's environment for the current directory |
 | chruby | `chruby-exec ruby -- ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Requires `chruby-exec` |
-| direnv | `direnv exec . ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Runs Ruby inside the direnv-managed environment |
-| nix-shell | `nix-shell --run "ruby -rjson -e 'print JSON.dump(ENV.to_h)'"` | Uses the project's nix shell |
 | devbox | `devbox run -- ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Uses devbox's environment |
+| direnv | `direnv exec . ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Runs Ruby inside the direnv-managed environment |
 | Docker | `docker compose exec app ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | For containerized Ruby apps |
+| mise | `mise exec ruby -- -rjson -e 'print JSON.dump(ENV.to_h)'` | Uses mise's environment |
+| nix-shell | `nix-shell --run "ruby -rjson -e 'print JSON.dump(ENV.to_h)'"` | Uses the project's nix shell |
 | WSL | `wsl ruby -rjson -e 'print JSON.dump(ENV.to_h)'` | Uses Ruby inside WSL |
 
 [↑ Back to top](#table-of-contents)

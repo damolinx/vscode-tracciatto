@@ -22,31 +22,27 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
     token?: vscode.CancellationToken,
   ): Promise<vscode.DebugConfiguration | undefined> {
     let verificationMessage = await this.resolveBaseConfig(config as DebugConfiguration, folder);
-    if (verificationMessage) {
-      this.context.log.error(`${this.type}: ${verificationMessage}`);
-      vscode.window.showErrorMessage(`${config.name}: ${verificationMessage}`);
-      return;
-    }
+    if (!verificationMessage) {
+      switch (config.request) {
+        case 'attach':
+          config.name ??= 'Attach';
+          config.socketTimeoutMs ??= DEFAULT_SOCKET_TIMEOUT;
+          verificationMessage = await this.resolveAttachConfig(config, folder, token);
+          verificationMessage ??= this.verifyAttachConfig(config as AttachConfiguration);
+          break;
 
-    switch (config.request) {
-      case 'attach':
-        config.name ??= 'Attach to rdbg';
-        config.socketTimeoutMs ??= DEFAULT_SOCKET_TIMEOUT;
-        verificationMessage = await this.resolveAttachConfig(config, folder, token);
-        verificationMessage ??= this.verifyAttachConfig(config as AttachConfiguration);
-        break;
-
-      case 'launch':
-        config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${fileDirname}';
-        config.name ??= 'Launch with rdbg';
-        verificationMessage = await this.resolveLaunchConfig(config, folder, token);
-        verificationMessage ??= this.verifyLaunchConfig(config as LaunchConfiguration);
-        break;
+        case 'launch':
+          config.cwd ??= folder?.uri.scheme === 'file' ? folder.uri.fsPath : '${fileDirname}';
+          config.name ??= 'Launch';
+          verificationMessage = await this.resolveLaunchConfig(config, folder, token);
+          verificationMessage ??= this.verifyLaunchConfig(config as LaunchConfiguration);
+          break;
+      }
     }
 
     if (verificationMessage) {
       this.context.log.error(`${this.type}: ${verificationMessage}`);
-      vscode.window.showErrorMessage(`${config.name}: ${verificationMessage}`);
+      vscode.window.showErrorMessage(`Cannot start '${config.name}': ${verificationMessage}`);
       return;
     }
 
@@ -91,7 +87,7 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
 
   private verifyAttachConfig(config: AttachConfiguration): string | undefined {
     if (!config.socket && config.port === undefined) {
-      return '"port" or "socket" must be defined to attach';
+      return '"port" or "socket" must be defined';
     }
     if (config.socketTimeoutMs === undefined || config.socketTimeoutMs < 0) {
       return '"socketTimeoutMs" must be greater than or equal to 0';
@@ -101,7 +97,23 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
 
   private verifyLaunchConfig(config: LaunchConfiguration): string | undefined {
     if (!config.program) {
-      return '"program" is required to launch';
+      return '"program" must be defined to launch';
+    }
+
+    // Match by prefix (not full token) to cover a few more cases.
+    if (['${file', '${relativeFile'].some((token) => config.program.includes(token))) {
+      const editor = vscode.window.activeTextEditor?.document;
+      if (!editor) {
+        return 'No active Ruby editor';
+      }
+
+      if (editor.uri.scheme !== 'file') {
+        return `Active editor is not a local file (scheme: ${editor.uri.scheme})`;
+      }
+
+      if (editor.languageId !== 'ruby') {
+        return `Active editor is not a Ruby file (language: ${editor.languageId})`;
+      }
     }
     return;
   }

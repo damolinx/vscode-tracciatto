@@ -12,7 +12,7 @@ export function registerRdbgConfigurationProvider(context: ExtensionContext): vo
 
 /**
  * `rdbg` debug configuration provider. This is intended as adapter for existing
- * configurations as it unlikely users will move for a long time, if ever, to
+ * configurations as it is unlikely users will move for a long time, if ever, to
  * `tracciatto`.
  */
 export class RdbgConfigurationProvider extends DebugConfigurationProvider {
@@ -22,7 +22,7 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
 
   protected override resolveAttachConfig(config: vscode.DebugConfiguration): string | undefined {
     if (!config.debugPort) {
-      return '"debugPort" must be defined to attach';
+      return '"debugPort" must be defined';
     }
 
     const parsed = parseHostPort(config.debugPort);
@@ -45,7 +45,7 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
     _token?: vscode.CancellationToken,
   ): Promise<string | undefined> {
     if (!config.script) {
-      return '"script" must be defined to launch';
+      return '"script" must be defined';
     }
     config.program ??= config.script;
     config.runtimeExecutable =
