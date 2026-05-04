@@ -164,10 +164,10 @@ export class RubyEnvProvider implements vscode.Disposable {
           try {
             switch (outputFormat) {
               case 'json':
-                resolve(this.parseJsonOutput(stdout.trim()));
+                resolve(this.parseJsonOutput(stdout));
                 break;
               case 'line':
-                resolve(this.parseLineOutput(stdout.trim()));
+                resolve(this.parseLineOutput(stdout));
                 break;
               default:
                 this.log.error(`Unsupported env-output format: ${outputFormat satisfies never}`);
@@ -211,11 +211,11 @@ export class RubyEnvProvider implements vscode.Disposable {
   private parseLineOutput(output: string): NodeJS.ProcessEnv {
     const env: NodeJS.ProcessEnv = {};
     for (const line of output.split(/\r?\n/)) {
-      const idx = line.indexOf('=');
-      if (idx > 0) {
-        const key = line.slice(0, idx).trim();
-        const val = line.slice(idx + 1);
-        env[key] = val;
+      const index = line.indexOf('=');
+      if (index > 0) {
+        const key = line.slice(0, index);
+        const value = line.slice(index + 1);
+        env[key] = value;
       }
     }
     return env;
