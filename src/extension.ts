@@ -6,7 +6,6 @@ import { editException } from './commands/editException';
 import { removeException } from './commands/removeException';
 import { runEditor } from './commands/runFile';
 import { toggleException } from './commands/toggleException';
-import { DebugType } from './constants';
 import {
   ExceptionTreeNode,
   GroupTreeNode,
@@ -48,19 +47,41 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     tcr('tracciatto.runFile', (textEditor: vscode.TextEditor) => runEditor(context, textEditor)),
   );
 
-  registerTracciattoConfigurationProvider(context);
-  enableDebuggerType(context, 'tracciatto');
+  registerTracciattoDebugger(context);
+  registerRdbgDebugger(context);
+}
 
-  if (context.supportRdbgDebugType) {
+function registerRdbgDebugger(context: ExtensionContext): void {
+  const vscodeRdbgExt = vscode.extensions.getExtension('KoichiSasada.vscode-rdbg');
+  if (vscodeRdbgExt) {
+    if (vscodeRdbgExt.isActive) {
+      context.log.warn("'rdbg' debug-type not enabled (vscode-rdbg is active)");
+      return;
+    }
+
+    if (!context.configuration.resolveValue('forceEnableRdbgDebugType', false)) {
+      context.log.warn(
+        "'rdbg' debug-type not enabled (vscode-rdbg is present; disable extension and use `tracciatto.forceEnableRdbgDebugType`)",
+      );
+      return;
+    }
+  }
+
+  try {
+    registerDebugAdapterDescriptorFactory(context, 'rdbg');
+    registerDebugAdapterTrackerFactory(context, 'rdbg');
     registerRdbgConfigurationProvider(context);
-    enableDebuggerType(context, 'rdbg');
-  } else {
-    context.log.warn("'rdbg' debug-type not enabled (vscode-rdbg is active)");
+    context.log.info("Enabled 'rdbg' debug-type");
+  } catch (error: any) {
+    context.log.error(
+      `Failed to enable 'rdbg' debug-type; this may occur if another extension registered it first. Error: ${error?.message}`,
+    );
   }
 }
 
-function enableDebuggerType(context: ExtensionContext, type: DebugType) {
-  registerDebugAdapterDescriptorFactory(context, type);
-  registerDebugAdapterTrackerFactory(context, type);
-  context.log.info(`Enabled '${type}' debug-type`);
+function registerTracciattoDebugger(context: ExtensionContext): void {
+  registerTracciattoConfigurationProvider(context);
+  registerDebugAdapterDescriptorFactory(context, 'tracciatto');
+  registerDebugAdapterTrackerFactory(context, 'tracciatto');
+  context.log.info("Enabled 'tracciatto' debug-type");
 }

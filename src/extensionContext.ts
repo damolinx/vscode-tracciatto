@@ -7,7 +7,6 @@ import { DebugSession } from './rdbg/debugSession';
 
 export class ExtensionContext {
   private _activeDebugSession?: DebugSession;
-  private _supportRdbgDebugType?: boolean;
   public readonly configuration: Configuration;
   public readonly exceptionManager: ExceptionManager;
   public readonly log: vscode.LogOutputChannel;
@@ -35,10 +34,5 @@ export class ExtensionContext {
 
   public get disposables(): vscode.Disposable[] {
     return this.extensionContext.subscriptions;
-  }
-
-  public get supportRdbgDebugType(): boolean {
-    this._supportRdbgDebugType ??= !vscode.extensions.getExtension('KoichiSasada.vscode-rdbg');
-    return this._supportRdbgDebugType;
   }
 }

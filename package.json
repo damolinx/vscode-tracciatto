@@ -138,6 +138,11 @@
             "default": ".tracciatto-filter",
             "description": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
           },
+          "tracciatto.forceEnableRdbgDebugType": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Force-enable `rdbg` debug type support unless the `vscode-rdbg` extension is active. Because activation detection is imperfect, enabling this may cause both extensions to attempt registering `rdbg`, with the later one failing with an error."
+          },
           "tracciatto.logDapMessages": {
             "type": "boolean",
             "default": false,

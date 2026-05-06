@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.1
+- Add `tracciatto.forceEnableRdbgDebugType` setting to force-enable `rdbg` debug type support even when `vscode‑rdbg` is installed but detected as inactive.
+
 ## 0.3.0
 - Add extensible Ruby version manager support, including built‑in integration for `asdf`, `rbenv`, and `rvm`, plus a fully customizable `custom` mode for any environment tool.
 - Improve error handling when the active editor is not a Ruby file.

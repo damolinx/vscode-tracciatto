@@ -119,6 +119,7 @@ Tracciatto supports the following user and workspace settings:
 | `tracciatto.debug.runtimeExecutable` | Path to the Ruby executable used for debugging. | `ruby` |
 | `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
 | `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
+| `tracciatto.forceEnableRdbgDebugType` | Force-enable built‑in `rdbg` debug type even when the `vscode‑rdbg` extension is installed but detected as inactive. Requires window reload after changing. | `false` |
 | `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
 
 ### Debug Protocol Overrides
@@ -226,11 +227,13 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 
 ### rdbg (vscode‑rdbg)
 
-This extension supports the `rdbg` debug type provided by the **vscode‑rdbg** extension. It works in both **launch** and **attach** modes, but only a subset of configuration properties is used; unsupported properties are simply ignored.
+This extension supports the `rdbg` debug type, normally provided by the **vscode‑rdbg** extension, although only a subset of configuration properties is used; unsupported properties are ignored.
 
-> To avoid a conflict, support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed. To confirm its status, check the [logs](#logs) to confirm whether support has been enabled.
+> By default, Tracciatto's built‑in `rdbg` support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed. This avoids conflicts where both extensions attempt to contribute the same debug type.
 
-This happens during extension activation, so reloading the extension is needed after (un)installing **vscode‑rdbg**. Check the [logs](#logs) for confirmation. Note that the `tracciatto` debug type is always available.
+If needed, the setting `tracciatto.forceEnableRdbgDebugType` allows forcing registering Tracciatto's built‑in `rdbg` support even when `vscode‑rdbg` is installed, as long as it is detected as inactive. Note that VS Code does not provide a reliable way to track whether another extension is active (e.g. there is no activation event), so enabling this setting may cause both extensions to attempt registering the debug type. In that case, whichever extension registers second will fail with an error. This option exists so users experimenting with Tracciatto do not need to uninstall `vscode‑rdbg` and can simply disable it instead.
+
+Debug‑type detection happens during extension activation, so you must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg**. Check the [logs](#logs) to confirm which debugger is active.
 
 #### Launch Properties
 
