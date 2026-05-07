@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { spawn } from 'child_process';
 import { lstatSync } from 'fs';
 import { isAbsolute } from 'path';
 import { ExtensionContext } from '../extensionContext';
@@ -23,37 +24,102 @@ async function showPortOrSocketInputBox(
   { extensionContext }: ExtensionContext,
   mruKey = 'attach.mruPortOrSocket',
 ): Promise<string | undefined> {
-  let debounceTimer: NodeJS.Timeout | undefined;
+  return new Promise<string | undefined>((resolve) => {
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.ignoreFocusOut = true;
+    quickPick.matchOnDescription = false;
+    quickPick.matchOnDetail = false;
+    quickPick.placeholder = 'Type a [host:]port or a socket path';
 
-  const value = await vscode.window.showInputBox({
-    ignoreFocusOut: true,
-    placeHolder: 'e.g. 12345, 127.0.0.1:12345, /tmp/rdbg.sock',
-    prompt: 'Enter a [host:]port or a socket path',
-    validateInput: (value: string) =>
-      new Promise((resolve) => {
-        if (debounceTimer) {
-          clearTimeout(debounceTimer);
+    let socketItems: vscode.QuickPickItem[] = [];
+    quickPick.onDidAccept(() => {
+      const selectedItem = quickPick.selectedItems[0];
+      if (selectedItem && !selectedItem.detail) {
+        extensionContext.workspaceState.update(mruKey, selectedItem.label);
+        quickPick.hide();
+        resolve(selectedItem.label);
+      }
+    });
+
+    quickPick.onDidChangeValue((value) => {
+      const hasUserInputItem = quickPick.items.length && 'userInput' in quickPick.items[0];
+
+      const normalizedValue = value.trim();
+      if (!normalizedValue) {
+        if (hasUserInputItem) {
+          quickPick.items = quickPick.items.slice(1);
         }
-        debounceTimer = setTimeout(() => {
-          const validation = validatePortOrSocket(value);
-          if (!validation) {
-            extensionContext.workspaceState.update(mruKey, value.trim());
-          }
-          resolve(validation);
-        }, 250);
-      }),
-    value: extensionContext.workspaceState.get(mruKey),
+        return;
+      }
+
+      const matchItem = quickPick.items.find(
+        (item, index) => (!hasUserInputItem || index > 0) && item.label === normalizedValue,
+      );
+      if (matchItem) {
+        if (hasUserInputItem) {
+          quickPick.items = quickPick.items.slice(1);
+        }
+        return;
+      }
+
+      const validationMessage = validatePortOrSocket(normalizedValue);
+      const baseItems = hasUserInputItem ? quickPick.items.slice(1) : quickPick.items;
+      quickPick.items = [
+        {
+          label: normalizedValue,
+          description: 'current input',
+          detail: validationMessage ? `$(error) ${validationMessage}` : undefined,
+          userInput: true,
+        } as vscode.QuickPickItem & { userInput: true },
+        ...baseItems,
+      ];
+    });
+
+    (async () => {
+      quickPick.busy = true;
+      const sockets = await findRdbgSockets();
+      if (sockets.length) {
+        socketItems = sockets.map((sock) => ({
+          alwaysShow: true,
+          description: 'autodetected',
+          label: sock,
+        }));
+        quickPick.placeholder = 'Type a [host:]port or a socket path, or select one from dropdown';
+        quickPick.items = [...quickPick.items, ...socketItems];
+      }
+      quickPick.busy = false;
+    })();
+
+    quickPick.value = extensionContext.workspaceState.get(mruKey, '');
+    quickPick.show();
   });
-
-  const normalizedValue = value?.trim();
-  if (!normalizedValue) {
-    return;
-  }
-
-  return normalizedValue;
 }
 
-function validatePortOrSocket(value: string): string | undefined {
+function findRdbgSockets(): Promise<string[]> {
+  return new Promise((resolve) => {
+    const child = spawn('rdbg', ['--util=list-socks'], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: false,
+    });
+
+    let output = '';
+    child.stdout.on('data', (chunk) => {
+      output += chunk.toString();
+    });
+
+    child.on('close', () => {
+      const sockets = output
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      resolve(sockets.sort());
+    });
+    child.on('error', () => resolve([]));
+  });
+}
+
+export function validatePortOrSocket(value: string): string | undefined {
   const normalizedValue = value.trim();
   if (!normalizedValue) {
     return;
