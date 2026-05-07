@@ -1,20 +1,21 @@
 # Tracciatto
 
-Tracciatto is a Ruby debugging extension built on top of the `rdbg` debugger from the [`debug`](https://github.com/ruby/debug) library. It provides its own [`tracciatto` debug-type](#tracciatto-1) and supports the [`rdbg` debug-type](#rdbg-vscoderdbg). The extension exists to explore richer debugger integration, guided by `rdbg`'s capabilities and drawing on backlogs from other extensions to better understand common user needs.
+Tracciatto is a Ruby debugging extension built on top of the **rdbg** debugger from the [**debug**](https://github.com/ruby/debug) library. It provides its own [`tracciatto`](#tracciatto-1) debug type and supports the [`rdbg`](#rdbg-vscoderdbg) debug type as well. The extension explores debugger integration, guided by **rdbg**’s capabilities and informed by backlogs from other extensions to better understand common user needs.
 
-Some of the unique features offered by this extension, on top of general debugger support: 
+Some of the unique features offered by this extension:
+
 - Support for **multi‑root workspaces**
 - Ability to attach to **multiple sockets/ports** simultaneously
-- An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints
-- Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and workspace file to clean up stack traces
+- An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints via UI
+- Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file.
 
-Additionally, the extension provides custom behaviors that the "debug" library might support in the future through [configuration](#debug-protocol-overrides), for example:
-- Modify the default maximum length of inspected strings ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
-- Emulate **Set Value** support for the **Watch** and similar views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
+Additionally, the extension patches **debug** library behaviors through [configuration](#debug-protocol-overrides), including:
+- Allowing the maximum inspected‑string length to be changed from 180 characters ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
+- Enabling **Set Value**  action on fields in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
-This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and it is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
+This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
 
-Development tends to favor the attach-based debugging scenario because it's the one I use daily. Feedback on other scenarios is always welcome.
+Development tends to favor the attach‑based debugging scenario because it is the one I use daily. Feedback on other scenarios is always welcome.
 
 <p align=center>
 <img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
@@ -38,16 +39,14 @@ Development tends to favor the attach-based debugging scenario because it's the 
 
 ## Getting Started
 
-Tracciatto integrates with `rdbg` to support the two main debugging workflows:
+Tracciatto uses **rdbg** to support the two main debugging workflows:
 
-- **Launch**: VS Code starts Ruby under the debugger.
+- **Launch**: VS Code starts a Ruby script under the debugger.
 - **Attach**: VS Code connects to an already running Ruby process started with `rdbg`.
-
-Press F5 on any `.rb` file to automatically create debug configurations in `.vscode/launch.json`.
 
 ### Launching a debug session
 
-Use this mode when you want VS Code to start Ruby for you.
+#### Option 1: Launch configuration
 
 1. Add a `launch` configuration to `.vscode/launch.json`
 
@@ -60,30 +59,46 @@ Use this mode when you want VS Code to start Ruby for you.
       // editor is active. VS Code does not restrict this to Ruby files, so you
       // may end up trying to debug a text file or even an Output channel.
       // Prefer a deterministic path like `${workspaceFolder}/my_script.rb`.
-      // Use the "Debug Current File" command when you actually want the active file.
       "program": "${file}"
     }
     ```
 
-2. Press **F5** or run **Debug: Start Debugging**.
+2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session session using the launch configuration. 
+
+#### Option 2: Debug command
+
+1. Run the **Tracciatto: Debug Active Editor** command
+
+This command uses an internal debug configuration, so `.vscode/launch.json` is not needed or updated in any way.
 
 ### Attaching to a running process
 
-Use this mode when Ruby is already running and you want the debugger to connect to it.
+To attach to a running Ruby process, you must have started it with `rdbg` in attach mode. Refer to the debug library [documentation](https://github.com/ruby/debug#invoke-as-a-remote-debuggee) for details.
 
-1. Start your Ruby program with `rdbg` in attach mode.
+**Example: Start a script with the debugger open on a given port**
+```sh
+rdbg --open --port 12345 -- your_script.rb
+```
 
-    **Example: Port mode**
-    ```sh
-    rdbg --open --port 12345 -- your_script.rb
-    ```
+**Example: Start a script with the debugger open on a given socket**
+```sh
+rdbg --open --sock-path /tmp/rdbg.sock -- your_script.rb
+```
 
-    **Example: Socket mode**
-    ```sh
-    rdbg --open --sock-path /tmp/rdbg.sock -- your_script.rb
-    ```
+Alternatively, you can modify your code to launch the debugger explicitly when needed. Refer to the debug library [documentation](https://github.com/ruby/debug#debugger-api) for details.
 
-2. Add an `attach` configuration to `.vscode/launch.json`:
+**Example: Start the debugger programmatically**
+```ruby
+  require 'debug/open'
+```
+
+In all cases, the **debug** library will print a `DEBUGGER: Debugger can attach via ...` message which includes the socket or port number to attach to.
+
+Once the port or socket are setup, you can use one of the following options to attach to it.
+
+#### Option 1: Launch configuration
+
+1. Add an `attach` configuration to `.vscode/launch.json`:
 
     **Example: Port mode**
     ```jsonc
@@ -105,7 +120,14 @@ Use this mode when Ruby is already running and you want the debugger to connect 
     }
     ```
 
-3. Run the **Attach to Ruby** debug configuration.
+2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session session using the launch configuration. 
+
+#### Option 2: Attach-to command
+
+1. Run the **Tracciatto: Attach To…** command
+
+2. Provide the socket path or the port number to attach to.
+
 
 [↑ Back to top](#table-of-contents)
 
