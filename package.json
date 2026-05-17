@@ -117,26 +117,26 @@
         "properties": {
           "tracciatto.debug.preferBundler": {
             "type": "boolean",
-            "default": true,
-            "markdownDescription": "Prefer running `bundle exec` when a Gemfile is present and no `runtimeExecutable` is explicitly set in the configuration file."
+            "deprecationMessage": "Renamed to `tracciatto.preferBundler`.",
+            "markdownDescription": "Deprecated. Use `tracciatto.preferBundler` instead."
           },
           "tracciatto.debug.runtimeExecutable": {
             "type": "string",
-            "default": "ruby",
-            "description": "Path to the Ruby executable used for debugging."
+            "deprecationMessage": "Renamed to `tracciatto.runtimeExecutable`.",
+            "markdownDescription": "Deprecated. Use `tracciatto.runtimeExecutable` instead."
           },
           "tracciatto.debug.skipPaths": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "default": [],
-            "description": "Paths to skip when stepping in the Ruby debugger."
+            "deprecationMessage": "Renamed to `tracciatto.skipPaths`.",
+            "markdownDescription": "Deprecated. Use `tracciatto.skipPaths` instead."
           },
           "tracciatto.debug.skipPathsFileName": {
             "type": "string",
-            "default": ".tracciatto-filter",
-            "description": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
+            "deprecationMessage": "Renamed to `tracciatto.skipPathsFileName`.",
+            "markdownDescription": "Deprecated. Use `tracciatto.skipPathsFileName` instead."
           },
           "tracciatto.forceEnableRdbgDebugType": {
             "type": "boolean",
@@ -148,12 +148,35 @@
             "default": false,
             "description": "Log Debug Adapter Protocol messages at trace level (for extension or DAP debugging)."
           },
+          "tracciatto.preferBundler": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Prefer running `bundle exec` when a Gemfile is present and no `runtimeExecutable` is explicitly set in the configuration file."
+          },
           "tracciatto.reattachDelay": {
             "type": "number",
             "default": 1000,
             "markdownDescription": "Delay (in milliseconds) before reattaching after a debug restart. This helps avoid races where the debug socket is not yet ready. Longer wait times can be set by editing the settings JSON directly, but may result in a noticeably slower debugging experience.",
             "maximum": 10000,
             "minimum": 0
+          },
+          "tracciatto.runtimeExecutable": {
+            "type": "string",
+            "default": "ruby",
+            "markdownDescription": "Path to the Ruby executable used for debugging."
+          },
+          "tracciatto.skipPaths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "markdownDescription": "Paths to skip when stepping in the Ruby debugger."
+          },
+          "tracciatto.skipPathsFileName": {
+            "type": "string",
+            "default": ".tracciatto-filter",
+            "markdownDescription": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
           }
         }
       },

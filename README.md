@@ -137,13 +137,13 @@ Tracciatto supports the following user and workspace settings:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `tracciatto.debug.preferBundler` | Prefer running under `bundle exec` to run `tracciatto.debug.runtimeExecutable` when a `Gemfile` is present and no `runtimeExecutable` is explicitly set in the configuration. | `true` |
-| `tracciatto.debug.runtimeExecutable` | Path to the Ruby executable used for debugging. | `ruby` |
-| `tracciatto.debug.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
-| `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
 | `tracciatto.forceEnableRdbgDebugType` | Force-enable built‑in `rdbg` debug type even when the `vscode‑rdbg` extension is installed but detected as inactive. Requires window reload after changing. | `false` |
 | `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
+| `tracciatto.preferBundler` | Prefer running under `bundle exec` to run `tracciatto.runtimeExecutable` when a `Gemfile` is present and no `runtimeExecutable` is explicitly set in the configuration. | `true` |
 | `tracciatto.reattachDelay` | Delay (in milliseconds) before reattaching after a debug Restart call. Helps avoid races where the debug socket is not yet ready or is briefly closed and reopened. | 1000 |
+| `tracciatto.runtimeExecutable` | Path to the Ruby executable used for debugging. | `ruby` |
+| `tracciatto.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
+| `tracciatto.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
 
 ### Debug Protocol Overrides
 
@@ -289,7 +289,7 @@ The following commands are intended for quick verification of standalone scripts
 
 | Command | Description |
 |---------|-------------|
-| **Attach to…** | Attach to `host:port` or socket. When exactly **one workspace folder** is open, it is used as one source for [skip-paths](#skip-path-patterns). In multi‑root workspaces no folder is selected. The `tracciatto.debug.skipPathsFileName` setting is always used as it comes from user settings. |
+| **Attach to…** | Attach to `host:port` or socket. When exactly **one workspace folder** is open, it is used as one source for [skip-paths](#skip-path-patterns). In multi‑root workspaces no folder is selected. The `tracciatto.skipPathsFileName` setting is always used as it comes from user settings. |
 | **Debug Active Editor** | Debugs the active Ruby editor |
 | **Run Active Editor** | Executes the active Ruby file |
 
@@ -374,7 +374,7 @@ Any `launch`‑type configuration may define skip‑paths via the `skipPaths` pr
 
 ### **2. Workspace file**
 
-A workspace‑level file containing one pattern per line, with lines beginning with `#` being ignored. The filename is controlled by `tracciatto.debug.skipPathsFileName` (default: `.tracciatto-skip-paths`).
+A workspace‑level file containing one pattern per line, with lines beginning with `#` being ignored. The filename is controlled by `tracciatto.skipPathsFileName` (default: `.tracciatto-skip-paths`).
 
 #### Skip‑path pattern format
 
@@ -409,7 +409,7 @@ lib/internal/debug_helpers.rb
 
 ### **3. Setting**
 
-The `tracciatto.debug.skipPaths` setting provides an additional place to define skip‑paths, useful for global or personal preferences.
+The `tracciatto.skipPaths` setting provides an additional place to define skip‑paths, useful for global or personal preferences.
 
 ### Choosing where to define skip‑paths
 

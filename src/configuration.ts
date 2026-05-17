@@ -83,7 +83,14 @@ export class Configuration {
     scope: vscode.ConfigurationScope | undefined,
     defaultValue = true,
   ): boolean {
-    return this.getValue<boolean>(scope, 'debug.preferBundler', defaultValue) ?? defaultValue;
+    const value = this.getValue<boolean>(scope, 'preferBundler');
+
+    // Fallback to deprecated key
+    if (value === undefined) {
+      return this.getValue<boolean>(scope, 'debug.preferBundler', defaultValue) ?? defaultValue;
+    }
+
+    return value;
   }
 
   /**
@@ -98,14 +105,28 @@ export class Configuration {
    * Get Ruby executable name/path.
    */
   public getRuntimeExecutable(scope?: vscode.ConfigurationScope, defaultValue = 'ruby'): string {
-    return this.getValue<string>(scope, 'debug.runtimeExecutable', defaultValue) ?? defaultValue;
+    const value = this.getValue<string>(scope, 'runtimeExecutable');
+
+    // Fallback to deprecated key
+    if (value === undefined) {
+      return this.getValue<string>(scope, 'debug.runtimeExecutable', defaultValue) ?? defaultValue;
+    }
+
+    return value;
   }
 
   /**
    * Get skip paths for rdbg stepping.
    */
   public getSkipPaths(scope: vscode.ConfigurationScope | undefined): string[] {
-    return this.getValue<string[]>(scope, 'debug.skipPaths', []) ?? [];
+    const value = this.getValue<string[]>(scope, 'skipPaths');
+
+    // Fallback to deprecated key
+    if (value === undefined) {
+      return this.getValue<string[]>(scope, 'debug.skipPaths', []) ?? [];
+    }
+
+    return value ?? [];
   }
 
   /**
@@ -115,6 +136,13 @@ export class Configuration {
     scope: vscode.ConfigurationScope | undefined,
     defaultValue = DEFAULT_SKIP_PATHS_FILENAME,
   ): string {
-    return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
+    const value = this.getValue<string>(scope, 'skipPathsFileName');
+
+    // Fallback to deprecated key
+    if (value === undefined) {
+      return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
+    }
+
+    return value ?? defaultValue;
   }
 }
