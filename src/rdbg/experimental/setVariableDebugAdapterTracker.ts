@@ -11,23 +11,26 @@ import { isRequestMessage, KnownEvent, KnownResponse } from '../debugProtocolMes
  * https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172
  */
 export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
-  private readonly interceptedMessageSeqs: Map<number, { name: string }>;
-  private readonly variablesReference: Map<
+  private readonly interceptedMessages: Map<number, { name: string }>;
+  private readonly variablesReferences: Map<
     number,
-    { name: string; type?: string; variablesReference: number }
+    { name: string; type?: string; variablesReference: number; parentRef?: number }
   >;
+  private readonly variablesRequestParents: Map<number, number>;
 
   constructor(context: ExtensionContext, session: vscode.DebugSession) {
     super(context, session);
-    this.interceptedMessageSeqs = new Map();
-    this.variablesReference = new Map();
+    this.interceptedMessages = new Map();
+    this.variablesReferences = new Map();
+    this.variablesRequestParents = new Map();
   }
 
   protected override onDidSendEventMessage(message: KnownEvent): Promise<void> {
     switch (message.event) {
       case 'stopped':
-        this.interceptedMessageSeqs.clear();
-        this.variablesReference.clear();
+        this.interceptedMessages.clear();
+        this.variablesReferences.clear();
+        this.variablesRequestParents.clear();
         break;
     }
 
@@ -35,18 +38,18 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
   }
 
   protected override onDidSendResponseMessage(message: KnownResponse): Promise<void> {
-    const intercepted = this.interceptedMessageSeqs.get(message.request_seq);
-    if (intercepted) {
-      this.interceptedMessageSeqs.delete(message.request_seq);
+    const interceptedMsg = this.interceptedMessages.get(message.request_seq);
+    if (interceptedMsg) {
+      this.interceptedMessages.delete(message.request_seq);
     }
 
     switch (message.command) {
       case 'evaluate':
-        if (intercepted) {
+        if (interceptedMsg) {
           this.rewriteAsSetVariable(message);
           if (message.success) {
-            this.variablesReference.set(message.body.variablesReference, {
-              name: intercepted.name,
+            this.variablesReferences.set(message.body.variablesReference, {
+              name: interceptedMsg.name,
               type: message.body.type,
               variablesReference: message.body.variablesReference,
             });
@@ -62,8 +65,18 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
 
       case 'variables':
         if (message.success) {
-          for (const v of message.body.variables) {
-            this.variablesReference.set(v.variablesReference, v);
+          const parentRef = this.variablesRequestParents.get(message.request_seq);
+          if (parentRef) {
+            this.variablesRequestParents.delete(message.request_seq);
+          }
+
+          for (const variable of message.body.variables) {
+            this.variablesReferences.set(variable.variablesReference, {
+              name: variable.name,
+              parentRef,
+              type: variable.type,
+              variablesReference: variable.variablesReference,
+            });
           }
         }
         break;
@@ -76,9 +89,13 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
     if (isRequestMessage(message)) {
       switch (message.command) {
         case 'setVariable':
-          this.interceptedMessageSeqs.set(message.seq, { name: message.arguments.name });
+          this.interceptedMessages.set(message.seq, { name: message.arguments.name });
           this.rewriteAsEvaluate(message);
           return;
+
+        case 'variables':
+          this.variablesRequestParents.set(message.seq, message.arguments.variablesReference);
+          break;
       }
     }
 
@@ -112,12 +129,13 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
       return;
     }
 
-    const parts = [] as string[];
+    const parts: { name: string; type?: string }[] = [];
 
-    let indexable = undefined;
+    let indexable: boolean | undefined = undefined;
     let ref = message.arguments.variablesReference;
+
     while (true) {
-      const parent = this.variablesReference.get(ref);
+      const parent = this.variablesReferences.get(ref);
       if (!parent) {
         break; // done
       }
@@ -126,24 +144,22 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
       }
 
       indexable ??= !!parent.type && isIndexable(parent.type);
-      parts.unshift(parent.name);
+      parts.unshift({ name: parent.name, type: parent.type });
 
-      const nextRef = parent.variablesReference;
-      if (nextRef === ref) {
+      if (parent.parentRef === undefined || parent.parentRef === ref) {
         break;
       }
-      ref = nextRef;
+      ref = parent.parentRef;
     }
 
-    let expression: string;
-    if (name.startsWith('@')) {
-      parts.push(`instance_variable_set(:${name}, ${value})`);
-      expression = parts.join('.');
-    } else if (indexable) {
-      expression = `${parts.join('.')}[${name}] = ${value}`;
+    let expression = buildRefExpression(parts);
+    if (indexable) {
+      expression += `[${name}] = ${value}`;
     } else {
-      parts.push(name);
-      expression = `${parts.join('.')} = ${value}`;
+      const assignExpr = name.startsWith('@')
+        ? `instance_variable_set(:${name}, ${value})`
+        : `${name} = ${value}`;
+      expression = expression ? `${expression}.${assignExpr}` : assignExpr;
     }
 
     return expression;
@@ -159,6 +175,26 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
         /^\$[\W\d]/.test(name) ||
         ['$stdin', '$stdout', '$stderr'].includes(name)
       );
+    }
+
+    function buildRefExpression(parts: { name: string; type?: string }[]): string {
+      if (parts.length === 0) {
+        return '';
+      }
+
+      let expr = parts[0].name;
+      for (let i = 1; i < parts.length; i++) {
+        const p = parts[i];
+        const parent = parts[i - 1];
+
+        if (parent.type && isIndexable(parent.type)) {
+          expr += `[${p.name}]`;
+        } else {
+          expr += `.${p.name}`;
+        }
+      }
+
+      return expr;
     }
   }
 

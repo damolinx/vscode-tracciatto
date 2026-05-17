@@ -155,11 +155,15 @@ The following settings customize debugger behavior by modifying specific Debug A
 | `tracciatto.patchSimpleTypeExpansion` | Prevents simple types from appearing as expandable in debugger views like **Watches**. Changes to this setting apply on the next step or evaluation. | `true` |
 | `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action. Changes to this setting apply on the next debug session. | `false` |
 
-These changes are protocol‑compliant, but they modify low‑level DAP behavior so they can be disabled if they cause any issues. 
+These changes are protocol‑compliant, but they modify low‑level DAP behavior and can be disabled if they cause issues.
 
-**Notes**
-* `tracciatto.patchSimpleTypeExpansion`: Simple types: `Complex`, `BigDecimal`, `FalseClass`, `Float`, `Integer`, `NilClass`, `Rational`, `Regexp`, `String`, `Symbol`, `Time`, `TrueClass`
-* `tracciatto.patchSetVariable`: **Set Value** is particularly sensitive to context and variable types, and some scenarios might not be ever possible from the extension side (i.e. `rdbg` is the only reasonable source). You should see a **Failed** error when a given scenario is not possible.
+#### `tracciatto.patchSimpleTypeExpansion`
+Simple types: `Complex`, `BigDecimal`, `FalseClass`, `Float`, `Integer`, `NilClass`, `Rational`, `Regexp`, `String`, `Symbol`, `Time`, `TrueClass`
+
+#### `tracciatto.patchSetVariable`
+**Set Value** is sensitive to context and variable types, and some scenarios may never be possible from the extension side (in those cases, `rdbg` is the only reliable source). When a scenario cannot be performed, you will see a *"can't set value"* error.
+
+The extension cannot distinguish between an exception being *raised* and an exception object being *returned* as a value due to lack of context coming from *rdbg*. As a result, the following error types, commonly associated with invalid input, are always treated as failures, and it is not possible to assign any of them using **Set Value**: `ArgumentError`, `FrozenError`, `KeyError`, `NameError`, `NoMethodError`, `RangeError`, `RuntimeError`, `SyntaxError`, `TypeError`, `ZeroDivisionError`.
 
 [↑ Back to top](#table-of-contents)
 

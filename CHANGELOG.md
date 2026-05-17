@@ -1,9 +1,10 @@
 # Changelog
 
 ## 0.3.3
-- **Set Value** improvements:
-  - Handle explicitly more error types for better UX.
-  - Do not set special `$...` variables.
+- **Set Value**:
+  - Improve support for nested objects and indexed assignments.
+  - Expand handling of common Ruby error types for better UX.
+  - Avoid assigning values to special `$...` variables.
 
 ## 0.3.2
 - Add `tracciatto.reattachDelay` setting to control delay before reattaching after a debug **Restart** call.
