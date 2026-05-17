@@ -18,6 +18,10 @@ type TerminatedEvent = DebugProtocol.TerminatedEvent & {
 
 export type KnownEvent = InitializedEvent | StoppedEvent | OutputEvent | TerminatedEvent;
 
+type DisconnectRequest = DebugProtocol.DisconnectRequest & {
+  command: 'disconnect';
+};
+
 type EvaluateRequest = DebugProtocol.EvaluateRequest & {
   command: 'evaluate';
 };
@@ -30,7 +34,11 @@ type VariablesRequest = DebugProtocol.VariablesRequest & {
   command: 'variables';
 };
 
-export type KnownRequest = EvaluateRequest | SetVariableRequest | VariablesRequest;
+export type KnownRequest =
+  | DisconnectRequest
+  | EvaluateRequest
+  | SetVariableRequest
+  | VariablesRequest;
 
 type SafeResponse<T extends DebugProtocol.Response, Cmd extends string> =
   | (Omit<T, 'body' | 'success'> & {

@@ -35,7 +35,7 @@ export class ExceptionSessionController extends SessionController {
         `DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new("${name}")`,
       );
     }
-    this.context.log.debug(`[${this.session.id}] Added catch breakpoints (${names.length})`);
+    this.context.log.debug(`[${this.session.shortId}] Added catch breakpoints (${names.length})`);
   }
 
   private async deleteCatchBreakpoints(...names: string[]): Promise<void> {
@@ -48,6 +48,6 @@ export class ExceptionSessionController extends SessionController {
         `DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, "${name}"])[1]`,
       );
     }
-    this.context.log.debug(`[${this.session.id}] Deleted catch breakpoints (${names.length})`);
+    this.context.log.debug(`[${this.session.shortId}] Deleted catch breakpoints (${names.length})`);
   }
 }

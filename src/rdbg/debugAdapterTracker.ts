@@ -6,6 +6,7 @@ import { ExceptionSessionController } from './controllers/exceptionSessionContro
 import { SkipPathsSessionController } from './controllers/skipPathsSessionController';
 import {
   isEventMessage,
+  isRequestMessage,
   isResponseMessage,
   KnownEvent,
   KnownResponse,
@@ -86,7 +87,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   }
 
   public get id(): string {
-    return this.debugSession.id;
+    return this.debugSession.shortId;
   }
 
   async onDidSendMessage(message: DebugProtocol.ProtocolMessage): Promise<void> {
@@ -184,6 +185,17 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   onWillReceiveMessage(message: DebugProtocol.ProtocolMessage): void {
     if (this.logDapMessages) {
       this.context.log.trace(`[${this.id}] dap.message(out)`, message);
+    }
+    if (isRequestMessage(message)) {
+      switch (message.command) {
+        case 'disconnect':
+          if (message.arguments?.restart) {
+            this.context.setPendingRestart(this.debugSession.id);
+          } else {
+            this.context.resetPendingRestart(this.debugSession.id);
+          }
+          break;
+      }
     }
   }
 

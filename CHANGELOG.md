@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.3.2
+ - Add `tracciatto.reattachDelay` setting to control delay before reattaching after a debug **Restart** call.
 - Make `tracciatto.patchMaxInspectedValueLength` safer to use.
 
 ## 0.3.1

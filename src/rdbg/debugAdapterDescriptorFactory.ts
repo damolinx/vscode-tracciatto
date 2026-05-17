@@ -25,12 +25,12 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
   constructor(private readonly context: ExtensionContext) {}
 
   async createDebugAdapterDescriptor(
-    { configuration, workspaceFolder }: vscode.DebugSession,
+    { configuration, id, workspaceFolder }: vscode.DebugSession,
     _executable: vscode.DebugAdapterExecutable | undefined,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
     switch (configuration.request) {
       case 'attach': {
-        return this.createAttachAdapter(configuration as AttachConfiguration);
+        return this.createAttachAdapter(id, configuration as AttachConfiguration);
       }
       case 'launch': {
         return this.createLaunchAdapter(configuration as LaunchConfiguration, workspaceFolder);
@@ -41,8 +41,18 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
   }
 
   private async createAttachAdapter(
+    sessionId: string,
     config: AttachConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
+    const pendingRestart = this.context.resetPendingRestart(sessionId);
+    if (pendingRestart) {
+      const delayMS = this.context.configuration.getReattachDelay();
+      if (delayMS) {
+        this.context.log.debug(`[${sessionId.slice(0, 8)}] Delay reattach by ${delayMS}ms`);
+        await this.wait(delayMS);
+      }
+    }
+
     const { socket } = config;
     if (socket) {
       if ((await this.waitForSocket(socket, config.socketTimeoutMs)) === false) {
@@ -162,16 +172,19 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     return rdbgPort;
   }
 
+  private wait(delayMs: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
   private async waitForSocket(
     path: string,
     timeoutMs = DEFAULT_SOCKET_TIMEOUT,
     delayMs = 100,
   ): Promise<boolean> {
     const deadline = Date.now() + timeoutMs;
-
     let exists = existsSync(path);
     while (!exists && Date.now() < deadline) {
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await this.wait(delayMs);
       exists = existsSync(path);
     }
 

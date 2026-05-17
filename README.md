@@ -143,6 +143,7 @@ Tracciatto supports the following user and workspace settings:
 | `tracciatto.debug.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
 | `tracciatto.forceEnableRdbgDebugType` | Force-enable built‑in `rdbg` debug type even when the `vscode‑rdbg` extension is installed but detected as inactive. Requires window reload after changing. | `false` |
 | `tracciatto.logDapMessages` | Log all Debug Adapter Protocol messages as [trace entries](#logs). Normally useful only for extension or DAP debugging. This setting can be toggled at any time during a debugging session, making it more flexible than the `rdbg` configuration option `showProtocolLog`. | `false` |
+| `tracciatto.reattachDelay` | Delay (in milliseconds) before reattaching after a debug Restart call. Helps avoid races where the debug socket is not yet ready or is briefly closed and reopened. | 1000 |
 
 ### Debug Protocol Overrides
 

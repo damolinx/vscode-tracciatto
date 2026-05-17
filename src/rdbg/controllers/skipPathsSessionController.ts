@@ -10,6 +10,6 @@ export class SkipPathsSessionController extends SessionController {
         `DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) | ["${config.skipPaths.join('", "')}"]`,
       );
     }
-    this.context.log.debug(`[${this.session.id}] Initialized skip-paths (${skipPathsLength})`);
+    this.context.log.debug(`[${this.session.shortId}] Initialized skip-paths (${skipPathsLength})`);
   }
 }

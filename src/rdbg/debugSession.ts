@@ -12,14 +12,14 @@ export enum DebugSessionState {
 
 export class DebugSession implements vscode.Disposable {
   private _state: DebugSessionState;
-  public readonly id: string;
+  public readonly shortId: string;
 
   constructor(
     private readonly context: ExtensionContext,
     private readonly session: vscode.DebugSession,
   ) {
     this._state = DebugSessionState.Uninitialized;
-    this.id = this.session.id.slice(0, 8);
+    this.shortId = this.session.id.slice(0, 8);
   }
 
   dispose() {
@@ -31,13 +31,17 @@ export class DebugSession implements vscode.Disposable {
   }
 
   public get frameId(): number | undefined {
-    return vscode.debug.activeStackItem?.session.id === this.session.id
+    return vscode.debug.activeStackItem?.session.id === this.id
       ? (vscode.debug.activeStackItem as vscode.DebugStackFrame).frameId
       : undefined;
   }
 
+  public get id(): string {
+    return this.session.id;
+  }
+
   public get threadId(): number | undefined {
-    return vscode.debug.activeStackItem?.session.id === this.session.id
+    return vscode.debug.activeStackItem?.session.id === this.id
       ? (vscode.debug.activeStackItem as vscode.DebugThread).threadId
       : undefined;
   }
@@ -57,7 +61,7 @@ export class DebugSession implements vscode.Disposable {
       const result = await this.session.customRequest(command, args);
       return result;
     } catch (error: any) {
-      const message = `[${this.id}] Failed request: '${command}', ${JSON.stringify(args)} - Error:`;
+      const message = `[${this.shortId}] Failed request: '${command}', ${JSON.stringify(args)} - Error:`;
       if (error?.message !== 'Canceled') {
         this.context.log.error(message, error);
       } else {
@@ -70,7 +74,7 @@ export class DebugSession implements vscode.Disposable {
   public async setMaxInspectedValueLength(length = DEFAULT_MAX_INSPECTED_LENGTH): Promise<void> {
     if (length <= 0) {
       this.context.log.warn(
-        `[${this.id}] DEBUGGER__::ThreadClient::MAX_LENGTH must be a value number greater than 0`,
+        `[${this.shortId}] DEBUGGER__::ThreadClient::MAX_LENGTH must be a value number greater than 0`,
       );
       return;
     }
@@ -78,7 +82,7 @@ export class DebugSession implements vscode.Disposable {
     await this.sendEvaluateRequest(
       `DEBUGGER__::ThreadClient.send(:remove_const, :MAX_LENGTH) rescue nil; DEBUGGER__::ThreadClient::MAX_LENGTH = ${length}`,
     );
-    this.context.log.debug(`[${this.id}] DEBUGGER__::ThreadClient::MAX_LENGTH=${length}`);
+    this.context.log.debug(`[${this.shortId}] DEBUGGER__::ThreadClient::MAX_LENGTH=${length}`);
   }
 
   public get state(): DebugSessionState {

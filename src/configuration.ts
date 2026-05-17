@@ -87,6 +87,14 @@ export class Configuration {
   }
 
   /**
+   * Delay (in milliseconds) before attempting to reattach.
+   */
+  public getReattachDelay(scope?: vscode.ConfigurationScope, defaultValue = 0): number {
+    const value = this.getValue<number>(scope, 'reattachDelay', defaultValue) ?? defaultValue;
+    return value >= 0 ? value : defaultValue;
+  }
+
+  /**
    * Get Ruby executable name/path.
    */
   public getRuntimeExecutable(scope?: vscode.ConfigurationScope, defaultValue = 'ruby'): string {

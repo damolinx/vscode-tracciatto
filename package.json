@@ -147,6 +147,13 @@
             "type": "boolean",
             "default": false,
             "description": "Log Debug Adapter Protocol messages at trace level (for extension or DAP debugging)."
+          },
+          "tracciatto.reattachDelay": {
+            "type": "number",
+            "default": 1000,
+            "markdownDescription": "Delay (in milliseconds) before reattaching after a debug restart. This helps avoid races where the debug socket is not yet ready. Longer wait times can be set by editing the settings JSON directly, but may result in a noticeably slower debugging experience.",
+            "maximum": 10000,
+            "minimum": 0
           }
         }
       },
@@ -156,7 +163,7 @@
           "tracciatto.patchMaxInspectedValueLength": {
             "type": "number",
             "default": 180,
-            "markdownDescription": "Sets the maximum length of the string representation shown for inspected values. Changes take effect on the next step or evaluation if you are already in a debug session. For safety, the UI limits this value to 100K characters; larger values can be set by editing the settings JSON directly, but be aware of potential performance issues.",
+            "markdownDescription": "Sets the maximum length of the string representation shown for inspected values. Changes take effect on the next step or evaluation if you are already in a debug session. Larger values can be set by editing the settings JSON directly, but be aware of potential performance issues.",
             "maximum": 100000,
             "minimum": 1
           },
