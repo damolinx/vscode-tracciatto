@@ -90,24 +90,18 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
     evalRequest.command = 'evaluate';
 
     const expression = this.resolveAssignmentExpression(message);
-    if (!expression) {
+    if (expression) {
+      evalRequest.arguments = {
+        context: 'watch',
+        expression,
+        format: message.arguments.format,
+        frameId: this.debugSession.frameId,
+      };
+    } else {
       evalRequest.arguments = { expression: '' };
-      this.context.log.debug(
-        `[${this.id}] dap.message(out): setVariable → evaluate ${JSON.stringify(evalRequest)}`,
-      );
-      return;
     }
 
-    evalRequest.arguments = {
-      context: 'watch',
-      expression,
-      format: message.arguments.format,
-      frameId: this.debugSession.frameId,
-    };
-
-    this.context.log.debug(
-      `[${this.id}] dap.message(out): setVariable → evaluate. ${JSON.stringify(evalRequest)}`,
-    );
+    this.context.log.debug(`[${this.id}] dap.message(out): setVariable → evaluate`, evalRequest);
   }
 
   private resolveAssignmentExpression(
@@ -131,7 +125,7 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
         return; // nope
       }
 
-      indexable ??= isIndexable(parent.type);
+      indexable ??= !!parent.type && isIndexable(parent.type);
       parts.unshift(parent.name);
 
       const nextRef = parent.variablesReference;
@@ -154,46 +148,60 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
 
     return expression;
 
-    function isIndexable(type?: string): boolean {
-      return Boolean(type) && (type === 'Hash' || type === 'Array');
+    function isIndexable(type: string): boolean {
+      return Boolean(type) && ['Array', 'Hash'].includes(type);
     }
 
     function rejectPart(name: string): boolean {
-      return name.startsWith('#') || name.startsWith('%');
+      return (
+        name.startsWith('#') ||
+        name.startsWith('%') ||
+        /^\$[\W\d]/.test(name) ||
+        ['$stdin', '$stdout', '$stderr'].includes(name)
+      );
     }
   }
 
   private rewriteAsSetVariable(
     message: DebugProtocol.EvaluateResponse,
   ): DebugProtocol.SetVariableResponse {
-    const setVariableResponse: DebugProtocol.SetVariableResponse = message as any;
-    setVariableResponse.command = 'setVariable';
+    const setVarResponse: DebugProtocol.SetVariableResponse = message as any;
+    setVarResponse.command = 'setVariable';
 
-    switch (setVariableResponse.body.type) {
-      case 'SyntaxError':
-        setVariableResponse.success = false;
-        setVariableResponse.message = 'Failed: syntax error';
-        break;
+    const { result: value, type } = message.body;
+    if (message.success) {
+      switch (type) {
+        case 'ArgumentError':
+        case 'FrozenError':
+        case 'KeyError':
+        case 'NameError':
+        case 'NoMethodError':
+        case 'RangeError':
+        case 'RuntimeError':
+        case 'SyntaxError':
+        case 'TypeError':
+        case 'ZeroDivisionError':
+          // Raised vs assigned errors are indistinguishable here
+          setVarResponse.success = false;
+          setVarResponse.message =
+            value.match(/^.+?:\s+(?:.+:\d+:\s+)?(.+?)(?:>|\n|$)/)?.[1] || value;
+          break;
 
-      default:
-        if (message.success) {
-          setVariableResponse.body = {
+        default:
+          setVarResponse.body = {
             indexedVariables: message.body.indexedVariables,
             namedVariables: message.body.namedVariables,
-            type: message.body.type,
-            value: message.body.result,
+            type,
+            value,
             variablesReference: message.body.variablesReference,
           };
-        } else {
-          const msg = message.body?.result?.replace('evaluate', 'set value');
-          setVariableResponse.message = msg ? `Failed: ${msg}` : "Failed: can't set value";
-        }
-        break;
+          break;
+      }
+    } else {
+      setVarResponse.message = value.replace('evaluate', 'set value') ?? "can't set value";
     }
 
-    this.context.log.debug(
-      `[${this.id}] dap.message(in): evaluate → setVariable ${JSON.stringify(setVariableResponse)}`,
-    );
-    return setVariableResponse;
+    this.context.log.debug(`[${this.id}] dap.message(in): evaluate → setVariable`, setVarResponse);
+    return setVarResponse;
   }
 }
