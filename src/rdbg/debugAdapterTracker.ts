@@ -73,7 +73,6 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
       }),
     ];
 
-    this.context.activeDebugSession = this.debugSession;
     this.logDapMessages =
       Boolean(session.configuration.showProtocolLog) ||
       configuration.getLogDapMessages(workspaceFolder);
@@ -82,7 +81,6 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
   }
 
   dispose(): void {
-    this.context.activeDebugSession = undefined;
     vscode.Disposable.from(...this.disposables).dispose();
     this.disposables.length = 0;
   }
