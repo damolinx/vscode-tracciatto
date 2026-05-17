@@ -156,7 +156,9 @@
           "tracciatto.patchMaxInspectedValueLength": {
             "type": "number",
             "default": 180,
-            "markdownDescription": "Sets the maximum length of the string representation shown for inspected values. Changes take effect on the next step or evaluation, if you are already in a debug session."
+            "markdownDescription": "Sets the maximum length of the string representation shown for inspected values. Changes take effect on the next step or evaluation if you are already in a debug session. For safety, the UI limits this value to 100K characters; larger values can be set by editing the settings JSON directly, but be aware of potential performance issues.",
+            "maximum": 100000,
+            "minimum": 1
           },
           "tracciatto.patchSimpleTypeExpansion": {
             "type": "boolean",

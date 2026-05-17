@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.2
+- Make `tracciatto.patchMaxInspectedValueLength` safer to use.
+
 ## 0.3.1
 - Add `tracciatto.forceEnableRdbgDebugType` setting to force-enable `rdbg` debug type support even when `vscode‑rdbg` is installed but detected as inactive.
 - **Attach to…** now offers autodected `rdbg` sockets.

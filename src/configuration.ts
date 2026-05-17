@@ -1,5 +1,9 @@
 import * as vscode from 'vscode';
-import { DEFAULT_SKIP_PATHS_FILENAME, EXTENSION_PREFIX } from './constants';
+import {
+  DEFAULT_MAX_INSPECTED_LENGTH,
+  DEFAULT_SKIP_PATHS_FILENAME,
+  EXTENSION_PREFIX,
+} from './constants';
 
 export class Configuration {
   /**
@@ -51,12 +55,14 @@ export class Configuration {
   }
 
   /**
-   * Maximum length of inspected values.
+   * Maximum length of inspected values. For safety, if user sets a value that is
+   * less than or equal to {@link DEFAULT_MAX_INSPECTED_LENGTH}, it is ignored.
    */
   public getPatchMaxInspectedValueLength(
     scope: vscode.ConfigurationScope | undefined,
   ): number | undefined {
-    return this.getValue<number | undefined>(scope, 'patchMaxInspectedValueLength');
+    const value = this.getValue<number | undefined>(scope, 'patchMaxInspectedValueLength');
+    return value && value > DEFAULT_MAX_INSPECTED_LENGTH ? value : undefined;
   }
 
   /**

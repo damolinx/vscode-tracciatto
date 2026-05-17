@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
+import { DEFAULT_MAX_INSPECTED_LENGTH } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { DebugConfiguration } from './configurations/debugConfiguration';
-
-export const DEFAULT_MAX_INSPECTED_LENGTH = 180;
 
 export enum DebugSessionState {
   Uninitialized = 'uninitialized',
@@ -68,12 +67,18 @@ export class DebugSession implements vscode.Disposable {
     }
   }
 
-  public async setMaxInspectedValueLength(length = DEFAULT_MAX_INSPECTED_LENGTH): Promise<number> {
+  public async setMaxInspectedValueLength(length = DEFAULT_MAX_INSPECTED_LENGTH): Promise<void> {
+    if (length <= 0) {
+      this.context.log.warn(
+        `[${this.id}] DEBUGGER__::ThreadClient::MAX_LENGTH must be a value number greater than 0`,
+      );
+      return;
+    }
+
     await this.sendEvaluateRequest(
       `DEBUGGER__::ThreadClient.send(:remove_const, :MAX_LENGTH) rescue nil; DEBUGGER__::ThreadClient::MAX_LENGTH = ${length}`,
     );
     this.context.log.debug(`[${this.id}] DEBUGGER__::ThreadClient::MAX_LENGTH=${length}`);
-    return length;
   }
 
   public get state(): DebugSessionState {

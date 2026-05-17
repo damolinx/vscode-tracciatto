@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import type { DebugProtocol } from 'vscode-debugprotocol';
+import { DEFAULT_MAX_INSPECTED_LENGTH } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { ExceptionSessionController } from './controllers/exceptionSessionController';
 import { SkipPathsSessionController } from './controllers/skipPathsSessionController';
@@ -9,7 +10,7 @@ import {
   KnownEvent,
   KnownResponse,
 } from './debugProtocolMessage';
-import { DebugSession, DebugSessionState, DEFAULT_MAX_INSPECTED_LENGTH } from './debugSession';
+import { DebugSession, DebugSessionState } from './debugSession';
 
 const SIMPLE_TYPES = new Set([
   'Complex',
@@ -112,7 +113,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
           this.skipPathsController.initialize(),
         ]);
         if (
-          this.maxInspectedValueLength !== undefined &&
+          this.maxInspectedValueLength &&
           this.maxInspectedValueLength !== DEFAULT_MAX_INSPECTED_LENGTH
         ) {
           await this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
