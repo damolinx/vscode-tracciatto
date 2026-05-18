@@ -34,6 +34,7 @@
     "damolinx.formatto"
   ],
   "activationEvents": [
+    "onDebugResolve:rdbg",
     "onDebugResolve:tracciatto",
     "onLanguage:ruby"
   ],
