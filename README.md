@@ -1,17 +1,18 @@
 # Tracciatto
 
-Tracciatto is a Ruby debugging extension built on top of the [**debug**](https://github.com/ruby/debug) library. It provides its own [`tracciatto`](#tracciatto-1) debug type and supports the [`rdbg`](#rdbg-vscoderdbg) debug type as well. The extension explores debugger integration, guided by **rdbg**’s capabilities and informed by backlogs from other extensions to better understand common user needs.
+This extension provides Ruby debugging using the [**debug**](https://github.com/ruby/debug) library. It supports the official [`rdbg`](#rdbg-vscoderdbg) debug‑type and also offers a custom [`tracciatto`](#tracciatto-1) debug‑type that follows a schema closer to other VS Code debugger types.
 
 Some of the unique features offered by this extension:
 
 - Support for **multi‑root workspaces**
 - Ability to attach to **multiple sockets/ports** simultaneously
 - An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints via UI
-- Flexible [**skip-path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file.
+- Flexible [**skip‑path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file
 
-Additionally, the extension patches **debug** library behaviors through [configuration](#debug-protocol-overrides), including:
+Additionally, the extension can patch certain **debug** library behaviors through [configuration](#debug-protocol-overrides), including:
+
 - Allowing the maximum inspected‑string length to be changed from 180 characters ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
-- Enabling **Set Value**  action on fields in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
+- Enabling **Set Value** actions on fields in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
 This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
 
@@ -222,9 +223,16 @@ The following table shows examples of how to configure common tools using `custo
 
 ## Debug Configurations
 
+This extension provides two debugger types for Ruby, both powered by the [**debug**](https://github.com/ruby/debug) library:
+
+- `tracciatto`: a custom debug type designed to follow a schema closer to other VS Code debuggers, with additional quality‑of‑life features.
+- `rdbg`: the official Ruby debugger type, supported directly by this extension for convenience and interoperability.
+
+Both debugger types are fully usable, and you can choose whichever best fits your workflow.
+
 ### tracciatto
 
-This extension provides its own debug type: `tracciatto`. It supports both **launch** and **attach** modes with the following properties:
+The `tracciatto` debug type is implemented directly by this extension. It supports both **launch** and **attach** modes with the following properties:
 
 #### Launch Properties
 
@@ -233,7 +241,7 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 | `args` | Arguments passed to the Ruby program. |
 | `cwd` | Working directory. |
 | `env` | Environment variables passed to the Ruby program. |
-| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
 | `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings, e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `program` | Ruby file to debug (**required**). |
 | `runtimeExecutable` | Ruby command to run (`ruby` by default). |
@@ -244,7 +252,7 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 
 | Property | Description |
 |----------|-------------|
-| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
 | `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `port` | `[host:]port` path to the rdbg DAP server. |
 | `socket` | Socket path to the rdbg DAP server. |
@@ -254,13 +262,14 @@ This extension provides its own debug type: `tracciatto`. It supports both **lau
 
 ### rdbg (vscode‑rdbg)
 
-This extension supports the `rdbg` debug type, normally provided by the **vscode‑rdbg** extension, although only a subset of configuration properties is used; unsupported properties are ignored.
+This extension supports the `rdbg` debug type, normally contributed by the **vscode‑rdbg** extension. Most configuration properties are supported, while unsupported ones are safely ignored. When a property is not directly supported, it is typically because an equivalent capability is already provided through a configuration setting.
 
-> By default, Tracciatto's built‑in `rdbg` support is **automatically disabled** whenever the `vscode‑rdbg` extension is installed. This avoids conflicts where both extensions attempt to contribute the same debug type.
+> By default, Tracciatto's built‑in `rdbg` support is **automatically disabled** when the `vscode‑rdbg` extension is installed. This prevents conflicts where both extensions attempt to register the same debug type.
 
-If needed, the setting `tracciatto.forceEnableRdbgDebugType` allows forcing registering Tracciatto's built‑in `rdbg` support even when `vscode‑rdbg` is installed, as long as it is detected as inactive. Note that VS Code does not provide a reliable way to track whether another extension is active (e.g. there is no activation event), so enabling this setting may cause both extensions to attempt registering the debug type. In that case, whichever extension registers second will fail with an error. This option exists so users experimenting with Tracciatto do not need to uninstall `vscode‑rdbg` and can simply disable it instead.
+If needed, the setting `tracciatto.forceEnableRdbgDebugType` allows forcing Tracciatto's built‑in `rdbg` support even when `vscode‑rdbg` is installed, as long as it is detected as inactive. VS Code does not provide a reliable way to determine another extension's activation state or distinguish between "Disabled" and "not yet activated", so enabling this setting may cause both extensions to attempt registration. In that case, whichever extension registers second will fail registration; Tracciatto, however, handles this situation gracefully. This option exists so users experimenting with Tracciatto can simply disable `vscode‑rdbg` instead of uninstalling it.
 
-Debug‑type detection happens during extension activation, so you must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg**. Check the [logs](#logs) to confirm which debugger is active.
+
+Debug‑type detection happens during extension activation, so you must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg**. Check the [logs](#logs) to confirm which debug-types are active.
 
 #### Launch Properties
 
@@ -270,7 +279,7 @@ Debug‑type detection happens during extension activation, so you must reload t
 | `command` | Command name (`ruby`, `rake`, `bin/rails`, `bundle exec ruby`, etc). |
 | `cwd` | Working directory. |
 | `env` | Environment variables passed to the Ruby program. |
-| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
 | `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `rdbgPath` | Absolute path to `rdbg`. |
 | `script` | Absolute path to a Ruby file (**required**). |
@@ -282,7 +291,7 @@ Debug‑type detection happens during extension activation, so you must reload t
 | Property | Description |
 |----------|-------------|
 | `debugPort` | `[hostname:]port` or socket path to the rdbg DAP server. |
-| `localFs` |	Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
 | `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `rdbgPath` | Optional absolute path to rdbg. |
 | `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
