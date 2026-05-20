@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.4
+- Fix: **Set Value** cannot update the inner fields of values created or assigned through **Set Value** (due to missing variable‑reference tracking).
+
 ## 0.3.3
 - **Set Value**:
   - Improve support for nested objects and indexed assignments.

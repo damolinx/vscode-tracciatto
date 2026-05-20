@@ -11,7 +11,7 @@ import { isRequestMessage, KnownEvent, KnownResponse } from '../debugProtocolMes
  * https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172
  */
 export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
-  private readonly interceptedMessages: Map<number, { name: string }>;
+  private readonly interceptedMessages: Map<number, { name: string; base?: string }>;
   private readonly variablesReferences: Map<
     number,
     { name: string; type?: string; variablesReference: number; parentRef?: number }
@@ -48,8 +48,9 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
         if (interceptedMsg) {
           this.rewriteAsSetVariable(message);
           if (message.success) {
+            const nameForRef = interceptedMsg.base ?? interceptedMsg.name;
             this.variablesReferences.set(message.body.variablesReference, {
-              name: interceptedMsg.name,
+              name: nameForRef,
               type: message.body.type,
               variablesReference: message.body.variablesReference,
             });
@@ -108,6 +109,12 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
 
     const expression = this.resolveAssignmentExpression(message);
     if (expression) {
+      const base = expression.split('=')[0].trim();
+      const intercepted = this.interceptedMessages.get(message.seq);
+      if (intercepted) {
+        intercepted.base = base;
+      }
+
       evalRequest.arguments = {
         context: 'watch',
         expression,
