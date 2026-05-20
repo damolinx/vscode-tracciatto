@@ -12,7 +12,7 @@
 ## 0.3.2
 - Add `tracciatto.reattachDelay` setting to control delay before reattaching after a debug **Restart** call.
 - Make `tracciatto.patchMaxInspectedValueLength` safer to use.
-- Deprecate `tracciatto.debug.*` settings in favor of top‑level equivalents (name change). Backwards compatibility maintained until 0.4.0.
+- Deprecate `*.debug.*` settings in favor of top‑level equivalents (name change). Backwards compatibility maintained until 0.4.0.
 
 ## 0.3.1
 - Add `tracciatto.forceEnableRdbgDebugType` setting to force-enable `rdbg` debug type support even when `vscode‑rdbg` is installed but detected as inactive.
