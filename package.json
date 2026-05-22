@@ -178,6 +178,10 @@
             "type": "string",
             "default": ".tracciatto-filter",
             "markdownDescription": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
+          },
+          "tracciatto.socketSearchRoot": {
+            "type": "string",
+            "markdownDescription": "Directory to search for `rdbg` sockets when using the **Attach to…** command. Supports `${userHome}` and `${workspaceFolder}` tokens."
           }
         }
       },

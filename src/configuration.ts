@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DEFAULT_SKIP_PATHS_FILENAME, EXTENSION_PREFIX } from './constants';
+import { resolveTokenizedPath } from './utils/pathTokenization';
 
 export class Configuration {
   /**
@@ -48,6 +49,14 @@ export class Configuration {
     defaultValue = false,
   ): boolean {
     return this.getValue<boolean>(scope, 'logDapMessages', defaultValue) ?? defaultValue;
+  }
+
+  /**
+   * Working directory used with `rdbg --util=list-socks`.
+   */
+  public getSocketSearchRoot(): string | undefined {
+    const root = this.resolveValue<string | undefined>('socketSearchRoot');
+    return root && resolveTokenizedPath(root);
   }
 
   /**

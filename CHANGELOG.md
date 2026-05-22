@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.3.5
+- **Attach to…**: Add `tracciatto.socketSearchRoot` to set search directory for `rdbg --util=list-socks`.
 - `tracciatto.patchMaxInspectedValueLength` accepts any value greater than 0, instead of foricing more than 180, for consistent UX.
 
 ## 0.3.4

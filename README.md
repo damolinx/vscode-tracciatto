@@ -145,6 +145,7 @@ Tracciatto supports the following user and workspace settings:
 | `tracciatto.runtimeExecutable` | Path to the Ruby executable used for debugging. | `ruby` |
 | `tracciatto.skipPaths` | Additional skip‑path patterns applied when stepping in the Ruby debugger. Merged with launch configuration and project file patterns. | None |
 | `tracciatto.skipPathsFileName` | Filename containing skip‑path patterns. May be absolute, or relative to the workspace root. | `.tracciatto-skip-paths` |
+| `tracciatto.socketSearchRoot` | Directory to search for `rdbg` sockets when attaching. This is not needed in WSL, but in Linux `rdbg` only lists sockets in the current working directory. Supports `${userHome}` and `${workspaceFolder}` tokens. | |
 
 ### Debug Protocol Overrides
 

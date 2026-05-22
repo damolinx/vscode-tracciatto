@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 import { isAbsolute } from 'path';
 import { Configuration } from '../configuration';
-
-const WORKSPACE_TOKEN = '${workspaceFolder}';
+import { resolveTokenizedPath } from '../utils/pathTokenization';
 
 export class SkipPathProvider {
   constructor(
@@ -31,12 +30,8 @@ export class SkipPathProvider {
     }
 
     merged = merged.map((s) => s.trim()).filter(Boolean);
-
     if (folder) {
-      const root = folder.uri.path;
-      merged = merged.map((s) =>
-        s.startsWith(WORKSPACE_TOKEN) ? root + s.slice(WORKSPACE_TOKEN.length) : s,
-      );
+      merged = merged.map((s) => resolveTokenizedPath(s, folder)!);
     }
 
     return [...new Set(merged)];

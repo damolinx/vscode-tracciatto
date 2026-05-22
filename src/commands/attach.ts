@@ -21,7 +21,7 @@ export async function attach(context: ExtensionContext, portOrSocket?: string): 
 }
 
 async function showPortOrSocketInputBox(
-  { extensionContext }: ExtensionContext,
+  { extensionContext, configuration }: ExtensionContext,
   mruKey = 'attach.mruPortOrSocket',
 ): Promise<string | undefined> {
   return new Promise<string | undefined>((resolve) => {
@@ -77,7 +77,7 @@ async function showPortOrSocketInputBox(
 
     (async () => {
       quickPick.busy = true;
-      const sockets = await findRdbgSockets();
+      const sockets = await findRdbgSockets(configuration.getSocketSearchRoot());
       if (sockets.length) {
         socketItems = sockets.map((sock) => ({
           alwaysShow: true,
@@ -95,11 +95,12 @@ async function showPortOrSocketInputBox(
   });
 }
 
-function findRdbgSockets(): Promise<string[]> {
+function findRdbgSockets(cwd?: string): Promise<string[]> {
   return new Promise((resolve) => {
     const child = spawn('rdbg', ['--util=list-socks'], {
-      stdio: ['ignore', 'pipe', 'pipe'],
+      cwd,
       shell: false,
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
 
     let output = '';
