@@ -306,6 +306,7 @@ The following commands are intended for quick verification of standalone scripts
 | **Attach to…** | Attach to `host:port` or socket. When exactly **one workspace folder** is open, it is used as one source for [skip-paths](#skip-path-patterns). In multi‑root workspaces no folder is selected. The `tracciatto.skipPathsFileName` setting is always used as it comes from user settings. |
 | **Debug Active Editor** | Debugs the active Ruby editor |
 | **Run Active Editor** | Executes the active Ruby file |
+| **Set Maximum Inspected Value Length** | Sets the maximum length of inspected values for the **current debug session only**. This is useful when you temporarily need more (or less) detail in variable previews. To configure this permanently across all sessions, use the [`tracciatto.patchMaxInspectedValueLength` setting](#debug-protocol-overrides). |
 
 [↑ Back to top](#table-of-contents)
 
