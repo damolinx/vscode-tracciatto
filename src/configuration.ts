@@ -65,8 +65,13 @@ export class Configuration {
    */
   public getPatchMaxInspectedValueLength(
     scope: vscode.ConfigurationScope | undefined,
+    defaultValue?: number,
   ): number | undefined {
-    const value = this.getValue<number | undefined>(scope, 'patchMaxInspectedValueLength');
+    const value = this.getValue<number | undefined>(
+      scope,
+      'patchMaxInspectedValueLength',
+      defaultValue,
+    );
     return value && value > 0 ? value : undefined;
   }
 

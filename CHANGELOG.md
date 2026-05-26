@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.3.6
+- Add **Set Maximum Inspected Value Length** command to adjust maximum inspected-length for current debug session.
 - **Exception Filters** select changed nodes.
 - Use natural (numeric-aware) sorting for UI lists.
 

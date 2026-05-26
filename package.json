@@ -75,6 +75,12 @@
         "title": "Run Active Editor",
         "category": "Tracciatto",
         "enablement": "editorLangId == ruby"
+      },
+      {
+        "command": "tracciatto.setMaxInspectedValueLength",
+        "title": "Set Maximum Inspected Value Length",
+        "category": "Tracciatto",
+        "enablement": "inDebugMode && (debugType == 'rdbg' || debugType == 'tracciatto')"
       }
     ],
     "menus": {

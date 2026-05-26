@@ -5,6 +5,7 @@ import { debugEditor } from './commands/debugFile';
 import { editException } from './commands/editException';
 import { removeException } from './commands/removeException';
 import { runEditor } from './commands/runFile';
+import { setMaxInspectedValueLength } from './commands/setMaxInspectedValueLength';
 import { toggleException } from './commands/toggleException';
 import {
   ExceptionTreeNode,
@@ -37,6 +38,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     cr('tracciatto.removeException', (nameOrNode: string | ExceptionTreeNode) =>
       removeException(context, nameOrNode),
     ),
+    cr('tracciatto.setMaxInspectedValueLength', () => setMaxInspectedValueLength(context)),
     cr('tracciatto.toggleException', (exceptionName: string) =>
       toggleException(context, exceptionName),
     ),
