@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.6
+- **Exception Filters** select changed nodes.
+- Use natural (numeric-aware) sorting for UI lists.
+
 ## 0.3.5
 - **Attach to…**: Add `tracciatto.socketSearchRoot` to set search directory for `rdbg --util=list-socks`.
 - `tracciatto.patchMaxInspectedValueLength` accepts any value greater than 0, instead of forcing more than 180, for consistent UX.

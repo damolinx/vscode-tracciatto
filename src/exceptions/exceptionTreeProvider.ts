@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
 import { Exception, EXCEPTION_CATEGORIES, ExceptionCategory } from './exception';
 import { ExceptionManager } from './exceptionManager';
+import { NaturalComparer } from './utils';
 
 export function registerExceptionTree(context: ExtensionContext): void {
   const exceptionsTree = new ExceptionTreeProvider(context);
@@ -9,6 +10,14 @@ export function registerExceptionTree(context: ExtensionContext): void {
     showCollapseAll: true,
     treeDataProvider: exceptionsTree,
   });
+
+  const handler = (exception: Exception) => {
+    const node = { type: 'exception', exception } as const;
+    exceptionsTreeView.reveal(node, { expand: true, focus: true, select: true });
+  };
+  context.exceptionManager.onExceptionAdded(handler);
+  context.exceptionManager.onExceptionChanged(handler);
+
   context.disposables.push(exceptionsTree, exceptionsTreeView);
 }
 
@@ -84,17 +93,24 @@ export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>,
   public getChildren(node?: TreeNode): TreeNode[] | undefined {
     if (!node) {
       return [...EXCEPTION_CATEGORIES]
-        .sort((a, b) => a.localeCompare(b))
+        .sort(NaturalComparer.compare)
         .map((category) => ({ type: 'category', category }));
     }
 
     if (node.type === 'category') {
       return this.exceptionManager
         .getByCategory(node.category)
-        .sort((a, b) => a.name.localeCompare(b.name))
+        .sort((a, b) => NaturalComparer.compare(a.name, b.name))
         .map((exception) => ({ type: 'exception', exception }));
     }
 
+    return;
+  }
+
+  public getParent?(node: TreeNode): TreeNode | undefined {
+    if (node.type === 'exception') {
+      return { type: 'category', category: node.exception.category };
+    }
     return;
   }
 }

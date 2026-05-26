@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 
+export const NaturalComparer = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
 let mruExceptionName: string | undefined;
 export async function showExceptionInputBox(options?: {
   additionalValidator?: (name: string) => string | undefined;

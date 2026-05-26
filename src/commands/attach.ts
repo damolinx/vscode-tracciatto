@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { spawn } from 'child_process';
 import { lstatSync } from 'fs';
 import { isAbsolute } from 'path';
+import { NaturalComparer } from '../exceptions/utils';
 import { ExtensionContext } from '../extensionContext';
 import {
   createAttachConfiguration,
@@ -114,7 +115,7 @@ function findRdbgSockets(cwd?: string): Promise<string[]> {
         .map((line) => line.trim())
         .filter((line) => line.length > 0);
 
-      resolve(sockets.sort());
+      resolve(sockets.sort(NaturalComparer.compare));
     });
     child.on('error', () => resolve([]));
   });
