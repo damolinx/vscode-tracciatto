@@ -4,8 +4,8 @@ This extension provides Ruby debugging using the [**debug**](https://github.com/
 
 Some of the unique features offered by this extension:
 
-- Support for **multi‑root workspaces**
-- Ability to attach to **multiple sockets/ports** simultaneously
+- **Multi‑root** workspace support
+- **Multiple socket/port** can be attached simultaneously.
 - An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints via UI
 - Flexible [**skip‑path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file
 
@@ -13,8 +13,6 @@ Additionally, the extension can patch certain **debug** library behaviors throug
 
 - Allowing the maximum inspected‑string length to be changed from 180 characters ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
 - Enabling **Set Value** actions on fields in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
-
-This is **not a fork** of the [VS Code Ruby rdbg Debugger](https://github.com/ruby/vscode-rdbg) extension. That extension has been incredibly valuable in my daily work and is greatly appreciated. While its implementation has been referenced, Tracciatto follows a distinct design philosophy. This is evident in the code, and several requested features have naturally emerged due to this design or have been straightforward to implement.
 
 Development tends to favor the attach‑based debugging scenario because it is the one I use daily. Feedback on other scenarios is always welcome.
 
