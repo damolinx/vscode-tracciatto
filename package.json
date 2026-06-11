@@ -1,7 +1,7 @@
 {
   "name": "tracciatto",
   "displayName": "Tracciatto",
-  "description": "A Ruby debugger built on top of rdbg, providing an integrated debugging experience with configurable behavior.",
+  "description": "A Ruby debugger integrating rdbg into VS Code with configurable behavior and additional features.",
   "author": "damolinx",
   "publisher": "damolinx",
   "license": "Apache-2.0",
