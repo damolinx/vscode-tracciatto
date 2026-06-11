@@ -34,6 +34,7 @@ Development tends to favor the attach‑based debugging scenario because it is t
   - [`rdbg` (vscode‑rdbg)](#rdbg-vscoderdbg)
 - [Commands](#commands)
 - [Breakpoints](#breakpoints)
+  - [Template Formats](#template-formats)
   - [Exception Filters](#exception-filters)
 - [Skip-Path Patterns](#skip-path-patterns)
 - [Logs](#logs)
@@ -352,6 +353,15 @@ VS Code allows adding some of these using the **Add Function Breakpoint** comman
 - **Tracepoint (line/call/exception/object)**: logs events without stopping.
   - No VS Code UI entry point.
   - **Debug console**: `trace <event>` (e.g., `trace call`, `trace line`)
+
+### Template Formats
+
+Ruby template formats such as **ERB**, **Haml**, and **Slim** are not supported for stepping or breakpoints.  
+These files are compiled into temporary Ruby code at runtime, and the Ruby VM does not expose file/line information that `rdbg` can map back to the original template. As a result, breakpoints in template files will appear unverified and will not be hit.
+
+Debugging is fully supported only for Ruby source files (`.rb`, `.rake`, etc.), or more specifically, for source files whose VS Code language is `ruby`. Alternatively, you can enable the **Debug: Allow Breakpoints Everywhere** setting.
+
+To inspect template behavior, place breakpoints in controllers, helpers, or view objects instead.
 
 ### Exception Filters
 
