@@ -2,19 +2,15 @@
 
 This extension provides Ruby debugging using the [**debug**](https://github.com/ruby/debug) library. It supports the official [`rdbg`](#rdbg-vscoderdbg) debug‑type and also offers a custom [`tracciatto`](#tracciatto-1) debug‑type that follows a schema closer to other VS Code debugger types.
 
-Some of the unique features offered by this extension:
+- **Multi‑root** workspaces  
+- Multiple concurrent Ruby debug sessions  
+- [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints via UI  
+- Flexible [**skip‑path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file  
 
-- **Multi‑root** workspace support
-- **Multiple socket/port** can be attached simultaneously.
-- An [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints via UI
-- Flexible [**skip‑path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file
+- [Customizable](#debug-protocol-overrides) **debug** library behavior:
 
-Additionally, the extension can patch certain **debug** library behaviors through [configuration](#debug-protocol-overrides), including:
-
-- Allowing the maximum inspected‑string length to be changed from 180 characters ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779))
-- Enabling **Set Value** actions on fields in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
-
-Development tends to favor the attach‑based debugging scenario because it is the one I use daily. Feedback on other scenarios is always welcome.
+  - Alter the maximum inspected‑string length from the [default 180 characters](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779)
+  - Activate **Set Value** support for variabls in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
 <p align=center>
 <img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
