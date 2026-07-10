@@ -35,10 +35,7 @@ type VariablesRequest = DebugProtocol.VariablesRequest & {
 };
 
 export type KnownRequest =
-  | DisconnectRequest
-  | EvaluateRequest
-  | SetVariableRequest
-  | VariablesRequest;
+  DisconnectRequest | EvaluateRequest | SetVariableRequest | VariablesRequest;
 
 type SafeResponse<T extends DebugProtocol.Response, Cmd extends string> =
   | (Omit<T, 'body' | 'success'> & {
