@@ -85,7 +85,8 @@ async function showPortOrSocketInputBox(
           description: 'autodetected',
           label: sock,
         }));
-        quickPick.placeholder = 'Type a [host:]port or a socket path, or select one from dropdown';
+        quickPick.placeholder =
+          'Type a [host:]port or a socket path, or pick one from the dropdown';
         quickPick.items = [...quickPick.items, ...socketItems];
       }
       quickPick.busy = false;

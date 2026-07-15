@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.3.7
+- Add **Attach to Multiple…** command to start an attach session via a comm-separated list of host:port or socket paths.
 - Fix: use `localfs` instead of `localFs` (same for `localfsMap`) in all configurations. 
 
 ## 0.3.6

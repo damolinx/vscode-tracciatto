@@ -53,6 +53,11 @@
         "category": "Tracciatto"
       },
       {
+        "command": "tracciatto.attachMultiple",
+        "title": "Attach to Multiple…",
+        "category": "Tracciatto"
+      },
+      {
         "command": "tracciatto.debugFile",
         "title": "Debug Active Editor",
         "category": "Tracciatto",
