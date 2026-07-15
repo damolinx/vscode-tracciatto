@@ -274,11 +274,11 @@
           "attach": {
             "type": "object",
             "properties": {
-              "localFs": {
+              "localfs": {
                 "type": "boolean",
                 "description": "Enable local filesystem access support."
               },
-              "localFsMap": {
+              "localfsMap": {
                 "type": "string",
                 "description": "Map local filesystem paths to remote paths."
               },
@@ -335,11 +335,11 @@
                   "type": "string"
                 }
               },
-              "localFs": {
+              "localfs": {
                 "type": "boolean",
                 "description": "Enable local filesystem access support."
               },
-              "localFsMap": {
+              "localfsMap": {
                 "type": "string",
                 "description": "Map local filesystem paths to remote paths."
               },

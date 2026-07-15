@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.7
+- Fix: use `localfs` instead of `localFs` (same for `localfsMap`) in all configurations. 
+
 ## 0.3.6
 - Add **Set Maximum Inspected Value Length** command to adjust maximum inspected-length for current debug session.
 - **Exception Filters** select changed nodes.

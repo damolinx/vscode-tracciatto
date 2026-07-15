@@ -237,35 +237,34 @@ The `tracciatto` debug type is implemented directly by this extension. It suppor
 | `args` | Arguments passed to the Ruby program. |
 | `cwd` | Working directory. |
 | `env` | Environment variables passed to the Ruby program. |
-| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings, e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localfs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localfsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings, e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `program` | Ruby file to debug (**required**). |
-| `runtimeExecutable` | Ruby command to run (`ruby` by default). |
 | `rdbgPath` | Optional absolute path to rdbg. |
+| `runtimeExecutable` | Ruby command to run (`ruby` by default). |
 | `skipPaths` | Paths to skip when stepping. |
 
 #### Attach Properties
 
 | Property | Description |
 |----------|-------------|
-| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localfs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localfsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `port` | `[host:]port` path to the rdbg DAP server. |
-| `socket` | Socket path to the rdbg DAP server. |
-| `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately. |
 | `rdbgPath` | Optional absolute path to rdbg. |
 | `skipPaths` | Paths to skip when stepping. |
+| `socket` | Socket path to the rdbg DAP server. |
+| `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately. |
 
 ### rdbg (vscode‑rdbg)
 
 This extension supports the `rdbg` debug type, normally contributed by the **vscode‑rdbg** extension. Most configuration properties are supported, while unsupported ones are safely ignored. When a property is not directly supported, it is typically because an equivalent capability is already provided through a configuration setting.
 
-> By default, Tracciatto's built‑in `rdbg` support is **automatically disabled** when the `vscode‑rdbg` extension is installed. This prevents conflicts where both extensions attempt to register the same debug type.
+Tracciatto **automatically disables** its `rdbg` debug-type support if the `vscode‑rdbg` extension is installed to prevent having both extensions attempting to claim the same debug type. This happens even if the `vscode‑rdbg` extension is disabled as VS Code does not provide a reliable way to determine another extension's activation state or distinguish between "disabled" and "not yet activated".
 
-If needed, the setting `tracciatto.forceEnableRdbgDebugType` allows forcing Tracciatto's built‑in `rdbg` support even when `vscode‑rdbg` is installed, as long as it is detected as inactive. VS Code does not provide a reliable way to determine another extension's activation state or distinguish between "Disabled" and "not yet activated", so enabling this setting may cause both extensions to attempt registration. In that case, whichever extension registers second will fail registration; Tracciatto, however, handles this situation gracefully. This option exists so users experimenting with Tracciatto can simply disable `vscode‑rdbg` instead of uninstalling it.
+The `tracciatto.forceEnableRdbgDebugType` setting allows to force `rdbg` registration even when `vscode‑rdbg` is installed, as long as it is inactive at registration time. Note that whichever extension attempts registration second will fail, although Tracciatto handles this situation gracefully a log entry. This setting exists so users can experiment with Tracciatto by simply disabling `vscode‑rdbg` instead of having to uninstall it.
 
-
-Debug‑type detection happens during extension activation, so you must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg**. Check the [logs](#logs) to confirm which debug-types are active.
+You must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg** as dbug-type registration only happens during extension activation. Check the [logs](#logs) to confirm which debug-types are active.
 
 #### Launch Properties
 
@@ -275,8 +274,8 @@ Debug‑type detection happens during extension activation, so you must reload t
 | `command` | Command name (`ruby`, `rake`, `bin/rails`, `bundle exec ruby`, etc). |
 | `cwd` | Working directory. |
 | `env` | Environment variables passed to the Ruby program. |
-| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localfs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localfsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `rdbgPath` | Absolute path to `rdbg`. |
 | `script` | Absolute path to a Ruby file (**required**). |
 | `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
@@ -287,8 +286,8 @@ Debug‑type detection happens during extension activation, so you must reload t
 | Property | Description |
 |----------|-------------|
 | `debugPort` | `[hostname:]port` or socket path to the rdbg DAP server. |
-| `localFs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
-| `localFsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `localfs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
+| `localfsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
 | `rdbgPath` | Optional absolute path to rdbg. |
 | `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
 
