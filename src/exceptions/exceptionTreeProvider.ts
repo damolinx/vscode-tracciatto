@@ -5,20 +5,21 @@ import { ExceptionManager } from './exceptionManager';
 import { NaturalComparer } from './utils';
 
 export function registerExceptionTree(context: ExtensionContext): void {
-  const exceptionsTree = new ExceptionTreeProvider(context);
-  const exceptionsTreeView = vscode.window.createTreeView('tracciatto.exceptions', {
+  const treeDataProvider = new ExceptionTreeProvider(context);
+  const treeView = vscode.window.createTreeView('tracciatto.exceptions', {
     showCollapseAll: true,
-    treeDataProvider: exceptionsTree,
+    treeDataProvider,
   });
 
-  const handler = (exception: Exception) => {
-    const node = { type: 'exception', exception } as const;
-    exceptionsTreeView.reveal(node, { expand: true, focus: true, select: true });
-  };
-  context.exceptionManager.onExceptionAdded(handler);
-  context.exceptionManager.onExceptionChanged(handler);
-
-  context.disposables.push(exceptionsTree, exceptionsTreeView);
+  const { exceptionManager } = context;
+  const handler = (exception: Exception) =>
+    treeView.reveal({ type: 'exception', exception }, { expand: true, focus: true, select: true });
+  context.disposables.push(
+    treeDataProvider,
+    treeView,
+    exceptionManager.onExceptionAdded(handler),
+    exceptionManager.onExceptionChanged(handler),
+  );
 }
 
 export interface GroupTreeNode {
@@ -31,7 +32,7 @@ export interface ExceptionTreeNode {
   type: 'exception';
 }
 
-export type TreeNode = GroupTreeNode | ExceptionTreeNode;
+type TreeNode = GroupTreeNode | ExceptionTreeNode;
 
 export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>, vscode.Disposable {
   private readonly disposables: vscode.Disposable[];
