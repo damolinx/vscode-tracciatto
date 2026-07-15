@@ -410,7 +410,7 @@
             "properties": {
               "debugPort": {
                 "type": "string",
-                "description": "[hostname:]port or socket path to the rdbg DAP server."
+                "description": "[host:]port or socket path to the rdbg DAP server."
               },
               "localFs": {
                 "type": "boolean",
