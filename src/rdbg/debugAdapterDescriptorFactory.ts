@@ -106,19 +106,41 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
       });
     child.stderr.on('data', (chunk) => this.context.log.info(`>> ${chunk.toString().trim()}`));
     child.stdout.on('data', (chunk) => this.context.log.info(`> ${chunk}`));
-    const rdbgPort = await this.waitForRdbgPort(child);
-    this.context.log.info(`Launched rdbg. Pid: ${child.pid} Endpoint: ${LOCALHOST}:${rdbgPort}`);
 
-    return new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
+    let debugAdapter: vscode.DebugAdapterDescriptor;
+    if (config.socket) {
+      if ((await this.waitForSocket(config.socket, config.socketTimeoutMs)) === false) {
+        const message = `Socket not found: ${config.socket}.`;
+        this.context.log.error(message);
+        throw new Error(message);
+      }
+
+      this.context.log.info(`Launched rdbg. Pid: ${child.pid} Socket: ${config.socket}`);
+      debugAdapter = new vscode.DebugAdapterNamedPipeServer(config.socket);
+    } else {
+      const rdbgPort = await this.waitForRdbgPort(child);
+      this.context.log.info(`Launched rdbg. Pid: ${child.pid} Endpoint: ${LOCALHOST}:${rdbgPort}`);
+      debugAdapter = new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
+    }
+
+    return debugAdapter;
   }
 
   private buildArgs(config: LaunchConfiguration): string[] {
-    const { args = [], port, program } = config;
-    const mergedArgs = ['--open', '--port', (port ?? 0).toString()];
+    const args = ['--open'];
 
-    const resolvedRuntimeExecutable = this.resolveRuntimeExecutable(config);
-    mergedArgs.push('--command', ...resolvedRuntimeExecutable, '--', program, ...args);
-    return mergedArgs;
+    if (config.socket) {
+      args.push('--sock-path', config.socket);
+    } else {
+      args.push('--port', config.port?.toString() ?? '0');
+    }
+
+    args.push('--command', ...this.resolveRuntimeExecutable(config), '--', config.program);
+    if (config.args) {
+      args.push(...config.args);
+    }
+
+    return args;
   }
 
   private resolveRuntimeExecutable({ runtimeExecutable }: vscode.DebugConfiguration): string[] {

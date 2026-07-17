@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { DebugType } from '../../constants';
-import { DebugConfiguration } from './debugConfiguration';
+import { DebugType, LOCALHOST } from '../../constants';
+import { SocketDebugConfiguration, TcpDebugConfiguration } from './debugConfiguration';
 
-export interface LaunchConfiguration extends DebugConfiguration {
+export type LaunchConfiguration = (SocketDebugConfiguration | TcpDebugConfiguration) & {
   args?: string[];
   cwd?: string;
   env?: Record<string, string>;
   program: string;
   runtimeExecutable?: string;
-}
+};
 
 export function createLaunchConfiguration(
   uri: vscode.Uri,
@@ -22,6 +22,8 @@ export function createLaunchConfiguration(
     program: vscode.workspace.asRelativePath(uri.fsPath),
     cwd: vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? path.dirname(uri.fsPath),
     skipPaths: [],
+    host: LOCALHOST,
+    port: 0,
   } as LaunchConfiguration;
 
   return config;

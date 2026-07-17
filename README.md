@@ -239,10 +239,13 @@ The `tracciatto` debug type is implemented directly by this extension. It suppor
 | `env` | Environment variables passed to the Ruby program. |
 | `localfs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
 | `localfsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings, e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |
+| `port` | `[host:]port` path to the rdbg DAP server. |
 | `program` | Ruby file to debug (**required**). |
 | `rdbgPath` | Optional absolute path to rdbg. |
 | `runtimeExecutable` | Ruby command to run (`ruby` by default). |
 | `skipPaths` | Paths to skip when stepping. |
+| `socket` | Socket path to the rdbg DAP server. |
+| `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately. |
 
 #### Attach Properties
 
@@ -273,6 +276,7 @@ You must reload the window after installing, uninstalling, enabling, or disablin
 | `args` | Arguments passed to the Ruby program. |
 | `command` | Command name (`ruby`, `rake`, `bin/rails`, `bundle exec ruby`, etc). |
 | `cwd` | Working directory. |
+| `debugPort` | `[host:]port` endpoint or socket path to the rdbg DAP server. |
 | `env` | Environment variables passed to the Ruby program. |
 | `localfs` | Passthrough option forwarded directly to rdbg for local filesystem access configuration. |
 | `localfsMap` | Passthrough option forwarded directly to rdbg for mapping local filesystem paths. This is a comma-separated list of `remote_dir:local_dir` mappings. e.g. `/remote/folder1:/local/folderA,/remote/folder2:/local/folderB`. |

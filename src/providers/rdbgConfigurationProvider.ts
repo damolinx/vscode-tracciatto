@@ -20,11 +20,22 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
     super(context, 'rdbg');
   }
 
+  private hasDebugPort(
+    config: vscode.DebugConfiguration,
+  ): config is vscode.DebugConfiguration & { debugPort: string } {
+    return typeof (config as any).debugPort === 'string';
+  }
+
   protected override resolveAttachConfig(config: vscode.DebugConfiguration): string | undefined {
-    if (!config.debugPort) {
+    if (!this.hasDebugPort(config)) {
       return '"debugPort" must be defined';
     }
 
+    this.resolveDebugPort(config);
+    return;
+  }
+
+  private resolveDebugPort(config: vscode.DebugConfiguration & { debugPort: string }): void {
     const parsed = parseHostPort(config.debugPort);
     if (parsed) {
       config.host = parsed.host;
@@ -35,8 +46,6 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
       config.host = undefined;
       config.port = undefined;
     }
-
-    return;
   }
 
   protected override async resolveLaunchConfig(
@@ -48,8 +57,14 @@ export class RdbgConfigurationProvider extends DebugConfigurationProvider {
       return '"script" must be defined';
     }
     config.program ??= config.script;
+
+    if (this.hasDebugPort(config)) {
+      this.resolveDebugPort(config);
+    }
+
     config.runtimeExecutable =
       config.command?.trim() || (await this.resolveRuntimeExecutable(folder));
+
     return;
   }
 }

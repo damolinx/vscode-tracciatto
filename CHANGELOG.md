@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.3.8
+- Support port / socket use in `launch` configurations (previoulsy only `attach` configurations supported them).
 - Fix: use `localfs` instead of `localFs` (same for `localfsMap`) in `rdbg` configurations. 
 
 ## 0.3.7

@@ -19,15 +19,36 @@ export class TracciattoConfigurationProvider extends DebugConfigurationProvider 
   }
 
   protected override resolveAttachConfig(config: vscode.DebugConfiguration): string | undefined {
+    return this.resolvePortOrSocket(config, true);
+  }
+
+  protected override async resolveLaunchConfig(
+    config: vscode.DebugConfiguration,
+    folder?: vscode.WorkspaceFolder,
+    _token?: vscode.CancellationToken,
+  ): Promise<string | undefined> {
+    const validation = this.resolvePortOrSocket(config, false);
+    if (validation) {
+      return validation;
+    }
+
+    config.runtimeExecutable ??= await this.resolveRuntimeExecutable(folder);
+    return;
+  }
+
+  protected resolvePortOrSocket(
+    config: vscode.DebugConfiguration,
+    required: boolean,
+  ): string | undefined {
     const hasPort = !!config.port;
     const hasSocket = !!config.socket;
 
     if (hasPort && hasSocket) {
-      return '"port" and "socket" cannot both be defined to attach';
+      return '"port" and "socket" cannot both be defined';
     }
 
     if (!hasPort && !hasSocket) {
-      return '"port" or "socket" must be defined to attach';
+      return required ? '"port" or "socket" must be defined' : undefined;
     }
 
     if (hasPort) {
@@ -42,15 +63,6 @@ export class TracciattoConfigurationProvider extends DebugConfigurationProvider 
       return;
     }
 
-    return;
-  }
-
-  protected override async resolveLaunchConfig(
-    config: vscode.DebugConfiguration,
-    folder?: vscode.WorkspaceFolder,
-    _token?: vscode.CancellationToken,
-  ): Promise<string | undefined> {
-    config.runtimeExecutable ??= await this.resolveRuntimeExecutable(folder);
     return;
   }
 }

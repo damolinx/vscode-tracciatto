@@ -348,6 +348,10 @@
                 "type": "string",
                 "description": "Map local filesystem paths to remote paths."
               },
+              "port": {
+                "type": "string",
+                "description": "[host:]port path to the rdbg DAP server."
+              },
               "program": {
                 "type": "string",
                 "description": "Ruby file to debug",
@@ -368,6 +372,15 @@
                   "type": "string"
                 },
                 "description": "Paths to skip when stepping."
+              },
+              "socket": {
+                "type": "string",
+                "description": "Socket path to the rdbg DAP server."
+              },
+              "socketTimeoutMs": {
+                "type": "number",
+                "default": 5000,
+                "description": "Timeout in milliseconds for the rdbg socket to appear before failing."
               }
             }
           }
@@ -452,6 +465,10 @@
                 "type": "string",
                 "description": "Working directory",
                 "default": "${workspaceFolder}"
+              },
+              "debugPort": {
+                "type": "string",
+                "description": "[host:]port or socket path to the rdbg DAP server."
               },
               "env": {
                 "type": "object",

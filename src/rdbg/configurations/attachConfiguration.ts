@@ -1,19 +1,7 @@
 import { DebugType, LOCALHOST } from '../../constants';
-import { DebugConfiguration } from './debugConfiguration';
+import { SocketDebugConfiguration, TcpDebugConfiguration } from './debugConfiguration';
 
-export type AttachConfiguration =
-  | (DebugConfiguration & {
-      host?: never;
-      port?: never;
-      socket: string;
-      socketTimeoutMs?: number;
-    })
-  | (DebugConfiguration & {
-      port: number;
-      host: string;
-      socket?: never;
-      socketTimeoutMs?: never;
-    });
+export type AttachConfiguration = SocketDebugConfiguration | TcpDebugConfiguration;
 
 export function createAttachConfiguration(
   portOrSocket: string,
