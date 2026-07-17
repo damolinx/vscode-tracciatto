@@ -1,8 +1,11 @@
 # Changelog
 
+## 0.3.8
+- Fix: use `localfs` instead of `localFs` (same for `localfsMap`) in `rdbg` configurations. 
+
 ## 0.3.7
 - Add **Attach to Multiple…** command to start an attach session via a comma-separated list of `[host:]port` endpoints or socket paths.
-- Fix: use `localfs` instead of `localFs` (same for `localfsMap`) in all configurations. 
+- Fix: use `localfs` instead of `localFs` (same for `localfsMap`) in `tracciatto` configurations. 
 
 ## 0.3.6
 - Add **Set Maximum Inspected Value Length** command to adjust maximum inspected-length for current debug session.
