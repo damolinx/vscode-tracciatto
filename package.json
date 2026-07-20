@@ -158,7 +158,7 @@
           "tracciatto.logDapMessages": {
             "type": "boolean",
             "default": false,
-            "description": "Log Debug Adapter Protocol messages at trace level (for extension or DAP debugging)."
+            "markdownDescription": "Log Debug Adapter Protocol messages at **trace** level. This is useful for extension or DAP debugging."
           },
           "tracciatto.preferBundler": {
             "type": "boolean",
