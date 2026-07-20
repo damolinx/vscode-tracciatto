@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.3.9
+- **Attach to Multiple…** validates provided entries similarly to  **Attach to…**.
 - Update configuration snippets.
 - **Exception Filters** view:
   - Add the `LoadError` exception filter to **Built-in** category, enabled by default, so failed `require` calls no longer cause the debug session to terminate without any error notification.

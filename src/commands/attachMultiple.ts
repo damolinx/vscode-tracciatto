@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
-import { attach } from './attach';
+import { attach, validatePortOrSocket } from './attach';
 
 export async function attachMultiple(
   context: ExtensionContext,
@@ -22,21 +22,48 @@ async function showPortOrSocketInputBox(
   { extensionContext }: ExtensionContext,
   mruKey = 'attach.mruPortOrSockets',
 ): Promise<string[] | undefined> {
-  const mruValue = extensionContext.workspaceState.get<string>(mruKey);
-  const inputValue = await vscode.window.showInputBox({
-    prompt: 'Type a comma-separated list of [host:]port or socket paths',
-    placeHolder: 'e.g. 1234, /tmp/socket, localhost:5678',
-    value: mruValue,
-  });
+  return new Promise<string[] | undefined>((resolve) => {
+    const input = vscode.window.createInputBox();
+    input.ignoreFocusOut = true;
+    input.prompt = 'Type a comma-separated list of [host:]port or socket paths';
+    input.placeholder = 'e.g. 1234, /tmp/socket, localhost:5678';
 
-  const portOrSockets = inputValue
-    ?.split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (portOrSockets?.length) {
-    extensionContext.workspaceState.update(mruKey, portOrSockets.join(', '));
-    return portOrSockets;
+    input.onDidAccept(() => {
+      if (input.validationMessage) {
+        return;
+      }
+
+      const portOrSockets = input.value
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (portOrSockets?.length) {
+        extensionContext.workspaceState.update(mruKey, portOrSockets.join(', '));
+        input.hide();
+        resolve(portOrSockets);
+      }
+    });
+
+    input.onDidChangeValue((value) => {
+      input.validationMessage = validateListOfPortsOrSockets(value);
+    });
+
+    input.value = extensionContext.workspaceState.get(mruKey, '');
+    input.validationMessage = validateListOfPortsOrSockets(input.value);
+    input.show();
+  });
+}
+
+function validateListOfPortsOrSockets(value: string): string | undefined {
+  const normalizedValue = value.trim();
+  if (!normalizedValue) {
+    return;
   }
 
-  return;
+  return normalizedValue
+    .split(',')
+    .map((value) => [value, validatePortOrSocket(value.trim())])
+    .filter(([value, validation]) => value && validation)
+    .map(([value, validation]) => `${validation} (${value!.trim()})`)
+    .join(', ');
 }

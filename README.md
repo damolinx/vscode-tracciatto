@@ -302,7 +302,7 @@ The following commands are intended for quick verification of standalone scripts
 | Command | Description |
 |---------|-------------|
 | **Attach to…** | Attach to a `[host:]port` endpoint or socket path, e.g. "1234", "localhost:5678", or "/tmp/socket". When exactly **one workspace folder** is open, it is used as a source of [skip-paths](#skip-path-patterns). In multi‑root workspaces no folder is selected. The `tracciatto.skipPathsFileName` setting is always used as it is only defined in User settings. |
-| **Attach to Multiple…** | Attach to a comma-separated list of `[host:]port` endpoints or socket paths, e.g. "1234, /tmp/socket, localhost:5678". Input validation is intentionally minimal, as this is a convenience command. For a single target, prefer **Attach to…**. This command otherwise follows the same execution behavior as **Attach to…**. |
+| **Attach to Multiple…** | Attach to a comma-separated list of `[host:]port` endpoints or socket paths, e.g. "1234, /tmp/socket, localhost:5678" For a single target, prefer **Attach to…**. This command otherwise follows the same execution behavior as **Attach to…**. |
 | **Debug Active Editor** | Debugs the active Ruby editor. |
 | **Run Active Editor** | Executes the active Ruby file. |
 | **Set Maximum Inspected Value Length** | Sets the maximum length of inspected values for the **current debug session only**. This is useful when you temporarily need more (or less) detail in variable previews. To configure this permanently across all sessions, use the [`tracciatto.patchMaxInspectedValueLength` setting](#debug-protocol-overrides). |
