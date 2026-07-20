@@ -94,6 +94,23 @@ export class ExceptionManager implements vscode.Disposable {
     return this.exceptions.get(name)?.enabled ?? false;
   }
 
+  public removeAllExceptions(): number {
+    let count = 0;
+    for (const exception of this.exceptions.values()) {
+      if (exception.userDefined) {
+        this.exceptions.delete(exception.name);
+        this.onExceptionChangedEmitter.fire(exception);
+        count++;
+      }
+    }
+
+    if (count) {
+      this.save();
+    }
+
+    return count;
+  }
+
   public removeException(name: string): void {
     const exception = this.exceptions.get(name);
     if (!exception?.userDefined) {

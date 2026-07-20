@@ -2,8 +2,10 @@
 
 ## 0.3.9
 
-- Add the `LoadError` exception filter to **Built-in** exceptions, enabled by default, so failed `require` calls no longer cause the debug session to terminate without any error notification.
-- Fix: **Exception Filters** only become active during debugging when clicking the exception name, not the exception checkbox.
+- **Exception Filters** view:
+  - Add the `LoadError` exception filter to **Built-in** category, enabled by default, so failed `require` calls no longer cause the debug session to terminate without any error notification.
+  - Add **Remove All Exception Filters** button to **User** category. 
+  - Fix: Exception filters only become effectively active when clicking the exception name, not the exception checkbox.
 
 ## 0.3.8
 - Support port / socket use in `launch` configurations (previoulsy only `attach` configurations supported them).

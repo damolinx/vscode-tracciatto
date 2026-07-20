@@ -70,6 +70,12 @@
         "icon": "$(edit)"
       },
       {
+        "command": "tracciatto.removeAllException",
+        "title": "Remove All Exception Filters",
+        "category": "Tracciatto",
+        "icon": "$(close-all)"
+      },
+      {
         "command": "tracciatto.removeException",
         "title": "Remove Exception Filter",
         "category": "Tracciatto",
@@ -108,6 +114,11 @@
         {
           "command": "tracciatto.editException",
           "when": "view == tracciatto.exceptions && viewItem =~ /userException/",
+          "group": "inline"
+        },
+        {
+          "command": "tracciatto.removeAllException",
+          "when": "view == tracciatto.exceptions && viewItem =~ /userGroup/",
           "group": "inline"
         },
         {

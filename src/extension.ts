@@ -4,7 +4,7 @@ import { attach } from './commands/attach';
 import { attachMultiple } from './commands/attachMultiple';
 import { debugEditor } from './commands/debugFile';
 import { editException } from './commands/editException';
-import { removeException } from './commands/removeException';
+import { removeAllExceptions, removeException } from './commands/removeException';
 import { runEditor } from './commands/runFile';
 import { setMaxInspectedValueLength } from './commands/setMaxInspectedValueLength';
 import { toggleException } from './commands/toggleException';
@@ -39,6 +39,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     cr('tracciatto.editException', (nameOrNode: string | ExceptionTreeNode) =>
       editException(context, nameOrNode),
     ),
+    cr('tracciatto.removeAllException', () => removeAllExceptions(context)),
     cr('tracciatto.removeException', (nameOrNode: string | ExceptionTreeNode) =>
       removeException(context, nameOrNode),
     ),
