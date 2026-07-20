@@ -398,28 +398,42 @@
         },
         "configurationSnippets": [
           {
-            "label": "Tracciatto: Launch current file",
-            "description": "Debug the currently open Ruby file",
+            "label": "Tracciatto: Attach",
+            "description": "Attach to a running rdbg instance",
+            "body": {
+              "type": "tracciatto",
+              "request": "attach",
+              "name": "Attach to rdbg",
+              "port": "[host:]<port> if using port, otherwise remove and use socket",
+              "socket": "<socket path> if using socket connection, otherwise remove and use port",
+              "localfs": true,
+              "localfsMap": "<remote_dir:local_dir> mapping, remove this and localfs if not needed"
+            }
+          },
+          {
+            "label": "Tracciatto: Debug file",
+            "description": "Debug file",
             "body": {
               "type": "tracciatto",
               "request": "launch",
-              "name": "Debug current file",
-              "program": "^\"\\${file}\""
+              "name": "Debug file",
+              "program": "<path to a Ruby file>"
             }
           }
         ],
         "initialConfigurations": [
           {
             "type": "tracciatto",
-            "name": "Debug current file",
+            "name": "Debug file",
             "request": "launch",
-            "program": "${file}"
+            "program": "<path to a Ruby file>"
           },
           {
             "type": "tracciatto",
             "name": "Attach to rdbg",
             "request": "attach",
-            "port": 12345
+            "port": "[host:]<port> if using port, otherwise remove and use socket",
+            "socket": "<socket path> if using socket connection, otherwise remove and use port"
           }
         ]
       },

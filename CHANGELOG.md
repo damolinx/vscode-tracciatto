@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.3.9
-
+- Update configuration snippets.
 - **Exception Filters** view:
   - Add the `LoadError` exception filter to **Built-in** category, enabled by default, so failed `require` calls no longer cause the debug session to terminate without any error notification.
   - Add **Remove All Exception Filters** button to **User** category. 
