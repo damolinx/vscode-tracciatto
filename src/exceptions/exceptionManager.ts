@@ -44,6 +44,24 @@ export class ExceptionManager implements vscode.Disposable {
     return this.onExceptionRemovedEmitter.event;
   }
 
+  public addException(name: string, category: ExceptionCategory = 'User'): void {
+    const normalizedName = name.trim();
+    if (!normalizedName || this.exceptions.has(normalizedName)) {
+      return;
+    }
+
+    const exception = {
+      category,
+      enabled: false,
+      name: normalizedName,
+      userDefined: category === 'User' ? true : undefined,
+    } as Exception;
+
+    this.exceptions.set(normalizedName, exception);
+    this.onExceptionAddedEmitter.fire(exception);
+    this.save();
+  }
+
   public getAll(): Exception[] {
     return Array.from(this.exceptions.values());
   }
@@ -62,36 +80,18 @@ export class ExceptionManager implements vscode.Disposable {
     return exceptions;
   }
 
-  public getEnabled(): Exception[] {
+  public getByEnablement(enabled: boolean): Exception[] {
     const exceptions: Exception[] = [];
     for (const exception of this.exceptions.values()) {
-      if (exception.enabled) {
+      if (exception.enabled === enabled) {
         exceptions.push(exception);
       }
     }
     return exceptions;
   }
 
-  public isEnabled(name: string): boolean {
+  public isExceptionEnabled(name: string): boolean {
     return this.exceptions.get(name)?.enabled ?? false;
-  }
-
-  public addException(name: string, category: ExceptionCategory = 'User'): void {
-    const normalizedName = name.trim();
-    if (!normalizedName || this.exceptions.has(normalizedName)) {
-      return;
-    }
-
-    const exception = {
-      category,
-      enabled: false,
-      name: normalizedName,
-      userDefined: category === 'User' ? true : undefined,
-    } as Exception;
-
-    this.exceptions.set(normalizedName, exception);
-    this.onExceptionAddedEmitter.fire(exception);
-    this.save();
   }
 
   public removeException(name: string): void {

@@ -21,7 +21,7 @@ export class ExceptionSessionController extends SessionController {
     );
 
     await this.addCatchBreakpoints(
-      ...this.context.exceptionManager.getEnabled().map(({ name }) => name),
+      ...this.context.exceptionManager.getByEnablement(true).map(({ name }) => name),
     );
   }
 
