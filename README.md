@@ -363,13 +363,15 @@ To inspect template behavior, place breakpoints in controllers, helpers, or view
 
 ### Exception Filters
 
-The **Exception Filters** view provides a convenient way to manage Ruby exceptions that should trigger a breakpoint in rdbg. It is similar to its `catch` command, but provides significant advantages as these are applied automatically at the start of any type of debugging session, they can be easily toggled at any point, and you can maintain a custom list of exceptions specific to your project.
-Exceptions are categorized into two distinct groups:
+The **Exception Filters** view provides a convenient way to manage Ruby exceptions that should trigger a breakpoint in rdbg. It is similar to the `catch` command, but offers several advantages: filters are applied automatically at the start of every debugging session, can be toggled at any time, and allow you to maintain a project-specific list of exceptions.
 
-* **Built‑in Filters**: common Ruby exception classes offered by default; they are disabled by default and they **cannot be edited or removed**.
-* **User Filters**: custom list of Ruby exception classes (e.g., `NoMethodError`, `KeyError`, `ActiveRecord::RecordNotFound`) you define for the current workspace.
+Exceptions are organized into two groups:
 
-Exception filters can be toggled at any point in time, with the extension either applying in the next debug session start/launch or applying to the currently running ones.
+* **Built‑in Filters**: Common Ruby exception classes provided by the extension. Built‑in filters cannot be edited or removed, but they can be enabled or disabled as needed.
+  * `LoadError` is enabled by default because unresolved `require` statements and other code-loading failures can cause the debug session to terminate immediately without stopping in the debugger.
+* **User Filters**: Custom Ruby exception classes (for example, `NoMethodError`, `KeyError`, or `ActiveRecord::RecordNotFound`) defined for the current workspace.
+
+Exception filters can be toggled at any time, and their state is saved across debugging sessions. Changes are either applied immediately to active debug sessions or automatically applied when the next debugging session starts.
 
 [↑ Back to top](#table-of-contents)
 

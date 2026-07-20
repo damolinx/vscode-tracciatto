@@ -141,18 +141,19 @@ export class ExceptionManager implements vscode.Disposable {
   }
 
   private initializeDefaults(): void {
-    const builtIns = [
-      'ArgumentError',
-      'EncodingError',
-      'IndexError',
-      'KeyError',
-      'NameError',
-      'NoMethodError',
-      'TypeError',
+    const exceptions: Exception[] = [
+      { category: 'Built-in', name: 'ArgumentError' },
+      { category: 'Built-in', name: 'EncodingError' },
+      { category: 'Built-in', name: 'IndexError' },
+      { category: 'Built-in', name: 'KeyError' },
+      { category: 'Built-in', name: 'LoadError', enabled: true, defaultEnabled: true },
+      { category: 'Built-in', name: 'NameError' },
+      { category: 'Built-in', name: 'NoMethodError' },
+      { category: 'Built-in', name: 'TypeError' },
     ];
 
-    for (const name of builtIns) {
-      this.exceptions.set(name, { category: 'Built-in', name });
+    for (const exception of exceptions) {
+      this.exceptions.set(exception.name, exception);
     }
   }
 
@@ -179,7 +180,7 @@ export class ExceptionManager implements vscode.Disposable {
     const data: Record<string, boolean> = {};
 
     for (const ex of this.exceptions.values()) {
-      if (ex.userDefined || ex.enabled) {
+      if (ex.userDefined || ex.enabled !== ex.defaultEnabled) {
         data[ex.name] = Boolean(ex.enabled);
       }
     }

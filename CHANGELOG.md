@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.9
+
+- Add the `LoadError` exception filter to **Built-in** exceptions, enabled by default, so failed `require` calls no longer cause the debug session to terminate without any error notification.
+- Fix: **Exception Filters** only become active during debugging when clicking the exception name, not the exception checkbox.
+
 ## 0.3.8
 - Support port / socket use in `launch` configurations (previoulsy only `attach` configurations supported them).
 - Fix: use `localfs` instead of `localFs` (same for `localfsMap`) in `rdbg` configurations. 

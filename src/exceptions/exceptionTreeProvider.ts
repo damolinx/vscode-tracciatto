@@ -17,6 +17,16 @@ export function registerExceptionTree(context: ExtensionContext): void {
   context.disposables.push(
     treeDataProvider,
     treeView,
+    treeView.onDidChangeCheckboxState(({ items }) => {
+      for (const [node, state] of items) {
+        if (node.type === 'exception') {
+          context.exceptionManager.setExceptionEnabled(
+            node.exception.name,
+            state === vscode.TreeItemCheckboxState.Checked,
+          );
+        }
+      }
+    }),
     exceptionManager.onExceptionAdded(handler),
     exceptionManager.onExceptionChanged(handler),
   );
@@ -62,12 +72,16 @@ export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>,
   }
 
   public getTreeItem(node: TreeNode): vscode.TreeItem {
-    if (node.type === 'category') {
-      const groupItem = new vscode.TreeItem(
-        node.category,
-        vscode.TreeItemCollapsibleState.Expanded,
-      );
-      if (node.category === 'User') {
+    switch (node.type) {
+      case 'category':
+        return getCategoryTreeItem(node);
+      case 'exception':
+        return getExceptionTreeItem(node);
+    }
+
+    function getCategoryTreeItem({ category }: GroupTreeNode): vscode.TreeItem {
+      const groupItem = new vscode.TreeItem(category, vscode.TreeItemCollapsibleState.Expanded);
+      if (category === 'User') {
         groupItem.contextValue = 'userGroup';
         groupItem.tooltip =
           'User-defined exception filters. You can add or remove filters in this group.';
@@ -77,18 +91,22 @@ export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>,
       return groupItem;
     }
 
-    const {
-      exception: { enabled, name, userDefined },
-    } = node;
-    const item = new vscode.TreeItem(name);
-    item.checkboxState = enabled
-      ? { state: vscode.TreeItemCheckboxState.Checked, tooltip: 'Exception filter enabled' }
-      : { state: vscode.TreeItemCheckboxState.Unchecked, tooltip: 'Exception filter disabled' };
-    item.command = { command: 'tracciatto.toggleException', title: '', arguments: [name] };
-    if (userDefined) {
-      item.contextValue = 'userException';
+    function getExceptionTreeItem({
+      exception: { enabled, defaultEnabled, name, userDefined },
+    }: ExceptionTreeNode): vscode.TreeItem {
+      const item = new vscode.TreeItem(name);
+      item.checkboxState = enabled
+        ? { state: vscode.TreeItemCheckboxState.Checked, tooltip: 'Exception filter enabled' }
+        : { state: vscode.TreeItemCheckboxState.Unchecked, tooltip: 'Exception filter disabled' };
+      item.command = { command: 'tracciatto.toggleException', title: '', arguments: [name] };
+
+      if (userDefined) {
+        item.contextValue = 'userException';
+      } else {
+        item.tooltip = `${name} ${defaultEnabled ? '(enabled by default)' : '(disabled by default)'}`;
+      }
+      return item;
     }
-    return item;
   }
 
   public getChildren(node?: TreeNode): TreeNode[] | undefined {
