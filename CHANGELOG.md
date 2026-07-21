@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.10
+- Upgrade minimum VS Code version to 1.125.
+
 ## 0.3.9
 - **Attach to Multiple…** validates provided entries similarly to  **Attach to…**.
 - Update configuration snippets.
