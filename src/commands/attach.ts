@@ -2,12 +2,12 @@ import * as vscode from 'vscode';
 import { spawn } from 'child_process';
 import { lstatSync } from 'fs';
 import { isAbsolute } from 'path';
-import { NaturalComparer } from '../exceptions/utils';
 import { ExtensionContext } from '../extensionContext';
 import {
   createAttachConfiguration,
   parseHostPort,
 } from '../rdbg/configurations/attachConfiguration';
+import { NaturalComparer } from '../utils/comparer';
 
 export async function attach(context: ExtensionContext, portOrSocket?: string): Promise<boolean> {
   const targetPortOrSocket = portOrSocket ?? (await showPortOrSocketInputBox(context));
