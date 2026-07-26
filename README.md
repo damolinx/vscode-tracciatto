@@ -1,16 +1,16 @@
 # Tracciatto
 
-This extension provides Ruby debugging using the [**debug**](https://github.com/ruby/debug) library. It supports the official [`rdbg`](#rdbg-vscoderdbg) debug‑type and also offers a custom [`tracciatto`](#tracciatto-1) debug‑type that follows a schema closer to other VS Code debugger types.
+This extension provides Ruby debugging based on the [**debug**](https://github.com/ruby/debug) library. It supports the official [`rdbg`](#rdbg-vscoderdbg) debug‑type and also offers a custom [`tracciatto`](#tracciatto-1) debug‑type that follows a schema closer to other VS Code debugger types.
 
-- **Multi‑root** workspaces  
+- Support for **multi-root** workspaces
 - Multiple concurrent Ruby debug sessions  
-- [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints via UI  
+- [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints through the UI  
 - Flexible [**skip‑path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file  
 
 - [Customizable](#debug-protocol-overrides) **debug** library behavior:
 
   - Alter the maximum inspected‑string length from the [default 180 characters](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779)
-  - Activate **Set Value** support for variabls in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
+  - Activate **Set Value** support for variables in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
 <p align=center>
 <img width="600" alt="VS Code in Debug mode, with new Exception Filters window visible" src="https://github.com/user-attachments/assets/916957a6-9a11-43a4-a2b9-6479b7b572d4" />
@@ -59,11 +59,11 @@ Tracciatto uses **rdbg** to support the two main debugging workflows:
     }
     ```
 
-2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session session using the launch configuration. 
+2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session using the launch configuration. 
 
 #### Option 2: Debug command
 
-1. Run the **Tracciatto: Debug Active Editor** command
+1. Run the **Tracciatto: Debug Active Editor** command.
 
 This command uses an internal debug configuration, so `.vscode/launch.json` is not needed or updated in any way.
 
@@ -88,7 +88,7 @@ Alternatively, you can modify your code to launch the debugger explicitly when n
   require 'debug/open'
 ```
 
-In all cases, the **debug** library will print a `DEBUGGER: Debugger can attach via ...` message which includes the socket or port number to attach to.
+In all cases, the **debug** library will print a `DEBUGGER: Debugger can attach via ...` message which includes the socket or port to attach to.
 
 Once the port or socket are setup, you can use one of the following options to attach to it.
 
@@ -116,13 +116,13 @@ Once the port or socket are setup, you can use one of the following options to a
     }
     ```
 
-2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session session using the launch configuration. 
+2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session using the launch configuration. 
 
 #### Option 2: Attach-to command
 
-1. Run the **Tracciatto: Attach To…** command
+1. Run the **Tracciatto: Attach To…** command.
 
-2. Provide the socket path or the port number to attach to.
+2. Provide the socket path or the port to attach to.
 
 
 [↑ Back to top](#table-of-contents)
@@ -181,7 +181,7 @@ The environment is calculated once and cached, with invalidation rules. If the e
 
 The following managers are supported:
 
-- `none`: Tracciatto does not use any version manager. Ruby is launched exactly as configured in your debug configuration or as found on your system PATH.
+- `none`: Tracciatto does not use any version manager. Ruby is launched exactly as configured in your debug configuration or as found on your system `PATH`.
 - `asdf`: Use `asdf` to resolve the Ruby version and environment.
 - `rbenv`: Use `rbenv` to resolve the Ruby version and environment.
 - `rvm`: Use RVM to resolve the Ruby version and environment.
@@ -263,11 +263,9 @@ The `tracciatto` debug type is implemented directly by this extension. It suppor
 
 This extension supports the `rdbg` debug type, normally contributed by the **vscode‑rdbg** extension. Most configuration properties are supported, while unsupported ones are safely ignored. When a property is not directly supported, it is typically because an equivalent capability is already provided through a configuration setting.
 
-Tracciatto **automatically disables** its `rdbg` debug-type support if the `vscode‑rdbg` extension is installed to prevent having both extensions attempting to claim the same debug type. This happens even if the `vscode‑rdbg` extension is disabled as VS Code does not provide a reliable way to determine another extension's activation state or distinguish between "disabled" and "not yet activated".
+Tracciatto automatically disables its `rdbg` debug-type support when `vscode-rdbg` is installed to avoid conflicts. Use `tracciatto.forceEnableRdbgDebugType` if you want to experiment with Tracciatto's implementation instead. VS Code behavior means that hichever extension attempts registration second will fail, but Tracciatto handles this situation gracefully with a log entry. This setting exists so you can experiment with Tracciatto by simply disabling `vscode‑rdbg` instead of having to uninstall it.
 
-The `tracciatto.forceEnableRdbgDebugType` setting allows to force `rdbg` registration even when `vscode‑rdbg` is installed, as long as it is inactive at registration time. Note that whichever extension attempts registration second will fail, although Tracciatto handles this situation gracefully a log entry. This setting exists so users can experiment with Tracciatto by simply disabling `vscode‑rdbg` instead of having to uninstall it.
-
-You must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg** as dbug-type registration only happens during extension activation. Check the [logs](#logs) to confirm which debug-types are active.
+You must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg** as debug-type registration only happens during extension activation. Check the [logs](#logs) to confirm which debug-types are active.
 
 #### Launch Properties
 
