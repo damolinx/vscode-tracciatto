@@ -199,7 +199,7 @@
           "tracciatto.skipPathsFileName": {
             "type": "string",
             "default": ".tracciatto-filter",
-            "markdownDescription": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with '#' are ignored."
+            "markdownDescription": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with `#` are ignored."
           },
           "tracciatto.socketSearchRoot": {
             "type": "string",
