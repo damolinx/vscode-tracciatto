@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { ExtensionContext } from '../extensionContext';
+import { NaturalComparer } from '../utils/comparer';
 import { Exception, EXCEPTION_CATEGORIES, ExceptionCategory } from './exception';
 import { ExceptionManager } from './exceptionManager';
-import { NaturalComparer } from '../utils/comparer';
 
 export function registerExceptionTree(context: ExtensionContext): void {
   const treeDataProvider = new ExceptionTreeProvider(context);
