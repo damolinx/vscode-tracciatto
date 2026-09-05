@@ -9,6 +9,7 @@ export type LaunchConfiguration = (SocketDebugConfiguration | TcpDebugConfigurat
   env?: Record<string, string>;
   program: string;
   runtimeExecutable?: string;
+  useTerminal?: boolean;
 };
 
 export function createLaunchConfiguration(
@@ -21,9 +22,10 @@ export function createLaunchConfiguration(
     name: `Debug ${path.basename(uri.fsPath)}`,
     program: vscode.workspace.asRelativePath(uri.fsPath),
     cwd: vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? path.dirname(uri.fsPath),
-    skipPaths: [],
     host: LOCALHOST,
     port: 0,
+    skipPaths: [],
+    useTerminal: false,
   } as LaunchConfiguration;
 
   return config;

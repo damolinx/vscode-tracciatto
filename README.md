@@ -79,13 +79,11 @@ Starts a Ruby script under the debugger.
       "type": "tracciatto",
       "request": "launch",
       "name": "Debug current file",
-      // ${file} is convenient for initial testing, but it resolves to whatever
-      // editor is active. VS Code does not restrict this to Ruby files, so you
-      // may end up trying to debug a text file or even an Output channel.
-      // Prefer a deterministic path like `${workspaceFolder}/my_script.rb`.
-      "program": "${file}"
+      "program": "${workspaceFolder}/my_script.rb"
     }
     ```
+
+    Enable `useTerminal` for programs that read from standard input, e.g. when using `gets`, `readline`.
 
 2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session using the launch configuration. 
 
@@ -113,12 +111,12 @@ Alternatively, you can modify your code to launch the debugger explicitly when n
 
 **Example: Start the debugger programmatically**
 ```ruby
-  require 'debug/open'
+require 'debug/open'
 ```
 
 In all cases, the **debug** library will print a `DEBUGGER: Debugger can attach via ...` message which includes the socket or port to attach to.
 
-Once the port or socket are setup, you can use one of the following options to attach to it.
+Once the port or socket is set up, you can use one of the following options to attach to it:
 
 #### Option 1: Launch configuration
 
@@ -276,6 +274,7 @@ The `tracciatto` debug type is implemented directly by this extension. It suppor
 | `skipPaths` | Paths to skip when stepping. |
 | `socket` | Socket path to the rdbg DAP server. |
 | `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately. |
+| `useTerminal` | Launch the debuggee in a terminal. Useful for programs that require terminal input (`gets`, `readline`, etc.). Tracciatto always uses a socket for debugging in this mode, ignoring any `port` configuration. |
 
 #### Attach Properties
 
@@ -312,6 +311,7 @@ You must reload the window after installing, uninstalling, enabling, or disablin
 | `script` | Absolute path to a Ruby file (**required**). |
 | `showProtocolLog` | Log DAP communication messages. Prefer `tracciatto.logDapMessages` [setting](#configuration). |
 | `useBundler` | Use `bundle exec` to run Ruby program. Prefer `tracciatto.preferBundler` [setting](#configuration). |
+| `useTerminal` | Launch the debuggee in a terminal. Useful for programs that require terminal input (`gets`, `readline`, etc.). Tracciatto always uses a socket for debugging in this mode, ignoring any `port` configuration. |
 
 #### Attach Properties
 
@@ -420,7 +420,7 @@ Any `launch`‑type configuration may define skip‑paths via the `skipPaths` pr
 {
   "type": "tracciatto",
   "request": "launch",
-  "program": "${file}",
+  "program": "${workspaceFolder}/my_script.rb",
   "skipPaths": ["sorbet-runtime-*"]
 }
 ```

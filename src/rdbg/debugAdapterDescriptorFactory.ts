@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
+import { randomUUID } from 'crypto';
 import { existsSync } from 'fs';
-import { isAbsolute } from 'path';
+import { tmpdir } from 'os';
+import { isAbsolute, join } from 'path';
 import { createInterface as createReadlineInterface } from 'readline';
 import { DebugType, LOCALHOST } from '../constants';
 import { ExtensionContext } from '../extensionContext';
@@ -33,7 +35,10 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
         return this.createAttachAdapter(id, configuration as AttachConfiguration);
       }
       case 'launch': {
-        return this.createLaunchAdapter(configuration as LaunchConfiguration, workspaceFolder);
+        const launchConfig = configuration as LaunchConfiguration;
+        return launchConfig.useTerminal
+          ? this.createTerminalLaunchAdapter(launchConfig, workspaceFolder)
+          : this.createLaunchAdapter(launchConfig, workspaceFolder);
       }
       default:
         throw new Error(`Unsupported debug configuration type: ${configuration.request}`);
@@ -53,16 +58,16 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
       }
     }
 
-    const { socket } = config;
+    const { socket, socketTimeoutMs } = config;
     if (socket) {
-      if ((await this.waitForSocket(socket, config.socketTimeoutMs)) === false) {
+      if ((await this.waitForSocket(socket, socketTimeoutMs)) === false) {
         const message = `Socket not found: ${socket}.`;
         this.context.log.error(message);
         throw new Error(message);
       }
 
-      this.context.log.info(`Attaching via socket: ${config.socket}`);
-      return new vscode.DebugAdapterNamedPipeServer(config.socket);
+      this.context.log.info(`Attaching via socket: ${socket}`);
+      return new vscode.DebugAdapterNamedPipeServer(socket);
     }
 
     const { host, port } = config;
@@ -107,7 +112,6 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     child.stderr.on('data', (chunk) => this.context.log.info(`>> ${chunk.toString().trim()}`));
     child.stdout.on('data', (chunk) => this.context.log.info(`> ${chunk}`));
 
-    let debugAdapter: vscode.DebugAdapterDescriptor;
     if (config.socket) {
       if ((await this.waitForSocket(config.socket, config.socketTimeoutMs)) === false) {
         const message = `Socket not found: ${config.socket}.`;
@@ -116,14 +120,52 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
       }
 
       this.context.log.info(`Launched rdbg. Pid: ${child.pid} Socket: ${config.socket}`);
-      debugAdapter = new vscode.DebugAdapterNamedPipeServer(config.socket);
+      return new vscode.DebugAdapterNamedPipeServer(config.socket);
     } else {
       const rdbgPort = await this.waitForRdbgPort(child);
       this.context.log.info(`Launched rdbg. Pid: ${child.pid} Endpoint: ${LOCALHOST}:${rdbgPort}`);
-      debugAdapter = new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
+      return new vscode.DebugAdapterServer(rdbgPort, LOCALHOST);
+    }
+  }
+
+  private async createTerminalLaunchAdapter(
+    config: LaunchConfiguration,
+    folder?: vscode.WorkspaceFolder,
+  ): Promise<vscode.DebugAdapterDescriptor> {
+    if (!config.socket) {
+      config.socket = join(tmpdir(), `tracciatto-${randomUUID().substring(0, 8)}.sock`);
+      delete config.host;
+      delete config.port;
+    }
+    this.context.log.info(`Terminal debugging using socket: ${config.socket}`);
+
+    const args = this.buildArgs(config);
+    const cmd = config.rdbgPath || 'rdbg';
+    this.context.log.info(
+      `Terminal: "${cmd} ${args.join(' ').replace(/"/g, '\\"')}"${config.cwd ? ` Cwd: '${config.cwd}'` : ''}`,
+    );
+
+    const terminal = vscode.window.createTerminal({
+      name: `Debug ${config.program}`,
+      cwd: config.cwd,
+      env: {
+        ...(await this.context.rubyEnvProvider.resolveEnv(folder)),
+        ...config.env,
+      },
+      isTransient: true,
+      shellPath: cmd,
+      shellArgs: args,
+    });
+    terminal.show();
+
+    if ((await this.waitForSocket(config.socket, config.socketTimeoutMs)) === false) {
+      const message = `Socket not found: ${config.socket}.`;
+      this.context.log.error(message);
+      terminal.dispose();
+      throw new Error(message);
     }
 
-    return debugAdapter;
+    return new vscode.DebugAdapterNamedPipeServer(config.socket);
   }
 
   private buildArgs(config: LaunchConfiguration): string[] {
@@ -169,7 +211,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     );
   }
 
-  private async waitForRdbgPort(child: cp.ChildProcessWithoutNullStreams) {
+  private async waitForRdbgPort(child: cp.ChildProcessWithoutNullStreams): Promise<number> {
     const readline = createReadlineInterface({ input: child.stderr });
     const rdbgPort = await new Promise<number>((resolve, reject) => {
       let firstLine: string | undefined;

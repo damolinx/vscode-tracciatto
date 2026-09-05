@@ -198,7 +198,7 @@
           },
           "tracciatto.skipPathsFileName": {
             "type": "string",
-            "default": ".tracciatto-filter",
+            "default": ".tracciatto-skip-paths",
             "markdownDescription": "Filename containing skip path patterns. Each line contains a single pattern; lines starting with `#` are ignored."
           },
           "tracciatto.socketSearchRoot": {
@@ -392,6 +392,11 @@
                 "type": "number",
                 "default": 5000,
                 "description": "Timeout in milliseconds for the rdbg socket to appear before failing."
+              },
+              "useTerminal": {
+                "type": "boolean",
+                "default": false,
+                "description": "Launch inside a terminal. This enables interactive input (stdin) for programs that prompt the user."
               }
             }
           }
@@ -412,12 +417,23 @@
           },
           {
             "label": "Tracciatto: Debug file",
-            "description": "Debug file",
+            "description": "Debug a Ruby file",
             "body": {
               "type": "tracciatto",
               "request": "launch",
               "name": "Debug file",
-              "program": "<path to a Ruby file>"
+              "program": "${workspaceFolder}/path/to/file.rb"
+            }
+          },
+          {
+            "label": "Tracciatto: Debug file (terminal)",
+            "description": "Debug a Ruby file using a terminal",
+            "body": {
+              "type": "tracciatto",
+              "request": "launch",
+              "name": "Debug file (terminal)",
+              "program": "${workspaceFolder}/path/to/file.rb",
+              "useTerminal": true
             }
           }
         ],
@@ -426,7 +442,7 @@
             "type": "tracciatto",
             "name": "Debug file",
             "request": "launch",
-            "program": "<path to a Ruby file>"
+            "program": "${workspaceFolder}/path/to/file.rb"
           },
           {
             "type": "tracciatto",
@@ -525,6 +541,11 @@
                 "type": "boolean",
                 "description": "Use `bundle exec` to run Ruby program",
                 "default": false
+              },
+              "useTerminal": {
+                "type": "boolean",
+                "default": false,
+                "description": "Launch inside a terminal. This enables interactive input (stdin) for programs that prompt the user."
               }
             }
           }

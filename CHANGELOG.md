@@ -2,6 +2,10 @@
 
 ## 0.3.10
 - Upgrade minimum VS Code version to 1.125.
+- Add `useTerminal` configuration option to `tracciatto` and `rdbg` debug types.
+  - Enables debugging programs that require terminal input (`gets`, `readline`, etc.).
+  - Improves backwards compatibility with `rdbg` launch configurations.
+  - Terminal-mode uses a temporary debug socket, when `socket` is not defined, avoiding endpoint conflicts and improving support for concurrent debug sessions.
 
 ## 0.3.9
 - **Attach to Multiple…** validates provided entries similarly to  **Attach to…**.
