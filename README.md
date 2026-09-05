@@ -1,12 +1,11 @@
 # Tracciatto
 
-This extension provides Ruby debugging based on the [**debug**](https://github.com/ruby/debug) library. It supports the official [`rdbg`](#rdbg-vscoderdbg) debug‑type and also offers a custom [`tracciatto`](#tracciatto-1) debug‑type that follows a schema closer to other VS Code debugger types.
+This extension provides Ruby debugging based on the [**debug**](https://github.com/ruby/debug) library. It supports both the official [`rdbg`](#rdbg-vscoderdbg) debug‑type and a custom [`tracciatto`](#tracciatto-1) debug-type while adding several workflow and usability improvements.
 
 - Support for **multi-root** workspaces
-- Multiple concurrent Ruby debug sessions  
+- Multiple **concurrent Ruby debug sessions**  
 - [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints through the UI  
 - Flexible [**skip‑path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file  
-
 - [Customizable](#debug-protocol-overrides) **debug** library behavior:
 
   - Alter the maximum inspected‑string length from the [default 180 characters](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779)
@@ -17,6 +16,8 @@ This extension provides Ruby debugging based on the [**debug**](https://github.c
 </p>
 
 ## Table of Contents
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
 - [Getting Started](#getting-started)
   - [Launching a debug session](#launching-a-debug-session)
   - [Attaching to a running process](#attaching-to-a-running-process)
@@ -33,14 +34,41 @@ This extension provides Ruby debugging based on the [**debug**](https://github.c
 - [Skip-Path Patterns](#skip-path-patterns)
 - [Logs](#logs)
 
+## Requirements
+Tracciatto uses the Ruby **debug** gem and its `rdbg` executable.
+
+Before debugging, make sure:
+- The `debug` gem is installed
+- The `rdbg` command is available in your `PATH`
+
+Example:
+
+```sh
+gem install debug
+```
+
+For Bundler-managed projects, make sure dependencies have been installed:
+
+```sh
+bundle install
+```
+
+Tracciatto automatically prefers `bundle exec` when a `Gemfile` is present (enabled by default, see [tracciatto.preferBundler](#configuration)).
+
+## Quick Start
+
+1. Open a Ruby file.
+2. Set a breakpoint with F9.
+3. Run the **Tracciatto: Debug Active Editor** command.
+4. Start debugging.
+
+For reusable workflows, create a [launch configuration](#launching-a-debug-session).
+
 ## Getting Started
 
-Tracciatto uses **rdbg** to support the two main debugging workflows:
-
-- **Launch**: VS Code starts a Ruby script under the debugger.
-- **Attach**: VS Code connects to an already running Ruby process started with `rdbg`.
-
 ### Launching a debug session
+
+Starts a Ruby script under the debugger.
 
 #### Option 1: Launch configuration
 
@@ -69,7 +97,7 @@ This command uses an internal debug configuration, so `.vscode/launch.json` is n
 
 ### Attaching to a running process
 
-To attach to a running Ruby process, you must have started it with `rdbg` in attach mode. Refer to the debug library [documentation](https://github.com/ruby/debug#invoke-as-a-remote-debuggee) for details.
+Connect to an already running Ruby process started with `rdbg`. To be able to attach, you must have started the process with `rdbg` in attach mode. Refer to the debug library [documentation](https://github.com/ruby/debug#invoke-as-a-remote-debuggee) for details.
 
 **Example: Start a script with the debugger open on a given port**
 ```sh
@@ -118,7 +146,7 @@ Once the port or socket are setup, you can use one of the following options to a
 
 2. [Start](https://code.visualstudio.com/docs/debugtest/debugging-configuration#_start-a-debugging-session-with-a-launch-configuration) your debugging session using the launch configuration. 
 
-#### Option 2: Attach-to command
+#### Option 2: Attach To… command
 
 1. Run the **Tracciatto: Attach To…** command.
 
@@ -146,28 +174,30 @@ Tracciatto supports the following user and workspace settings:
 
 The following settings customize debugger behavior by modifying specific Debug Adapter Protocol messages. They affect UI surfaces that render debugger results like the **Variables** and **Watches** views, or the **Debug** console itself.
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| `tracciatto.patchMaxInspectedValueLength` | Changes the maximum length of text returned from the debugger for inspected values. `rdbg` [sets](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L776) this to be 180. Changes to this setting apply on the next step or evaluation. | 180 |
-| `tracciatto.patchSimpleTypeExpansion` | Prevents simple types from appearing as expandable in debugger views like **Watches**. Changes to this setting apply on the next step or evaluation. | `true` |
-| `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action. Changes to this setting apply on the next debug session. | `false` |
+| Setting | Description | Active | Default |
+|---------|-------------|--------|---------|
+| `tracciatto.patchMaxInspectedValueLength` | Changes the maximum length of text returned from the debugger for inspected values. `rdbg` [defaults](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L776) this to be 180. | Next step / evaluation | 180 |
+| `tracciatto.patchSimpleTypeExpansion` | Prevents simple types from appearing as expandable in debugger views like **Watches**. | Next step / evaluation |  `true` |
+| `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action.| Next debug session | `false` |
 
 These changes are protocol‑compliant, but they modify low‑level DAP behavior and can be disabled if they cause issues.
 
 #### `tracciatto.patchSimpleTypeExpansion`
-Simple types: `Complex`, `BigDecimal`, `FalseClass`, `Float`, `Integer`, `NilClass`, `Rational`, `Regexp`, `String`, `Symbol`, `Time`, `TrueClass`
+Simple types include: `Complex`, `BigDecimal`, `FalseClass`, `Float`, `Integer`, `NilClass`, `Rational`, `Regexp`, `String`, `Symbol`, `Time`, and `TrueClass`.
 
 #### `tracciatto.patchSetVariable`
-**Set Value** is sensitive to context and variable types, and some scenarios may never be possible from the extension side (in those cases, `rdbg` is the only reliable source). When a scenario cannot be performed, you will see a *"can't set value"* error.
+The custom support for the **Set Value** action in the **Watch** and **Variables** views is sensitive to context and variable type; some values cannot be assigned. When this occurs, the **Debug Console** may still provide an alternative way to modify state using a Ruby expression.
 
-The extension cannot distinguish between an exception being *raised* and an exception object being *returned* as a value due to lack of context coming from *rdbg*. As a result, the following error types, commonly associated with invalid input, are always treated as failures, and it is not possible to assign any of them using **Set Value**: `ArgumentError`, `FrozenError`, `KeyError`, `NameError`, `NoMethodError`, `RangeError`, `RuntimeError`, `SyntaxError`, `TypeError`, `ZeroDivisionError`.
+The extension cannot distinguish between an exception being *raised* (e.g. when trying to set a frozen object) and one being *returned* (e.g. when setting a value to a specific exception instance), as the debugging protocol does not provide enough information.
+
+The following error types commonly associated with invalid input are therefore always treated as failures, meaning it is not possible to assign an instance of them using **Set Value**: `ArgumentError`, `FrozenError`, `KeyError`, `NameError`, `NoMethodError`, `RangeError`, `RuntimeError`, `SyntaxError`, `TypeError`, `ZeroDivisionError`.
 
 [↑ Back to top](#table-of-contents)
 
 ### Version Managers
 
 | Setting | Description | Default |
-|--------|-------------|---------|
+|---------|-------------|---------|
 | `tracciatto.rubyEnvironmentManager` | Select a version manager: `none`, `asdf`, `rbenv`, `rvm`, or use `custom` to provide your own command via `tracciatto.customRubyEnvironmentCommand`. See [Managers](#managers) for details. | `none` |
 | `tracciatto.customRubyEnvironmentCommand` | A command-line used to retrieve the Ruby environment. See [Custom Managers](#custom-managers) for details. | |
 | `tracciatto.customRubyEnvironmentCommandOutputFormat` | Specifies the output format of the command defined by the `tracciatto.customRubyEnvironmentCommand` setting. | `json`|
@@ -226,7 +256,7 @@ This extension provides two debugger types for Ruby, both powered by the [**debu
 
 Both debugger types are fully usable, and you can choose whichever best fits your workflow.
 
-### tracciatto
+### `tracciatto`
 
 The `tracciatto` debug type is implemented directly by this extension. It supports both **launch** and **attach** modes with the following properties:
 
@@ -259,11 +289,11 @@ The `tracciatto` debug type is implemented directly by this extension. It suppor
 | `socket` | Socket path to the rdbg DAP server. |
 | `socketTimeoutMs` | Timeout in milliseconds for the rdbg socket to appear before failing. Set to `0` to fail immediately. |
 
-### rdbg (vscode‑rdbg)
+### `rdbg` (vscode‑rdbg)
 
-This extension supports the `rdbg` debug type, normally contributed by the **vscode‑rdbg** extension. Most configuration properties are supported, while unsupported ones are safely ignored. When a property is not directly supported, it is typically because an equivalent capability is already provided through a configuration setting.
+This extension supports the `rdbg` debug type, normally contributed by the **vscode‑rdbg** extension. Most configuration properties are supported, while unsupported ones are ignored. When a property is not directly supported, it is typically because an equivalent capability is already provided through a configuration setting.
 
-Tracciatto automatically disables its `rdbg` debug-type support when `vscode-rdbg` is installed to avoid conflicts. Use `tracciatto.forceEnableRdbgDebugType` if you want to experiment with Tracciatto's implementation instead. VS Code behavior means that hichever extension attempts registration second will fail, but Tracciatto handles this situation gracefully with a log entry. This setting exists so you can experiment with Tracciatto by simply disabling `vscode‑rdbg` instead of having to uninstall it.
+Tracciatto automatically disables its `rdbg` debug-type support when `vscode-rdbg` is installed to avoid conflicts. Use `tracciatto.forceEnableRdbgDebugType` if you want to experiment with Tracciatto's implementation instead. VS Code behavior means that whichever extension attempts registration second will fail, but Tracciatto handles this situation gracefully with a log entry. This setting exists so you can experiment with Tracciatto by simply disabling `vscode‑rdbg` instead of having to uninstall it.
 
 You must reload the window after installing, uninstalling, enabling, or disabling **vscode‑rdbg** as debug-type registration only happens during extension activation. Check the [logs](#logs) to confirm which debug-types are active.
 
