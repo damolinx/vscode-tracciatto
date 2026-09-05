@@ -51,6 +51,9 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     tcr('tracciatto.debugFile', (textEditor: vscode.TextEditor) =>
       debugEditor(context, textEditor),
     ),
+    tcr('tracciatto.debugFileInTerminal', (textEditor: vscode.TextEditor) =>
+      debugEditor(context, textEditor, { useTerminal: true }),
+    ),
     tcr('tracciatto.runFile', (textEditor: vscode.TextEditor) => runEditor(context, textEditor)),
   );
 

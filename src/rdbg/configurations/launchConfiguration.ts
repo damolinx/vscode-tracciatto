@@ -15,6 +15,7 @@ export type LaunchConfiguration = (SocketDebugConfiguration | TcpDebugConfigurat
 export function createLaunchConfiguration(
   uri: vscode.Uri,
   type: DebugType = 'tracciatto',
+  overrides: Partial<LaunchConfiguration> = {},
 ): LaunchConfiguration {
   const config = {
     type,
@@ -25,8 +26,8 @@ export function createLaunchConfiguration(
     host: LOCALHOST,
     port: 0,
     skipPaths: [],
-    useTerminal: false,
   } as LaunchConfiguration;
 
+  Object.assign(config, overrides);
   return config;
 }

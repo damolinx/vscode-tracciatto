@@ -64,6 +64,12 @@
         "enablement": "editorLangId == ruby"
       },
       {
+        "command": "tracciatto.debugFileInTerminal",
+        "title": "Debug Active Editor in Terminal",
+        "category": "Tracciatto",
+        "enablement": "editorLangId == ruby"
+      },
+      {
         "command": "tracciatto.editException",
         "title": "Edit Exception Filter",
         "category": "Tracciatto",
