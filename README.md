@@ -3,12 +3,12 @@
 This extension provides Ruby debugging based on the [**debug**](https://github.com/ruby/debug) library. It supports both the official [`rdbg`](#rdbg-vscoderdbg) debug‑type and a custom [`tracciatto`](#tracciatto-1) debug-type while adding several workflow and usability improvements.
 
 - Support for **multi-root** workspaces
-- Multiple **concurrent Ruby debug sessions**  
+- Multiple **concurrent** Ruby debug sessions 
 - [**Exception Filters**](#exception-filters) view for managing `catch` breakpoints through the UI  
 - Flexible [**skip‑path**](#skip-path-patterns) management via launch configuration, user settings, and a workspace file  
 - [Customizable](#debug-protocol-overrides) **debug** library behavior:
 
-  - Alter the maximum inspected‑string length from the [default 180 characters](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779)
+  - Alter the **maximum inspected‑string length** from the [default 180 characters](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L779)
   - Activate **Set Value** support for variables in the **Watch** and **Variables** views ([ref](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L172))
 
 <p align=center>
