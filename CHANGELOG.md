@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+- Remove **Run Active Editor**.
+- Remove deprecated setttings: `tracciatto.debug.preferBundler`, `tracciatto.debug.runtimeExecutable`, `tracciatto.debug.skipPaths` and `tracciatto.debug.skipPathsFileName`.
+- Remove `extensionPack` annotation from extension.
+
 ## 0.3.10
 - Add `useTerminal` configuration option to `tracciatto` and `rdbg` debug types.
   - Enables debugging programs that require terminal input (`gets`, `readline`, etc.).

@@ -5,7 +5,6 @@ import { attachMultiple } from './commands/attachMultiple';
 import { debugEditor } from './commands/debugFile';
 import { editException } from './commands/editException';
 import { removeAllExceptions, removeException } from './commands/removeException';
-import { runEditor } from './commands/runFile';
 import { setMaxInspectedValueLength } from './commands/setMaxInspectedValueLength';
 import { toggleException } from './commands/toggleException';
 import {
@@ -53,8 +52,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     ),
     tcr('tracciatto.debugFileInTerminal', (textEditor: vscode.TextEditor) =>
       debugEditor(context, textEditor, { useTerminal: true }),
-    ),
-    tcr('tracciatto.runFile', (textEditor: vscode.TextEditor) => runEditor(context, textEditor)),
+    )
   );
 
   registerTracciattoDebugger(context);

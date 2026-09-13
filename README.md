@@ -333,7 +333,6 @@ The following commands are intended for quick verification of standalone scripts
 | **Attach to Multiple…** | Attach to a comma-separated list of `[host:]port` endpoints or socket paths, e.g. "1234, /tmp/socket, localhost:5678" For a single target, prefer **Attach to…**. This command otherwise follows the same execution behavior as **Attach to…**. |
 | **Debug Active Editor** | Debugs the active Ruby editor. |
 | **Debug Active Editor in Terminal** | Debugs the active Ruby editor inside a terminal. Useful for programs that require terminal input. |
-| **Run Active Editor** | Executes the active Ruby file. |
 | **Set Maximum Inspected Value Length** | Sets the maximum length of inspected values for the **current debug session only**. This is useful when you temporarily need more (or less) detail in variable previews. To configure this permanently across all sessions, use the [`tracciatto.patchMaxInspectedValueLength` setting](#debug-protocol-overrides). |
 
 [↑ Back to top](#table-of-contents)

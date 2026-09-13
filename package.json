@@ -11,6 +11,7 @@
     "type": "git",
     "url": "https://github.com/damolinx/vscode-tracciatto"
   },
+  "homepage": "https://github.com/damolinx/vscode-tracciatto",
   "bugs": {
     "url": "https://github.com/damolinx/vscode-tracciatto/issues"
   },
@@ -21,17 +22,13 @@
     "workspace"
   ],
   "categories": [
-    "Debuggers",
-    "Programming Languages"
+    "Debuggers"
   ],
   "keywords": [
     "debug",
     "debugger",
     "rdbg",
     "ruby"
-  ],
-  "extensionPack": [
-    "damolinx.formatto"
   ],
   "activationEvents": [
     "onDebugResolve:rdbg",
@@ -88,12 +85,6 @@
         "icon": "$(remove-close)"
       },
       {
-        "command": "tracciatto.runFile",
-        "title": "Run Active Editor",
-        "category": "Tracciatto",
-        "enablement": "editorLangId == ruby"
-      },
-      {
         "command": "tracciatto.setMaxInspectedValueLength",
         "title": "Set Maximum Inspected Value Length",
         "category": "Tracciatto",
@@ -104,6 +95,10 @@
       "commandPalette": [
         {
           "command": "tracciatto.editException",
+          "when": "false"
+        },
+        {
+          "command": "tracciatto.removeAllException",
           "when": "false"
         },
         {
@@ -144,29 +139,6 @@
     "configuration": [
       {
         "properties": {
-          "tracciatto.debug.preferBundler": {
-            "type": "boolean",
-            "deprecationMessage": "Renamed to `tracciatto.preferBundler`.",
-            "markdownDescription": "Deprecated. Use `tracciatto.preferBundler` instead."
-          },
-          "tracciatto.debug.runtimeExecutable": {
-            "type": "string",
-            "deprecationMessage": "Renamed to `tracciatto.runtimeExecutable`.",
-            "markdownDescription": "Deprecated. Use `tracciatto.runtimeExecutable` instead."
-          },
-          "tracciatto.debug.skipPaths": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "deprecationMessage": "Renamed to `tracciatto.skipPaths`.",
-            "markdownDescription": "Deprecated. Use `tracciatto.skipPaths` instead."
-          },
-          "tracciatto.debug.skipPathsFileName": {
-            "type": "string",
-            "deprecationMessage": "Renamed to `tracciatto.skipPathsFileName`.",
-            "markdownDescription": "Deprecated. Use `tracciatto.skipPathsFileName` instead."
-          },
           "tracciatto.forceEnableRdbgDebugType": {
             "type": "boolean",
             "default": false,
