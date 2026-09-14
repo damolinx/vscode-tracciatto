@@ -9,7 +9,9 @@ export async function attachMultiple(
   const targetPortOrSockets =
     portOrSockets.length > 0 ? portOrSockets : await showPortOrSocketInputBox(context);
   if (!targetPortOrSockets?.length) {
-    vscode.window.showInformationMessage('No ports or sockets provided for attachment.');
+    if (targetPortOrSockets) {
+      vscode.window.showInformationMessage('No ports or sockets provided for attachment.');
+    }
     return;
   }
 
