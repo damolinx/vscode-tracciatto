@@ -384,16 +384,36 @@
         },
         "configurationSnippets": [
           {
-            "label": "Tracciatto: Attach",
-            "description": "Attach to a running rdbg instance",
+            "label": "Tracciatto: Attach to port",
+            "description": "Attach to an rdbg server listening on a TCP port",
             "body": {
               "type": "tracciatto",
               "request": "attach",
-              "name": "Attach to rdbg",
-              "port": "[host:]<port> if using port, otherwise remove and use socket",
-              "socket": "<socket path> if using socket connection, otherwise remove and use port",
+              "name": "Attach to port",
+              "port": "[host:]<port>",
               "localfs": true,
               "localfsMap": "<remote_dir:local_dir> mapping, remove this and localfs if not needed"
+            }
+          },
+          {
+            "label": "Tracciatto: Attach to socket",
+            "description": "Attach to an rdbg server using a socket path",
+            "body": {
+              "type": "tracciatto",
+              "request": "attach",
+              "name": "Attach to socket",
+              "socket": "<socket path>",
+              "localfs": true,
+              "localfsMap": "<remote_dir:local_dir> mapping, remove this and localfs if not needed"
+            }
+          },
+          {
+            "label": "Tracciatto: Attach (vscode-rdbg compatible)",
+            "description": "Attach to a Ruby process using vscode-rdbg's rdbg debug type",
+            "body": {
+              "type": "rdbg",
+              "name": "Attach",
+              "request": "attach"
             }
           },
           {
@@ -407,14 +427,24 @@
             }
           },
           {
-            "label": "Tracciatto: Debug file (terminal)",
-            "description": "Debug a Ruby file using a terminal",
+            "label": "Tracciatto: Debug file in terminal",
+            "description": "Debug a Ruby file using a terminal. Use when your program requires terminal interaction or stdin input.",
             "body": {
               "type": "tracciatto",
               "request": "launch",
               "name": "Debug file (terminal)",
               "program": "${workspaceFolder}/path/to/file.rb",
               "useTerminal": true
+            }
+          },
+          {
+            "label": "Tracciatto: Debug file (vscode-rdbg compatible)",
+            "description": "Debug a Ruby file using vscode-rdbg's rdbg debug type",
+            "body": {
+              "type": "rdbg",
+              "name": "Debug current file",
+              "request": "launch",
+              "script": "${file}"
             }
           }
         ],
@@ -429,8 +459,8 @@
             "type": "tracciatto",
             "name": "Attach to rdbg",
             "request": "attach",
-            "port": "[host:]<port> if using port, otherwise remove and use socket",
-            "socket": "<socket path> if using socket connection, otherwise remove and use port"
+            "port": "[host:]<port> (if using a port, otherwise remove and use socket)",
+            "socket": "<socket path> (if using a socket, otherwise remove and use port)"
           }
         ]
       },
