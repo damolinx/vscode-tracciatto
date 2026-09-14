@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { spawn } from 'child_process';
+import { spawn, SpawnOptionsWithStdioTuple, StdioNull, StdioPipe } from 'child_process';
 import { lstatSync } from 'fs';
 import { isAbsolute } from 'path';
 import { ExtensionContext } from '../extensionContext';
@@ -7,44 +7,52 @@ import {
   createAttachConfiguration,
   parseHostPort,
 } from '../rdbg/configurations/attachConfiguration';
+import { shouldRunWithBundler } from '../utils/bundler';
 import { NaturalComparer } from '../utils/comparer';
 
+interface SocketQuickPickItem extends vscode.QuickPickItem {
+  error?: boolean;
+  userInput?: boolean;
+}
+
 export async function attach(context: ExtensionContext, portOrSocket?: string): Promise<boolean> {
-  const targetPortOrSocket = portOrSocket ?? (await showPortOrSocketInputBox(context));
+  const folders = vscode.workspace.workspaceFolders;
+  const folder = folders?.length === 1 ? folders[0] : undefined;
+
+  const targetPortOrSocket = portOrSocket ?? (await showPortOrSocketInputBox(context, folder));
   if (!targetPortOrSocket) {
     return false;
   }
 
-  const folders = vscode.workspace.workspaceFolders;
-  const folder = folders?.length === 1 ? folders[0] : undefined;
   const config = createAttachConfiguration(targetPortOrSocket);
   return vscode.debug.startDebugging(folder, config);
 }
 
 async function showPortOrSocketInputBox(
-  { extensionContext, configuration }: ExtensionContext,
+  context: ExtensionContext,
+  folder?: vscode.WorkspaceFolder,
   mruKey = 'attach.mruPortOrSocket',
 ): Promise<string | undefined> {
+  const workspaceState = context.extensionContext.workspaceState;
   return new Promise<string | undefined>((resolve) => {
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<SocketQuickPickItem>();
     quickPick.ignoreFocusOut = true;
     quickPick.matchOnDescription = false;
     quickPick.matchOnDetail = false;
     quickPick.placeholder = 'Type a [host:]port or a socket path';
 
-    let socketItems: vscode.QuickPickItem[] = [];
+    let result: string | undefined;
     quickPick.onDidAccept(() => {
       const selectedItem = quickPick.selectedItems[0];
-      if (selectedItem && !selectedItem.detail) {
-        extensionContext.workspaceState.update(mruKey, selectedItem.label);
+      if (selectedItem && !selectedItem.error) {
+        result = selectedItem.label;
+        workspaceState.update(mruKey, result);
         quickPick.hide();
-        resolve(selectedItem.label);
       }
     });
-
+    quickPick.onDidHide(() => resolve(result));
     quickPick.onDidChangeValue((value) => {
-      const hasUserInputItem = quickPick.items.length && 'userInput' in quickPick.items[0];
-
+      const hasUserInputItem = quickPick.items[0]?.userInput === true;
       const normalizedValue = value.trim();
       if (!normalizedValue) {
         if (hasUserInputItem) {
@@ -70,55 +78,99 @@ async function showPortOrSocketInputBox(
           label: normalizedValue,
           description: 'current input',
           detail: validationMessage ? `$(error) ${validationMessage}` : undefined,
+          error: !!validationMessage,
           userInput: true,
-        } as vscode.QuickPickItem & { userInput: true },
+        },
         ...baseItems,
       ];
     });
 
     (async () => {
       quickPick.busy = true;
-      const sockets = await findRdbgSockets(configuration.getSocketSearchRoot());
-      if (sockets.length) {
-        socketItems = sockets.map((sock) => ({
-          alwaysShow: true,
-          description: 'autodetected',
-          label: sock,
-        }));
-        quickPick.placeholder =
-          'Type a [host:]port or a socket path, or pick one from the dropdown';
-        quickPick.items = [...quickPick.items, ...socketItems];
+      try {
+        const sockets = await findRdbgSockets(context, folder);
+        if (sockets.length) {
+          quickPick.placeholder =
+            'Type a [host:]port or a socket path, or pick one from the dropdown';
+          quickPick.items = [
+            ...quickPick.items,
+            ...sockets.map((sock) => ({
+              alwaysShow: true,
+              description: 'autodetected',
+              label: sock,
+            })),
+          ];
+        }
+      } catch {
+        quickPick.items = [
+          ...quickPick.items,
+          {
+            alwaysShow: true,
+            label:
+              '$(error) An error occurred while searching for sockets. Enter port or socket path manually',
+            error: true,
+          },
+        ];
+        context.log.show(true);
+      } finally {
+        quickPick.busy = false;
       }
-      quickPick.busy = false;
     })();
 
-    quickPick.value = extensionContext.workspaceState.get(mruKey, '');
+    quickPick.value = workspaceState.get(mruKey, '');
     quickPick.show();
   });
 }
 
-function findRdbgSockets(cwd?: string): Promise<string[]> {
-  return new Promise((resolve) => {
-    const child = spawn('rdbg', ['--util=list-socks'], {
-      cwd,
+async function findRdbgSockets(
+  context: ExtensionContext,
+  folder?: vscode.WorkspaceFolder,
+): Promise<string[]> {
+  const useBundler = folder && (await shouldRunWithBundler(context, folder));
+  return new Promise((resolve, reject) => {
+    const options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioPipe> = {
+      cwd: context.configuration.getSocketSearchRoot(folder, folder?.uri.fsPath),
       shell: false,
       stdio: ['ignore', 'pipe', 'pipe'],
-    });
+    };
+
+    const child = useBundler
+      ? spawn('bundle', ['exec', 'rdbg', '--util=list-socks'], options)
+      : spawn('rdbg', ['--util=list-socks'], options);
+    context.log.debug(
+      `Searching for sockets using '${child.spawnargs.join(' ')}'. Cwd: ${options.cwd ?? process.cwd()}`,
+    );
 
     let output = '';
+    let errorOutput = '';
+
+    child.stderr.on('data', (chunk) => {
+      errorOutput += chunk.toString();
+    });
     child.stdout.on('data', (chunk) => {
       output += chunk.toString();
     });
 
-    child.on('close', () => {
+    child.on('close', (code, signal) => {
+      if (code || signal) {
+        const error = errorOutput.replace(/\n\s+from .+/g, '').trim();
+        context.log.error(
+          `Socket search failed (${code ? `exitCode: ${code}` : signal ? `signal: ${signal}` : ''}). Error: ${error}`,
+        );
+        reject(new Error('Socket search failed'));
+        return;
+      }
       const sockets = output
         .split('\n')
         .map((line) => line.trim())
         .filter((line) => line.length > 0);
-
       resolve(sockets.sort(NaturalComparer.compare));
     });
-    child.on('error', () => resolve([]));
+
+    child.on('error', (error) => {
+      context.log.error(`Socket search failed. Error: ${error}`);
+      reject(new Error('Socket search failed'));
+    });
   });
 }
 

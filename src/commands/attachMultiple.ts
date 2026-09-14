@@ -28,6 +28,7 @@ async function showPortOrSocketInputBox(
     input.prompt = 'Type a comma-separated list of [host:]port or socket paths';
     input.placeholder = 'e.g. 1234, /tmp/socket, localhost:5678';
 
+    let result: string[] | undefined;
     input.onDidAccept(() => {
       if (input.validationMessage) {
         return;
@@ -37,12 +38,13 @@ async function showPortOrSocketInputBox(
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      if (portOrSockets?.length) {
+      if (portOrSockets.length) {
+        result = portOrSockets;
         extensionContext.workspaceState.update(mruKey, portOrSockets.join(', '));
         input.hide();
-        resolve(portOrSockets);
       }
     });
+    input.onDidHide(() => resolve(result));
 
     input.onDidChangeValue((value) => {
       input.validationMessage = validateListOfPortsOrSockets(value);

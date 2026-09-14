@@ -2,9 +2,10 @@
 
 ## 0.4.0
 - `tracciatto.patchMaxInspectedValueLength` is now optional. When unset, `rdbg`'s default inspection length is used.
+-  **Attach to…** now honors `preferBundler` setting when running `rdbg`.
 - Update configuration snippets.
 - Remove **Run Active Editor** command.
-- Remove deprecated setttings: `tracciatto.debug.preferBundler`, `tracciatto.debug.runtimeExecutable`, `tracciatto.debug.skipPaths` and `tracciatto.debug.skipPathsFileName`.
+- Remove deprecated settings: `tracciatto.debug.preferBundler`, `tracciatto.debug.runtimeExecutable`, `tracciatto.debug.skipPaths`, and `tracciatto.debug.skipPathsFileName`.
 - Remove `extensionPack` entry from `package.json`.
 
 ## 0.3.10

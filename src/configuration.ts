@@ -35,10 +35,14 @@ export class Configuration {
    * @param section — Configuration name, supports dotted names.
    * @param defaultValue — Value returned if the setting is not defined.
    */
-  public resolveValue<T>(section: string): T | undefined;
-  public resolveValue<T>(section: string, defaultValue: T): T;
-  public resolveValue<T>(section: string, defaultValue?: T): T | undefined {
-    return this.getConfiguration().get(section, defaultValue);
+  public resolveValue<T>(section: string, scope?: vscode.ConfigurationScope): T | undefined;
+  public resolveValue<T>(section: string, defaultValue: T, scope?: vscode.ConfigurationScope): T;
+  public resolveValue<T>(
+    section: string,
+    defaultValue?: T,
+    scope?: vscode.ConfigurationScope,
+  ): T | undefined {
+    return this.getConfiguration(scope).get(section, defaultValue);
   }
 
   /**
@@ -54,9 +58,12 @@ export class Configuration {
   /**
    * Working directory used with `rdbg --util=list-socks`.
    */
-  public getSocketSearchRoot(): string | undefined {
-    const root = this.resolveValue<string | undefined>('socketSearchRoot');
-    return root && resolveTokenizedPath(root);
+  public getSocketSearchRoot(
+    scope: vscode.ConfigurationScope | undefined,
+    defaultValue?: string,
+  ): string | undefined {
+    const root = this.resolveValue('socketSearchRoot', defaultValue, scope);
+    return root ? resolveTokenizedPath(root) : defaultValue;
   }
 
   /**
@@ -88,13 +95,7 @@ export class Configuration {
     scope: vscode.ConfigurationScope | undefined,
     defaultValue = true,
   ): boolean {
-    const value = this.getValue<boolean>(scope, 'preferBundler');
-
-    // Fallback to deprecated key
-    if (value === undefined) {
-      return this.getValue<boolean>(scope, 'debug.preferBundler', defaultValue) ?? defaultValue;
-    }
-
+    const value = this.getValue<boolean>(scope, 'preferBundler', defaultValue);
     return value;
   }
 
@@ -102,7 +103,7 @@ export class Configuration {
    * Delay (in milliseconds) before attempting to reattach.
    */
   public getReattachDelay(scope?: vscode.ConfigurationScope, defaultValue = 0): number {
-    const value = this.getValue<number>(scope, 'reattachDelay', defaultValue) ?? defaultValue;
+    const value = this.getValue<number>(scope, 'reattachDelay', defaultValue);
     return value >= 0 ? value : defaultValue;
   }
 
@@ -110,13 +111,7 @@ export class Configuration {
    * Get Ruby executable name/path.
    */
   public getRuntimeExecutable(scope?: vscode.ConfigurationScope, defaultValue = 'ruby'): string {
-    const value = this.getValue<string>(scope, 'runtimeExecutable');
-
-    // Fallback to deprecated key
-    if (value === undefined) {
-      return this.getValue<string>(scope, 'debug.runtimeExecutable', defaultValue) ?? defaultValue;
-    }
-
+    const value = this.getValue<string>(scope, 'runtimeExecutable', defaultValue);
     return value;
   }
 
@@ -124,13 +119,7 @@ export class Configuration {
    * Get skip paths for rdbg stepping.
    */
   public getSkipPaths(scope: vscode.ConfigurationScope | undefined): string[] {
-    const value = this.getValue<string[]>(scope, 'skipPaths');
-
-    // Fallback to deprecated key
-    if (value === undefined) {
-      return this.getValue<string[]>(scope, 'debug.skipPaths', []) ?? [];
-    }
-
+    const value = this.getValue<string[]>(scope, 'skipPaths', []);
     return value ?? [];
   }
 
@@ -141,13 +130,7 @@ export class Configuration {
     scope: vscode.ConfigurationScope | undefined,
     defaultValue = DEFAULT_SKIP_PATHS_FILENAME,
   ): string {
-    const value = this.getValue<string>(scope, 'skipPathsFileName');
-
-    // Fallback to deprecated key
-    if (value === undefined) {
-      return this.getValue<string>(scope, 'debug.skipPathsFileName', defaultValue) ?? defaultValue;
-    }
-
-    return value ?? defaultValue;
+    const value = this.getValue(scope, 'skipPathsFileName', defaultValue);
+    return value;
   }
 }
