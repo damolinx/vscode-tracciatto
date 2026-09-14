@@ -90,15 +90,18 @@ async function showPortOrSocketInputBox(
       try {
         const sockets = await findRdbgSockets(context, folder);
         if (sockets.length) {
+          const existingLabels = new Set(quickPick.items.map((item) => item.label));
           quickPick.placeholder =
             'Type a [host:]port or a socket path, or pick one from the dropdown';
           quickPick.items = [
             ...quickPick.items,
-            ...sockets.map((sock) => ({
-              alwaysShow: true,
-              description: 'autodetected',
-              label: sock,
-            })),
+            ...sockets
+              .filter((sock) => !existingLabels.has(sock))
+              .map((sock) => ({
+                alwaysShow: true,
+                description: 'autodetected',
+                label: sock,
+              })),
           ];
         }
       } catch {
