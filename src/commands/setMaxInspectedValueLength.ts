@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { DEFAULT_MAX_INSPECTED_LENGTH } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { DebugSession } from '../rdbg/debugSession';
 
@@ -11,35 +10,46 @@ export async function setMaxInspectedValueLength(context: ExtensionContext): Pro
     return;
   }
 
-  const current =
-    mruValue ??
-    context.configuration.getPatchMaxInspectedValueLength(
-      session.workspaceFolder,
-      DEFAULT_MAX_INSPECTED_LENGTH,
-    );
-
   const input = await vscode.window.showInputBox({
     placeHolder: 'Enter a positive integer (minimum 1)',
     prompt:
-      'Maximum length of the string representation shown for inspected values in this debug session.',
-    value: String(current),
+      'Maximum length of text for inspected values in this debug session, leave empty to reset to default',
+    value: getMaxInspectedValueLength(context, session.workspaceFolder)?.toString(),
     validateInput: (value) => {
       const normalized = value.trim();
-      if (!/^\d+$/.test(normalized) || Number(normalized) < 1) {
-        return 'Value must be a positive integer greater than 1.';
+      if (normalized && (!/^\d+$/.test(normalized) || Number(normalized) < 1)) {
+        return 'Value must be a positive integer, or empty.';
       }
       return;
     },
   });
-  if (!input) {
+
+  if (input === undefined) {
     return;
   }
 
-  const parsedInput = Number.parseInt(input, 10);
-  mruValue = parsedInput;
+  mruValue = input.trim() ? Number.parseInt(input.trim(), 10) : undefined;
 
   const wrapper = new DebugSession(context, session);
-  await wrapper.setMaxInspectedValueLength(parsedInput);
+  await wrapper.setMaxInspectedValueLength(mruValue);
+  vscode.window.setStatusBarMessage(
+    `Maximum inspected value length set to ${mruValue ?? 'default'}`,
+    3000,
+  );
+}
 
-  vscode.window.setStatusBarMessage(`Maximum inspected value length set to ${parsedInput}`, 3000);
+function getMaxInspectedValueLength(
+  context: ExtensionContext,
+  scope?: vscode.ConfigurationScope,
+): number | undefined {
+  if (mruValue !== undefined && mruValue > 0) {
+    return mruValue;
+  }
+
+  const configuredValue = context.configuration.getPatchMaxInspectedValueLength(scope);
+  if (configuredValue !== undefined && configuredValue > 0) {
+    return configuredValue;
+  }
+
+  return;
 }

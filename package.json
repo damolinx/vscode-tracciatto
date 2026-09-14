@@ -189,8 +189,11 @@
         "title": "Debug Protocol Overrides",
         "properties": {
           "tracciatto.patchMaxInspectedValueLength": {
-            "type": "number",
-            "default": 180,
+            "type": [
+              "number",
+              "null"
+            ],
+            "default": null,
             "markdownDescription": "Sets the maximum length of the string representation shown for inspected values. Changes take effect on the next step or evaluation of your debug session. Larger values can be set by editing the settings JSON directly, but be aware of potential performance issues.",
             "maximum": 100000,
             "minimum": 1

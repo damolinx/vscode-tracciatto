@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import type { DebugProtocol } from 'vscode-debugprotocol';
-import { DEFAULT_MAX_INSPECTED_LENGTH } from '../constants';
 import { ExtensionContext } from '../extensionContext';
 import { ExceptionSessionController } from './controllers/exceptionSessionController';
 import { SkipPathsSessionController } from './controllers/skipPathsSessionController';
@@ -57,19 +56,17 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
       (this.exceptionController = new ExceptionSessionController(this.context, this.debugSession)),
       (this.skipPathsController = new SkipPathsSessionController(this.context, this.debugSession)),
       vscode.workspace.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration('tracciatto')) {
-          if (e.affectsConfiguration('tracciatto.logDapMessages', workspaceFolder)) {
-            this.logDapMessages = configuration.getLogDapMessages(workspaceFolder);
-          } else if (e.affectsConfiguration('tracciatto.patchMaxInspectedValueLength')) {
-            this.maxInspectedValueLength =
-              configuration.getPatchMaxInspectedValueLength(workspaceFolder);
-            this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
-          } else if (
-            e.affectsConfiguration('tracciatto.patchSimpleTypeExpansion', workspaceFolder)
-          ) {
-            this.patchSimpleTypeExpansion =
-              configuration.getPatchSimpleTypeExpansion(workspaceFolder);
-          }
+        if (e.affectsConfiguration('tracciatto.logDapMessages', workspaceFolder)) {
+          this.logDapMessages = configuration.getLogDapMessages(workspaceFolder);
+        } else if (
+          e.affectsConfiguration('tracciatto.patchMaxInspectedValueLength', workspaceFolder)
+        ) {
+          this.maxInspectedValueLength =
+            configuration.getPatchMaxInspectedValueLength(workspaceFolder);
+          this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
+        } else if (e.affectsConfiguration('tracciatto.patchSimpleTypeExpansion', workspaceFolder)) {
+          this.patchSimpleTypeExpansion =
+            configuration.getPatchSimpleTypeExpansion(workspaceFolder);
         }
       }),
     ];
@@ -111,10 +108,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
           this.exceptionController.initialize(),
           this.skipPathsController.initialize(),
         ]);
-        if (
-          this.maxInspectedValueLength &&
-          this.maxInspectedValueLength !== DEFAULT_MAX_INSPECTED_LENGTH
-        ) {
+        if (this.maxInspectedValueLength !== undefined) {
           await this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
         }
         break;

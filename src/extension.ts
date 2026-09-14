@@ -52,7 +52,7 @@ export function activate(extensionContext: vscode.ExtensionContext) {
     ),
     tcr('tracciatto.debugFileInTerminal', (textEditor: vscode.TextEditor) =>
       debugEditor(context, textEditor, { useTerminal: true }),
-    )
+    ),
   );
 
   registerTracciattoDebugger(context);

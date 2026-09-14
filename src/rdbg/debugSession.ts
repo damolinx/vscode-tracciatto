@@ -71,18 +71,21 @@ export class DebugSession implements vscode.Disposable {
     }
   }
 
-  public async setMaxInspectedValueLength(length = DEFAULT_MAX_INSPECTED_LENGTH): Promise<void> {
-    if (length <= 0) {
+  public async setMaxInspectedValueLength(length?: number): Promise<void> {
+    if (length !== undefined && length <= 0) {
       this.context.log.warn(
-        `[${this.shortId}] DEBUGGER__::ThreadClient::MAX_LENGTH must be a value number greater than 0`,
+        `[${this.shortId}] DEBUGGER__::ThreadClient::MAX_LENGTH must be an integer greater than 0, received: ${length}`,
       );
       return;
     }
 
+    const targetLength = length ?? DEFAULT_MAX_INSPECTED_LENGTH;
     await this.sendEvaluateRequest(
-      `DEBUGGER__::ThreadClient.send(:remove_const, :MAX_LENGTH) rescue nil; DEBUGGER__::ThreadClient::MAX_LENGTH = ${length}`,
+      `DEBUGGER__::ThreadClient.send(:remove_const, :MAX_LENGTH) rescue nil; DEBUGGER__::ThreadClient::MAX_LENGTH = ${targetLength}`,
     );
-    this.context.log.debug(`[${this.shortId}] DEBUGGER__::ThreadClient::MAX_LENGTH=${length}`);
+    this.context.log.info(
+      `[${this.shortId}] DEBUGGER__::ThreadClient::MAX_LENGTH ${targetLength === DEFAULT_MAX_INSPECTED_LENGTH ? 'reset' : 'set'} to ${targetLength}`,
+    );
   }
 
   public get state(): DebugSessionState {

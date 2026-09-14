@@ -174,7 +174,7 @@ The following settings customize debugger behavior by modifying specific Debug A
 
 | Setting | Description | Active | Default |
 |---------|-------------|--------|---------|
-| `tracciatto.patchMaxInspectedValueLength` | Changes the maximum length of text returned from the debugger for inspected values. `rdbg` [defaults](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L776) this to be 180. | Next step / evaluation | 180 |
+| `tracciatto.patchMaxInspectedValueLength` | Changes the maximum length of text returned from the debugger for inspected values. When unset, `rdbg`'s [default](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L776) is used. | Next step / evaluation | |
 | `tracciatto.patchSimpleTypeExpansion` | Prevents simple types from appearing as expandable in debugger views like **Watches**. | Next step / evaluation |  `true` |
 | `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action.| Next debug session | `false` |
 
