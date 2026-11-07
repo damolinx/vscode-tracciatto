@@ -19,7 +19,7 @@ Key features include:
 ## Table of Contents
 - [Requirements](#requirements)
 - [Quick Start](#quick-start)
-- [Getting Started](#getting-started)
+- [Debugging Workflows](#debugging-workflows)
   - [Launching a debug session](#launching-a-debug-session)
   - [Attaching to a running process](#attaching-to-a-running-process)
 - [Configuration](#configuration)
@@ -65,7 +65,7 @@ Tracciatto automatically prefers `bundle exec` when a `Gemfile` is present (enab
 
 For reusable workflows, create a [launch configuration](#launching-a-debug-session).
 
-## Getting Started
+## Debugging Workflows
 
 ### Launching a debug session
 
@@ -177,7 +177,7 @@ The following settings customize debugger behavior by modifying specific Debug A
 |---------|-------------|--------|---------|
 | `tracciatto.patchMaxInspectedValueLength` | Changes the maximum length of text returned from the debugger for inspected values. When unset, `rdbg`'s [default](https://github.com/ruby/debug/blob/95997c297acd7adc20be81b52d2d1405805671d2/lib/debug/server_dap.rb#L776) is used. | Next step / evaluation | |
 | `tracciatto.patchSimpleTypeExpansion` | Prevents simple types from appearing as expandable in debugger views like **Watches**. | Next step / evaluation |  `true` |
-| `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action.| Next debug session | `false` |
+| `tracciatto.patchSetVariable` | Emulates `setVariable` support so variable values can be edited from debugger views using the **Set Value** action. | Next debug session | `false` |
 
 These changes are protocol‑compliant, but they modify low‑level DAP behavior and can be disabled if they cause issues.
 
@@ -185,11 +185,9 @@ These changes are protocol‑compliant, but they modify low‑level DAP behavior
 Simple types include: `Complex`, `BigDecimal`, `FalseClass`, `Float`, `Integer`, `NilClass`, `Rational`, `Regexp`, `String`, `Symbol`, `Time`, and `TrueClass`.
 
 #### `tracciatto.patchSetVariable`
-The custom support for the **Set Value** action in the **Watch** and **Variables** views is sensitive to context and variable type; some values cannot be assigned. When this occurs, the **Debug Console** may still provide an alternative way to modify state using a Ruby expression.
+Some Ruby values cannot be assigned through **Set Value** due to debugger protocol limitations. If assignment fails, use the **Debug Console** to modify the value manually.
 
-The extension cannot distinguish between an exception being *raised* (e.g. when trying to set a frozen object) and one being *returned* (e.g. when setting a value to a specific exception instance), as the debugging protocol does not provide enough information.
-
-The following error types commonly associated with invalid input are therefore always treated as failures, meaning it is not possible to assign an instance of them using **Set Value**: `ArgumentError`, `FrozenError`, `KeyError`, `NameError`, `NoMethodError`, `RangeError`, `RuntimeError`, `SyntaxError`, `TypeError`, `ZeroDivisionError`.
+It is not possible to differentiate errors being *raised* (e.g. when trying to set a frozen object) and one being *returned* (e.g. when setting a value to a specific exception instance), so the following error types commonly associated with invalid input are always treated as failures (meaning they cannot be assigned using **Set Value**): `ArgumentError`, `FrozenError`, `KeyError`, `NameError`, `NoMethodError`, `RangeError`, `RuntimeError`, `SyntaxError`, `TypeError`, `ZeroDivisionError`.
 
 [↑ Back to top](#table-of-contents)
 
@@ -412,7 +410,7 @@ Tracciatto aligns with this model by allowing skip‑paths to come from multiple
 
 Different users and teams have different needs. You may always want to skip stepping into Rails internals across all projects, while each workspace may define additional project‑specific patterns. Launch configurations can then add temporary overrides without modifying shared files, this is why there are three possible sources for skip‑paths:
 
-### **1. Launch configuration**
+### 1. Launch configuration
 
 Any `launch`‑type configuration may define skip‑paths via the `skipPaths` property.
 
@@ -426,7 +424,7 @@ Any `launch`‑type configuration may define skip‑paths via the `skipPaths` pr
 }
 ```
 
-### **2. Workspace file**
+### 2. Workspace file
 
 A workspace‑level file containing one pattern per line, with lines beginning with `#` being ignored. The filename is controlled by `tracciatto.skipPathsFileName` (default: `.tracciatto-skip-paths`).
 
@@ -461,7 +459,7 @@ vendor/bundle/**
 lib/internal/debug_helpers.rb
 ```
 
-### **3. Setting**
+### 3. Setting
 
 The `tracciatto.skipPaths` setting provides an additional place to define skip‑paths, useful for global or personal preferences.
 
