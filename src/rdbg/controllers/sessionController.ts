@@ -14,8 +14,10 @@ export abstract class SessionController implements vscode.Disposable {
     this.disposables = [];
   }
 
-  dispose(): void {
-    vscode.Disposable.from(...this.disposables).dispose();
+  public dispose(): void {
+    for (const disposable of this.disposables) {
+      disposable.dispose();
+    }
     this.disposables.length = 0;
   }
 

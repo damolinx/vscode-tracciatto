@@ -4,6 +4,19 @@ import { ExtensionContext } from '../../extensionContext';
 import { DebugAdapterTracker } from '../debugAdapterTracker';
 import { isRequestMessage, KnownEvent, KnownResponse } from '../debugProtocolMessage';
 
+const ASSIGNMENT_FAILURE_TYPES = new Set([
+  'ArgumentError',
+  'FrozenError',
+  'KeyError',
+  'NameError',
+  'NoMethodError',
+  'RangeError',
+  'RuntimeError',
+  'SyntaxError',
+  'TypeError',
+  'ZeroDivisionError',
+]);
+
 /**
  * Experimental `setVariable` emulation. This is expected to have issues but it
  * is created to test how far it can go. `setVariable` should be implemented by
@@ -14,7 +27,7 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
   private readonly interceptedMessages: Map<number, { name: string; base?: string }>;
   private readonly variablesReferences: Map<
     number,
-    { name: string; type?: string; variablesReference: number; parentRef?: number }
+    { name: string; type?: string; parentRef?: number }
   >;
   private readonly variablesRequestParents: Map<number, number>;
 
@@ -52,7 +65,6 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
             this.variablesReferences.set(message.body.variablesReference, {
               name: nameForRef,
               type: message.body.type,
-              variablesReference: message.body.variablesReference,
             });
           }
         }
@@ -67,7 +79,7 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
       case 'variables':
         if (message.success) {
           const parentRef = this.variablesRequestParents.get(message.request_seq);
-          if (parentRef) {
+          if (parentRef !== undefined) {
             this.variablesRequestParents.delete(message.request_seq);
           }
 
@@ -76,7 +88,6 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
               name: variable.name,
               parentRef,
               type: variable.type,
-              variablesReference: variable.variablesReference,
             });
           }
         }
@@ -172,7 +183,7 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
     return expression;
 
     function isIndexable(type: string): boolean {
-      return Boolean(type) && ['Array', 'Hash'].includes(type);
+      return type === 'Array' || type === 'Hash';
     }
 
     function rejectPart(name: string): boolean {
@@ -213,32 +224,19 @@ export class SetVariableDebugAdapterTracker extends DebugAdapterTracker {
 
     const { result: value, type } = message.body;
     if (message.success) {
-      switch (type) {
-        case 'ArgumentError':
-        case 'FrozenError':
-        case 'KeyError':
-        case 'NameError':
-        case 'NoMethodError':
-        case 'RangeError':
-        case 'RuntimeError':
-        case 'SyntaxError':
-        case 'TypeError':
-        case 'ZeroDivisionError':
-          // Raised vs assigned errors are indistinguishable here
-          setVarResponse.success = false;
-          setVarResponse.message =
-            value.match(/^.+?:\s+(?:.+:\d+:\s+)?(.+?)(?:>|\n|$)/)?.[1] || value;
-          break;
-
-        default:
-          setVarResponse.body = {
-            indexedVariables: message.body.indexedVariables,
-            namedVariables: message.body.namedVariables,
-            type,
-            value,
-            variablesReference: message.body.variablesReference,
-          };
-          break;
+      if (type && ASSIGNMENT_FAILURE_TYPES.has(type)) {
+        // Raised vs assigned errors are indistinguishable here
+        setVarResponse.success = false;
+        setVarResponse.message =
+          value.match(/^.+?:\s+(?:.+:\d+:\s+)?(.+?)(?:>|\n|$)/)?.[1] || value;
+      } else {
+        setVarResponse.body = {
+          indexedVariables: message.body.indexedVariables,
+          namedVariables: message.body.namedVariables,
+          type,
+          value,
+          variablesReference: message.body.variablesReference,
+        };
       }
     } else {
       setVarResponse.message = value.replace('evaluate', 'set value') ?? "can't set value";

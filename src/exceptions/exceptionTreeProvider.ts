@@ -53,17 +53,19 @@ export class ExceptionTreeProvider implements vscode.TreeDataProvider<TreeNode>,
     this.exceptionManager = exceptionManager;
     this.onDidChangeEmitter = new vscode.EventEmitter();
 
-    const exceptionHandler = () => this.onDidChangeEmitter.fire();
+    const refresh = () => this.onDidChangeEmitter.fire();
     this.disposables = [
       this.onDidChangeEmitter,
-      this.exceptionManager.onExceptionAdded(exceptionHandler),
-      this.exceptionManager.onExceptionRemoved(exceptionHandler),
-      this.exceptionManager.onExceptionChanged(exceptionHandler),
+      this.exceptionManager.onExceptionAdded(refresh),
+      this.exceptionManager.onExceptionRemoved(refresh),
+      this.exceptionManager.onExceptionChanged(refresh),
     ];
   }
 
-  dispose(): void {
-    vscode.Disposable.from(...this.disposables).dispose();
+  public dispose(): void {
+    for (const disposable of this.disposables) {
+      disposable.dispose();
+    }
     this.disposables.length = 0;
   }
 

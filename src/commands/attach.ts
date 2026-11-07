@@ -46,7 +46,7 @@ async function showPortOrSocketInputBox(
       const selectedItem = quickPick.selectedItems[0];
       if (selectedItem && !selectedItem.error) {
         result = selectedItem.label;
-        workspaceState.update(mruKey, result);
+        void workspaceState.update(mruKey, result);
         quickPick.hide();
       }
     });

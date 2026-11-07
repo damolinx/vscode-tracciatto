@@ -25,6 +25,8 @@ export async function addException(
     }
   }
 
-  exceptionManager.addException(name, category);
-  log.debug(`Added exception. Name: '${name}' Category: '${category}'`);
+  const added = exceptionManager.addException(name, category);
+  if (added) {
+    log.debug(`Added exception. Name: '${name}' Category: '${category}'`);
+  }
 }

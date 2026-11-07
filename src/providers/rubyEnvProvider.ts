@@ -7,7 +7,7 @@ type RubyEnvManager = 'asdf' | 'custom' | 'rbenv' | 'rvm' | 'none';
 
 const MANAGER_KEY = 'rubyEnvironmentManager';
 const CUSTOM_CMD_KEY = 'customRubyEnvironmentCommand';
-const CUSTOM_CMD_OUTOUT_FORMAT_KEY = 'customRubyEnvironmentCommandOutputFormat';
+const CUSTOM_CMD_OUTPUT_FORMAT_KEY = 'customRubyEnvironmentCommandOutputFormat';
 
 export class RubyEnvProvider implements vscode.Disposable {
   private readonly cache: Map<
@@ -26,10 +26,6 @@ export class RubyEnvProvider implements vscode.Disposable {
       '**/{.ruby-version,.tool-versions,.rvmrc}',
     );
     const handler = (uri: vscode.Uri) => this.clearCache(uri);
-    watcher.onDidCreate(handler);
-    watcher.onDidChange(handler);
-    watcher.onDidDelete(handler);
-
     this.disposables = [
       vscode.workspace.onDidChangeConfiguration((e) => {
         if (
@@ -40,14 +36,20 @@ export class RubyEnvProvider implements vscode.Disposable {
         }
       }),
       watcher,
+      watcher.onDidCreate(handler),
+      watcher.onDidChange(handler),
+      watcher.onDidDelete(handler),
     ];
   }
 
-  dispose(): void {
-    vscode.Disposable.from(...this.disposables).dispose();
+  public dispose(): void {
+    for (const disposable of this.disposables) {
+      disposable.dispose();
+    }
+    this.disposables.length = 0;
   }
 
-  public clearCache(uri?: vscode.Uri) {
+  public clearCache(uri?: vscode.Uri): void {
     if (uri) {
       const folder = vscode.workspace.getWorkspaceFolder(uri);
       if (folder && this.cache.delete(folder.uri.fsPath)) {
@@ -120,7 +122,7 @@ export class RubyEnvProvider implements vscode.Disposable {
     }
     const format =
       manager === 'custom'
-        ? this.configuration.getValue<OutputFormat>(folder, CUSTOM_CMD_OUTOUT_FORMAT_KEY, 'json')
+        ? this.configuration.getValue<OutputFormat>(folder, CUSTOM_CMD_OUTPUT_FORMAT_KEY, 'json')
         : 'json';
     const env = await this.loadManagerEnv(folder, this.getManagerCommand(manager, folder), format);
     if (!env) {
@@ -132,9 +134,7 @@ export class RubyEnvProvider implements vscode.Disposable {
 
     const entry = { manager, env, envSize: Object.keys(env).length };
     this.cache.set(key, entry);
-    this.log.info(
-      `RubyEnv(${entry.manager}): Using resolved environment. EnvVarCount: ${entry.envSize}`,
-    );
+    this.log.info(`RubyEnv(${entry.manager}): Resolved environment. EnvVarCount: ${entry.envSize}`);
 
     return env;
   }
@@ -147,7 +147,7 @@ export class RubyEnvProvider implements vscode.Disposable {
     const shell = this.resolveShell();
     const cwd = folder.uri.fsPath;
 
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       this.log.info(`Running: ${shell} --login -c "${command.replace(/"/g, '\\"')}"`);
       execFile(
         shell,
@@ -176,7 +176,7 @@ export class RubyEnvProvider implements vscode.Disposable {
             }
           } catch (error) {
             this.log.error(
-              `Failed to parse process manager output as '${outputFormat}' format - verify tracciatto.${CUSTOM_CMD_OUTOUT_FORMAT_KEY}\nError: ${error}\nstdout: ${stdout}\nstderr: ${stderr}`,
+              `Failed to parse process manager output as '${outputFormat}' format - verify tracciatto.${CUSTOM_CMD_OUTPUT_FORMAT_KEY}\nError: ${error}\nstdout: ${stdout}\nstderr: ${stderr}`,
             );
             resolve(undefined);
           }

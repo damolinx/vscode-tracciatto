@@ -63,12 +63,13 @@ function registerRdbgDebugger(context: ExtensionContext): void {
   const vscodeRdbgExt = vscode.extensions.getExtension('KoichiSasada.vscode-rdbg');
   if (vscodeRdbgExt) {
     if (vscodeRdbgExt.isActive) {
-      context.log.warn("'rdbg' debug-type not enabled (vscode-rdbg is active)");
+      // If the vscode-rdbg extension is already active, "forcing" is not an option.
+      context.log.info("'rdbg' debug-type not enabled (vscode-rdbg extension is active)");
       return;
     }
 
     if (!context.configuration.resolveValue('forceEnableRdbgDebugType', false)) {
-      context.log.warn(
+      context.log.info(
         "'rdbg' debug-type not enabled (vscode-rdbg is present; disable extension and use `tracciatto.forceEnableRdbgDebugType`)",
       );
       return;
@@ -80,9 +81,10 @@ function registerRdbgDebugger(context: ExtensionContext): void {
     registerDebugAdapterTrackerFactory(context, 'rdbg');
     registerRdbgConfigurationProvider(context);
     context.log.info("Enabled 'rdbg' debug-type");
-  } catch (error: any) {
+  } catch (error: unknown) {
     context.log.error(
-      `Failed to enable 'rdbg' debug-type; this may occur if another extension registered it first. Error: ${error?.message}`,
+      "Failed to enable 'rdbg' debug-type; this may occur if another extension registered it first",
+      error,
     );
   }
 }

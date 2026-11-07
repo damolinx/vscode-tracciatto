@@ -28,7 +28,8 @@ export async function setMaxInspectedValueLength(context: ExtensionContext): Pro
     return;
   }
 
-  mruValue = input.trim() ? Number.parseInt(input.trim(), 10) : undefined;
+  const normalizedInput = input.trim();
+  mruValue = normalizedInput ? Number.parseInt(normalizedInput, 10) : undefined;
 
   const wrapper = new DebugSession(context, session);
   await wrapper.setMaxInspectedValueLength(mruValue);

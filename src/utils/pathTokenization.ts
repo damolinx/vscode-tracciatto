@@ -29,7 +29,7 @@ function resolveTokens(
   }
 
   if (tokenizedPath.includes(WORKSPACE_TOKEN)) {
-    if (vscode.workspace.workspaceFolders?.length === 0) {
+    if (!vscode.workspace.workspaceFolders?.length) {
       return;
     }
 

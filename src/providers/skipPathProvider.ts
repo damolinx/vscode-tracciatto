@@ -31,7 +31,9 @@ export class SkipPathProvider {
 
     merged = merged.map((s) => s.trim()).filter(Boolean);
     if (folder) {
-      merged = merged.map((s) => resolveTokenizedPath(s, folder)!);
+      merged = merged
+        .map((s) => resolveTokenizedPath(s, folder))
+        .filter((s): s is string => Boolean(s));
     }
 
     return [...new Set(merged)];

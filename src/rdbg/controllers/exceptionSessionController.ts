@@ -5,18 +5,18 @@ export class ExceptionSessionController extends SessionController {
     this.disposables.push(
       this.context.exceptionManager.onExceptionAdded(({ name, enabled }) => {
         if (enabled) {
-          this.addCatchBreakpoints(name);
+          void this.addCatchBreakpoints(name);
         }
       }),
       this.context.exceptionManager.onExceptionChanged(({ name, enabled }) => {
         if (enabled) {
-          this.addCatchBreakpoints(name);
+          void this.addCatchBreakpoints(name);
         } else {
-          this.deleteCatchBreakpoints(name);
+          void this.deleteCatchBreakpoints(name);
         }
       }),
       this.context.exceptionManager.onExceptionRemoved(({ name }) => {
-        this.deleteCatchBreakpoints(name);
+        void this.deleteCatchBreakpoints(name);
       }),
     );
 
@@ -32,7 +32,7 @@ export class ExceptionSessionController extends SessionController {
 
     for (const name of names) {
       await this.session.sendEvaluateRequest(
-        `DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new("${name}")`,
+        `DEBUGGER__::SESSION::add_bp DEBUGGER__::CatchBreakpoint.new(${JSON.stringify(name)})`,
       );
     }
     this.context.log.debug(`[${this.session.shortId}] Added catch breakpoints (${names.length})`);
@@ -45,7 +45,7 @@ export class ExceptionSessionController extends SessionController {
 
     for (const name of names) {
       await this.session.sendEvaluateRequest(
-        `DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, "${name}"])[1]`,
+        `DEBUGGER__::SESSION::delete_bp (DEBUGGER__::SESSION::bp_index [:catch, ${JSON.stringify(name)}])[1]`,
       );
     }
     this.context.log.debug(`[${this.session.shortId}] Deleted catch breakpoints (${names.length})`);

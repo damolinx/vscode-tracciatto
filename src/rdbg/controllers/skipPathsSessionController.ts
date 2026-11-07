@@ -11,11 +11,13 @@ export class SkipPathsSessionController extends SessionController {
       return;
     }
 
+    const jsonSkipPaths = JSON.stringify(skipPaths);
     await this.session.sendEvaluateRequest(
-      `DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) | ${JSON.stringify(skipPaths)}`,
+      `DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) | ${jsonSkipPaths}`,
     );
 
     this.context.log.debug(`[${this.session.shortId}] Added skip-paths (${skipPaths.length})`);
+    this.context.log.trace(`[${this.session.shortId}] Paths: ${jsonSkipPaths}`);
   }
 
   public async removeSkipPaths(skipPaths: string[]): Promise<void> {
@@ -23,10 +25,12 @@ export class SkipPathsSessionController extends SessionController {
       return;
     }
 
+    const jsonSkipPaths = JSON.stringify(skipPaths);
     await this.session.sendEvaluateRequest(
-      `DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) - ${JSON.stringify(skipPaths)}`,
+      `DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) - ${jsonSkipPaths}`,
     );
 
     this.context.log.debug(`[${this.session.shortId}] Removed skip-paths (${skipPaths.length})`);
+    this.context.log.trace(`[${this.session.shortId}] Paths: ${jsonSkipPaths}`);
   }
 }

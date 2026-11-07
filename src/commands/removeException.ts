@@ -1,10 +1,7 @@
 import { ExceptionTreeNode } from '../exceptions/exceptionTreeProvider';
 import { ExtensionContext } from '../extensionContext';
 
-export async function removeAllExceptions({
-  exceptionManager,
-  log,
-}: ExtensionContext): Promise<void> {
+export function removeAllExceptions({ exceptionManager, log }: ExtensionContext): void {
   const count = exceptionManager.removeAllExceptions();
   if (count) {
     log.info(`Removed all exceptions. Count: ${count}`);
@@ -13,11 +10,13 @@ export async function removeAllExceptions({
   }
 }
 
-export async function removeException(
+export function removeException(
   { exceptionManager, log }: ExtensionContext,
   nameOrNode: string | ExceptionTreeNode,
-): Promise<void> {
+): void {
   const name = typeof nameOrNode === 'string' ? nameOrNode : nameOrNode.exception.name;
-  exceptionManager.removeException(name);
-  log.debug(`Removed exception. Name: '${name}'`);
+  const removed = exceptionManager.removeException(name);
+  if (removed) {
+    log.debug(`Removed exception. Name: '${name}'`);
+  }
 }

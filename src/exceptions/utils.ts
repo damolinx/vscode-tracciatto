@@ -17,8 +17,9 @@ export async function showExceptionInputBox(options?: {
     return;
   }
 
-  mruExceptionName = exceptionName;
-  return exceptionName;
+  const normalizedValue = exceptionName.trim();
+  mruExceptionName = normalizedValue;
+  return normalizedValue;
 }
 
 function validateExceptionName(

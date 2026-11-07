@@ -27,13 +27,12 @@ export class DebugAdapterTrackerFactory implements vscode.DebugAdapterTrackerFac
       return;
     }
 
-    if (
-      this.context.configuration.getValue<boolean>(
-        session.workspaceFolder,
-        'patchSetVariable',
-        false,
-      )
-    ) {
+    const patchSetVariable = this.context.configuration.getValue<boolean>(
+      session.workspaceFolder,
+      'patchSetVariable',
+      false,
+    );
+    if (patchSetVariable) {
       return new SetVariableDebugAdapterTracker(this.context, session);
     }
 

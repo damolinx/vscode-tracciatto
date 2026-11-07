@@ -22,7 +22,7 @@ export class DebugSession implements vscode.Disposable {
     this.shortId = this.session.id.slice(0, 8);
   }
 
-  dispose() {
+  public dispose(): void {
     this.state = DebugSessionState.Terminated;
   }
 
@@ -31,9 +31,12 @@ export class DebugSession implements vscode.Disposable {
   }
 
   public get frameId(): number | undefined {
-    return vscode.debug.activeStackItem?.session.id === this.id
-      ? (vscode.debug.activeStackItem as vscode.DebugStackFrame).frameId
-      : undefined;
+    const stackItem = vscode.debug.activeStackItem;
+    if (!(stackItem instanceof vscode.DebugStackFrame)) {
+      return;
+    }
+
+    return stackItem.session.id === this.id ? stackItem.frameId : undefined;
   }
 
   public get id(): string {
@@ -41,9 +44,11 @@ export class DebugSession implements vscode.Disposable {
   }
 
   public get threadId(): number | undefined {
-    return vscode.debug.activeStackItem?.session.id === this.id
-      ? (vscode.debug.activeStackItem as vscode.DebugThread).threadId
-      : undefined;
+    const stackItem = vscode.debug.activeStackItem;
+    if (!(stackItem instanceof vscode.DebugThread)) {
+      return;
+    }
+    return stackItem.session.id === this.id ? stackItem.threadId : undefined;
   }
 
   public async initialize(): Promise<void> {
@@ -58,8 +63,7 @@ export class DebugSession implements vscode.Disposable {
 
   public async sendRequest(command: string, args: any): Promise<void> {
     try {
-      const result = await this.session.customRequest(command, args);
-      return result;
+      await this.session.customRequest(command, args);
     } catch (error: any) {
       const message = `[${this.shortId}] Failed request: '${command}', ${JSON.stringify(args)} - Error:`;
       if (error?.message !== 'Canceled') {

@@ -75,12 +75,14 @@ export abstract class DebugConfigurationProvider implements vscode.DebugConfigur
   ): Promise<string | undefined> | string | undefined;
 
   protected async resolveRuntimeExecutable(folder?: vscode.WorkspaceFolder): Promise<string> {
-    return this.context.configuration.getPreferBundler(folder) &&
+    const useBundler =
+      this.context.configuration.getPreferBundler(folder) &&
       (!folder ||
         (await vscode.workspace.fs.stat(vscode.Uri.joinPath(folder.uri, 'Gemfile')).then(
           ({ type }) => Boolean(type & vscode.FileType.File),
           () => false,
-        )))
+        )));
+    return useBundler
       ? 'bundle exec ruby'
       : this.context.configuration.getRuntimeExecutable(folder);
   }

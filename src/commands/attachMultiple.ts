@@ -42,7 +42,7 @@ async function showPortOrSocketInputBox(
         .filter(Boolean);
       if (portOrSockets.length) {
         result = portOrSockets;
-        extensionContext.workspaceState.update(mruKey, portOrSockets.join(', '));
+        void extensionContext.workspaceState.update(mruKey, portOrSockets.join(', '));
         input.hide();
       }
     });

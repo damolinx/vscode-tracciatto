@@ -63,7 +63,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
         ) {
           this.maxInspectedValueLength =
             configuration.getPatchMaxInspectedValueLength(workspaceFolder);
-          this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
+          void this.debugSession.setMaxInspectedValueLength(this.maxInspectedValueLength);
         } else if (e.affectsConfiguration('tracciatto.patchSimpleTypeExpansion', workspaceFolder)) {
           this.patchSimpleTypeExpansion =
             configuration.getPatchSimpleTypeExpansion(workspaceFolder);
@@ -78,8 +78,10 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
     this.patchSimpleTypeExpansion = configuration.getPatchSimpleTypeExpansion(workspaceFolder);
   }
 
-  dispose(): void {
-    vscode.Disposable.from(...this.disposables).dispose();
+  public dispose(): void {
+    for (const disposable of this.disposables) {
+      disposable.dispose();
+    }
     this.disposables.length = 0;
   }
 
@@ -159,9 +161,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
         break;
 
       case 'initialize':
-        if (message.success) {
-          message.body.supportsStepBack = false;
-        }
+        message.body.supportsStepBack = false;
         break;
 
       case 'variables':
@@ -186,7 +186,7 @@ export class DebugAdapterTracker implements vscode.DebugAdapterTracker, vscode.D
           if (message.arguments?.restart) {
             this.context.setPendingRestart(this.debugSession.id);
           } else {
-            this.context.resetPendingRestart(this.debugSession.id);
+            this.context.clearPendingRestart(this.debugSession.id);
           }
           break;
       }

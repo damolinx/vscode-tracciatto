@@ -49,7 +49,7 @@ export class DebugAdapterDescriptorFactory implements vscode.DebugAdapterDescrip
     sessionId: string,
     config: AttachConfiguration,
   ): Promise<vscode.DebugAdapterDescriptor | undefined> {
-    const pendingRestart = this.context.resetPendingRestart(sessionId);
+    const pendingRestart = this.context.clearPendingRestart(sessionId);
     if (pendingRestart) {
       const delayMS = this.context.configuration.getReattachDelay();
       if (delayMS) {

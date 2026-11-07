@@ -27,8 +27,10 @@ export class ExceptionManager implements vscode.Disposable {
     this.load();
   }
 
-  dispose(): void {
-    vscode.Disposable.from(...this.disposables).dispose();
+  public dispose(): void {
+    for (const disposable of this.disposables) {
+      disposable.dispose();
+    }
     this.disposables.length = 0;
   }
 
@@ -44,10 +46,10 @@ export class ExceptionManager implements vscode.Disposable {
     return this.onExceptionRemovedEmitter.event;
   }
 
-  public addException(name: string, category: ExceptionCategory = 'User'): void {
+  public addException(name: string, category: ExceptionCategory = 'User'): boolean {
     const normalizedName = name.trim();
     if (!normalizedName || this.exceptions.has(normalizedName)) {
-      return;
+      return false;
     }
 
     const exception = {
@@ -60,6 +62,7 @@ export class ExceptionManager implements vscode.Disposable {
     this.exceptions.set(normalizedName, exception);
     this.onExceptionAddedEmitter.fire(exception);
     this.save();
+    return true;
   }
 
   public getAll(): Exception[] {
@@ -99,7 +102,7 @@ export class ExceptionManager implements vscode.Disposable {
     for (const exception of this.exceptions.values()) {
       if (exception.userDefined) {
         this.exceptions.delete(exception.name);
-        this.onExceptionChangedEmitter.fire(exception);
+        this.onExceptionRemovedEmitter.fire(exception);
         count++;
       }
     }
@@ -111,19 +114,22 @@ export class ExceptionManager implements vscode.Disposable {
     return count;
   }
 
-  public removeException(name: string): void {
+  public removeException(name: string): boolean {
     const exception = this.exceptions.get(name);
     if (!exception?.userDefined) {
-      return;
+      return false;
     }
 
     this.exceptions.delete(name);
     this.onExceptionRemovedEmitter.fire(exception);
     this.save();
+    return true;
   }
 
   public renameException(oldName: string, newName: string): boolean {
-    if (oldName === newName) {
+    const normalizedName = newName.trim();
+
+    if (!normalizedName || oldName === normalizedName || this.exceptions.has(normalizedName)) {
       return false;
     }
 
@@ -133,8 +139,11 @@ export class ExceptionManager implements vscode.Disposable {
     }
     this.exceptions.delete(oldName);
 
-    const newException = { ...oldException, name: newName };
-    this.exceptions.set(newName, newException);
+    const newException: Exception = {
+      ...oldException,
+      name: normalizedName,
+    };
+    this.exceptions.set(normalizedName, newException);
 
     this.onExceptionRemovedEmitter.fire(oldException);
     this.onExceptionAddedEmitter.fire(newException);
