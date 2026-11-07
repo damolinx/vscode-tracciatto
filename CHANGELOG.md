@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+- Internal reliability and maintainability improvements.
+
+
 ## 0.4.0
 - `tracciatto.patchMaxInspectedValueLength` is now optional. When unset, `rdbg`'s default inspection length is used.
 -  **Attach to…** now honors `preferBundler` setting when running `rdbg`.
